@@ -1,46 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
+cp .env.example .env
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use `.env.example` as the source of truth.  
+For Vercel, register the same keys in Project Settings -> Environment Variables.
 
-## Learn More
+Required for production:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+DATABASE_URL=
+BLOB_READ_WRITE_TOKEN=
+RESEND_API_KEY=
+EMAIL_ADDRESS=
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional (contact mail behavior):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+CONTACT_TO=
+CONTACT_FROM=
+CONTACT_SEND_CONFIRMATION=true
+CONTACT_CONFIRM_SUBJECT=
+CONTACT_CONFIRM_TEXT=
+CONTACT_CONFIRM_HTML=
+```
 
-## Deploy on Vercel
+Notes:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-
-Env settings:
-
-CONTACT_SEND_CONFIRMATION=true (default true if unset)
-Optional customization:
-CONTACT_CONFIRM_SUBJECT
-CONTACT_CONFIRM_TEXT
-CONTACT_CONFIRM_HTML
+- `NEXTAUTH_URL` must be your production URL on Vercel (not `http://localhost:3000`).
+- `DATABASE_URL` is required to persist blog posts. If unset, blog list/detail returns empty during runtime.
+- `BLOB_READ_WRITE_TOKEN` is required for blog image upload and `/api/blob/*` proxy reads.

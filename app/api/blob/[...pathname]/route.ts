@@ -11,6 +11,14 @@ function isAllowedPath(pathname: string) {
   return ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
+function safeDecodePathSegment(segment: string) {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(_: Request, { params }: Params) {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) {
@@ -21,13 +29,24 @@ export async function GET(_: Request, { params }: Params) {
   }
 
   const pathSegments = (await params).pathname || [];
-  const pathname = pathSegments.map(decodeURIComponent).join("/");
+  const decodedSegments = pathSegments.map(safeDecodePathSegment);
+  if (decodedSegments.some((segment) => segment === null)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const pathname = decodedSegments.join("/");
 
   if (!pathname || !isAllowedPath(pathname)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const blob = await get(pathname, { access: "private", token });
+  let blob: Awaited<ReturnType<typeof get>>;
+  try {
+    blob = await get(pathname, { access: "private", token });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch blob." }, { status: 502 });
+  }
+
   if (!blob || blob.statusCode !== 200) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

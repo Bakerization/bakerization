@@ -15,12 +15,27 @@ function getDatabaseUrl() {
   return url;
 }
 
-const sql = neon(getDatabaseUrl());
+function hasDatabaseUrl() {
+  return Boolean(process.env.DATABASE_URL);
+}
+
+function getSql() {
+  return neon(getDatabaseUrl());
+}
+
 let ensureTablePromise: Promise<void> | null = null;
 
 function toProxyUrl(pathname: string) {
   const encodedPath = pathname.split("/").map(encodeURIComponent).join("/");
   return `/api/blob/${encodedPath}`;
+}
+
+function sanitizeAssetPrefix(prefix?: string) {
+  const cleaned = (prefix || BLOG_ASSET_PREFIX).trim().replace(/^\/+/, "");
+  if (!cleaned.startsWith(BLOG_ASSET_PREFIX) || cleaned.includes("..")) {
+    return BLOG_ASSET_PREFIX;
+  }
+  return cleaned.endsWith("/") ? cleaned : `${cleaned}/`;
 }
 
 function resolveAssetUrl(value: string) {
@@ -36,6 +51,7 @@ function resolveAssetUrl(value: string) {
 
 async function ensureBlogTable() {
   if (!ensureTablePromise) {
+    const sql = getSql();
     ensureTablePromise = (async () => {
       await sql`
         CREATE TABLE IF NOT EXISTS blog_posts (
@@ -113,7 +129,12 @@ function toDateOrNow(value: string | undefined) {
 }
 
 export async function listPosts(includeUnpublished = false) {
+  if (!hasDatabaseUrl()) {
+    return [];
+  }
+
   await ensureBlogTable();
+  const sql = getSql();
 
   const rows = (includeUnpublished
     ? await sql`
@@ -132,7 +153,12 @@ export async function listPosts(includeUnpublished = false) {
 }
 
 export async function getPost(slug: string) {
+  if (!hasDatabaseUrl()) {
+    return null;
+  }
+
   await ensureBlogTable();
+  const sql = getSql();
 
   const rows = (await sql`
     SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, content_html, content_html_en, published, created_at, updated_at
@@ -150,6 +176,7 @@ export async function getPost(slug: string) {
 
 export async function savePost(post: BlogPost) {
   await ensureBlogTable();
+  const sql = getSql();
 
   await sql`
     INSERT INTO blog_posts (
@@ -191,7 +218,8 @@ export async function uploadBlogAsset(file: File, prefix = BLOG_ASSET_PREFIX) {
   const fileExt = file.name.split(".").pop() || "bin";
   const fileBaseName = file.name.replace(/\.[^/.]+$/, "").toLowerCase();
   const sanitizedBase = fileBaseName.replace(/[^a-z0-9_-]+/g, "-");
-  const path = `${prefix}${Date.now()}-${sanitizedBase}.${fileExt}`;
+  const safePrefix = sanitizeAssetPrefix(prefix);
+  const path = `${safePrefix}${Date.now()}-${sanitizedBase}.${fileExt}`;
 
   const uploaded = await put(path, file, {
     access: "private",
