@@ -1,28 +1,53 @@
-export default function Navbar() {
+import Link from "next/link";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { Locale } from "@/lib/i18n";
+
+export default function Navbar({ locale }: { locale: Locale }) {
+  const t = {
+    home: locale === "en" ? "Home" : "トップ",
+    services: locale === "en" ? "Services" : "活動内容",
+    blog: locale === "en" ? "Blog" : "ブログ",
+    about: locale === "en" ? "Our Information" : "団体情報",
+    contact: locale === "en" ? "Contact" : "お問い合わせ",
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950/90 backdrop-blur-sm border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-amber-100">
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <span className="text-white font-bold text-xl tracking-tight">
-          Bakarization
-        </span>
-        <ul className="flex items-center gap-8 text-sm text-gray-400">
+        <Link href="/" className="text-amber-900 font-bold text-xl tracking-tight">
+          Bakerization
+        </Link>
+        <ul className="flex items-center gap-6 text-sm text-amber-900/80">
           <li>
-            <a href="#about" className="hover:text-amber-400 transition-colors">
-              About
-            </a>
+            <Link href="/" className="hover:text-amber-700 transition-colors">
+              {t.home}
+            </Link>
           </li>
           <li>
-            <a href="#services" className="hover:text-amber-400 transition-colors">
-              Services
-            </a>
+            <Link href="/#services" className="hover:text-amber-700 transition-colors">
+              {t.services}
+            </Link>
           </li>
           <li>
-            <a
-              href="#contact"
-              className="px-4 py-2 rounded-lg bg-amber-500 text-gray-950 font-semibold hover:bg-amber-400 transition-colors"
+            <Link href="/blog" className="hover:text-amber-700 transition-colors">
+              {t.blog}
+            </Link>
+          </li>
+          <li>
+            <Link href="/about" className="hover:text-amber-700 transition-colors">
+              {t.about}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/#contact"
+              className="px-4 py-2 rounded-lg bg-amber-200 text-amber-900 font-semibold hover:bg-amber-300 transition-colors"
             >
-              Contact
-            </a>
+              {t.contact}
+            </Link>
+          </li>
+          <li>
+            <LanguageSwitcher locale={locale} />
           </li>
         </ul>
       </nav>

@@ -1,16 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fffcf7;
+  --foreground: #3b3128;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP",
+    sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+.blog-editor:focus {
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+}
+
+.blog-content {
+  color: #3b3128;
+  line-height: 1.9;
+}
+
+.blog-content h2 {
+  margin-top: 2.4rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #2f251d;
+}
+
+.blog-content h3 {
+  margin-top: 1.8rem;
+  margin-bottom: 0.6rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #3b3128;
+}
+
+.blog-content p {
+  margin: 0.95rem 0;
+}
+
+.blog-content a {
+  color: #b45309;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin: 1rem 0 1.2rem 1.4rem;
+}
+
+.blog-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.9rem;
+  margin: 1.1rem 0;
 }

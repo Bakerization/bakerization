@@ -1,17 +1,16 @@
-import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
+import { getServerLocale } from "@/lib/i18n";
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getServerLocale();
+
   return (
     <>
-      <Navbar />
-      <Hero />
-      <About />
-      <Services />
-      <Contact />
+      <Hero locale={locale} />
+      <Services locale={locale} />
+      <Contact locale={locale} />
     </>
   );
 }

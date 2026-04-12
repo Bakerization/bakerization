@@ -1,28 +1,37 @@
-export default function Contact() {
+import ContactForm from "@/components/ContactForm";
+import { Locale } from "@/lib/i18n";
+
+export default function Contact({ locale }: { locale: Locale }) {
+  const t =
+    locale === "en"
+      ? {
+          section: "Contact",
+          heading: "Shall we build the future of bakeries together?",
+          body: "From small local bakeries to growing chains, we propose practical solutions tailored to your operations.",
+        }
+      : {
+          section: "お問い合わせ",
+          heading: "一緒に、パン屋の未来をつくりませんか？",
+          body: "小さなお店から地域に根ざしたベーカリーまで、現場に合わせた形で課題解決をご提案します。まずはお気軽にご相談ください。",
+        };
+
   return (
     <section id="contact" className="py-24 px-6 bg-white">
       <div className="max-w-2xl mx-auto text-center">
-        <p className="text-amber-500 text-sm font-semibold uppercase tracking-widest mb-3">
-          Get in Touch
+        <p className="text-amber-700 text-sm font-semibold tracking-widest mb-3">
+          {t.section}
         </p>
-        <h2 className="text-4xl font-extrabold text-gray-950 mb-6">
-          Ready to transform your bakery?
+        <h2 className="text-4xl font-extrabold text-amber-950 mb-6">
+          {t.heading}
         </h2>
-        <p className="text-gray-600 text-lg mb-10">
-          Whether you run a single artisan shop or a growing chain, we&apos;d love
-          to show you what&apos;s possible. Reach out and let&apos;s start baking the
-          future together.
+        <p className="text-amber-900/80 text-lg mb-10">
+          {t.body}
         </p>
-        <a
-          href="mailto:hello@bakarization.com"
-          className="inline-block px-10 py-4 rounded-xl bg-amber-500 text-gray-950 font-bold text-lg hover:bg-amber-400 transition-colors"
-        >
-          hello@bakarization.com
-        </a>
+        <ContactForm locale={locale} />
       </div>
 
-      <footer className="mt-24 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} Bakarization. All rights reserved.
+      <footer className="mt-24 text-center text-sm text-amber-800/70">
+        © {new Date().getFullYear()} Bakerization. All rights reserved.
       </footer>
     </section>
   );
