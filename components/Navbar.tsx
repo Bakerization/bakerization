@@ -3,13 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Locale } from "@/lib/i18n";
-
-const FONTS = {
-  display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
-};
+import { C, FONTS } from "@/lib/theme";
 
 export default function Navbar({ locale }: { locale: Locale }) {
   const pathname = usePathname();
@@ -18,11 +14,11 @@ export default function Navbar({ locale }: { locale: Locale }) {
   if (pathname === "/") return null;
 
   const t = {
-    home: locale === "en" ? "Home" : "Home",
-    services: locale === "en" ? "Services" : "Services",
-    journal: locale === "en" ? "Journal" : "Journal",
-    about: locale === "en" ? "About" : "About",
-    contact: locale === "en" ? "Contact" : "Contact",
+    home: "Home",
+    services: "Services",
+    journal: "Journal",
+    about: "About",
+    contact: "Contact",
   };
 
   return (
@@ -33,9 +29,8 @@ export default function Navbar({ locale }: { locale: Locale }) {
         left: 0,
         right: 0,
         zIndex: 50,
-        background: "rgba(14,7,0,0.85)",
-        backdropFilter: "blur(8px)",
-        borderBottom: "1px solid #3a2710",
+        background: C.bg,
+        borderBottom: `1px solid ${C.line}`,
       }}
     >
       <nav
@@ -55,7 +50,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
             fontSize: 20,
             fontWeight: 500,
             letterSpacing: 0.3,
-            color: "#f6e7c9",
+            color: C.ink,
             textDecoration: "none",
           }}
         >
@@ -73,14 +68,11 @@ export default function Navbar({ locale }: { locale: Locale }) {
             fontSize: 11,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "#a88a5e",
+            color: C.sub,
           }}
         >
           <li>
-            <Link
-              href="/"
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
+            <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
               {t.home}
             </Link>
           </li>
@@ -110,11 +102,11 @@ export default function Navbar({ locale }: { locale: Locale }) {
           </li>
           <li>
             <Link
-              href="/#contact"
+              href="/contact"
               style={{
                 padding: "8px 14px",
-                background: "#e89a1f",
-                color: "#0e0700",
+                background: C.accent,
+                color: C.bg,
                 fontWeight: 700,
                 textDecoration: "none",
                 letterSpacing: "0.18em",
@@ -125,6 +117,9 @@ export default function Navbar({ locale }: { locale: Locale }) {
           </li>
           <li>
             <LanguageSwitcher locale={locale} />
+          </li>
+          <li style={{ display: "inline-flex", alignItems: "center" }}>
+            <ThemeToggle />
           </li>
         </ul>
       </nav>

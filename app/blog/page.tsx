@@ -3,27 +3,11 @@ import { listPosts } from "@/lib/blog-store";
 import { getLocalizedPost } from "@/lib/blog-localize";
 import { getServerLocale } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { C, FONTS } from "@/lib/theme";
 
 export const metadata = {
   title: "Journal | Bakerization",
   description: "Bakerizationの活動や知見を紹介するジャーナルです。",
-};
-
-const PALETTE = {
-  bg: "#0e0700",
-  paper: "#f6e7c9",
-  card: "#1b0e02",
-  ink: "#f6e7c9",
-  sub: "#a88a5e",
-  line: "#3a2710",
-  accent: "#e89a1f",
-};
-
-const FONTS = {
-  display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
 };
 
 export default async function BlogListPage() {
@@ -34,14 +18,12 @@ export default async function BlogListPage() {
       ? {
           label: "Journal",
           heading: "Latest notes from the field.",
-          admin: "Admin",
           empty: "No published entries yet.",
           dateLocale: "en-US",
         }
       : {
           label: "ジャーナル",
           heading: "現場から、最新の記録。",
-          admin: "管理画面",
           empty: "公開中の記事はまだありません。",
           dateLocale: "ja-JP",
         };
@@ -50,8 +32,8 @@ export default async function BlogListPage() {
     <main
       style={{
         minHeight: "100vh",
-        background: PALETTE.bg,
-        color: PALETTE.ink,
+        background: C.bg,
+        color: C.ink,
         fontFamily: FONTS.body,
         paddingTop: 96,
       }}
@@ -63,8 +45,8 @@ export default async function BlogListPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "end",
-            borderTop: `1px solid ${PALETTE.line}`,
-            borderBottom: `1px solid ${PALETTE.line}`,
+            borderTop: `1px solid ${C.line}`,
+            borderBottom: `1px solid ${C.line}`,
             padding: "16px 0",
             marginBottom: 48,
           }}
@@ -75,7 +57,7 @@ export default async function BlogListPage() {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
             }}
           >
             ▍SECTION IV — {t.label}
@@ -86,7 +68,7 @@ export default async function BlogListPage() {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.sub,
+              color: C.sub,
             }}
           >
             JOURNAL · p. 008
@@ -108,7 +90,7 @@ export default async function BlogListPage() {
               lineHeight: 1.05,
               letterSpacing: -3,
               fontWeight: 700,
-              color: PALETTE.ink,
+              color: C.ink,
               margin: 0,
             }}
           >
@@ -116,31 +98,16 @@ export default async function BlogListPage() {
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
-            <Link
-              href="/admin"
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: PALETTE.sub,
-                border: `1px solid ${PALETTE.line}`,
-                padding: "10px 14px",
-                textDecoration: "none",
-              }}
-            >
-              {t.admin}
-            </Link>
           </div>
         </div>
 
         {posts.length === 0 ? (
           <p
             style={{
-              border: `1.5px solid ${PALETTE.ink}`,
-              background: PALETTE.card,
+              border: `1.5px solid ${C.ink}`,
+              background: C.card,
               padding: 32,
-              color: PALETTE.sub,
+              color: C.sub,
               fontSize: 14,
             }}
           >
@@ -164,8 +131,8 @@ export default async function BlogListPage() {
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   style={{
-                    background: PALETTE.card,
-                    border: `1.5px solid ${PALETTE.ink}`,
+                    background: C.card,
+                    border: `1.5px solid ${C.ink}`,
                     padding: i === 0 ? 32 : 28,
                     minHeight: i === 0 ? 420 : 360,
                     display: "flex",
@@ -183,7 +150,7 @@ export default async function BlogListPage() {
                           aspectRatio: i === 0 ? "16/9" : "4/3",
                           overflow: "hidden",
                           marginBottom: 20,
-                          border: `1px solid ${PALETTE.line}`,
+                          border: `1px solid ${C.line}`,
                         }}
                       >
                         <img
@@ -203,7 +170,7 @@ export default async function BlogListPage() {
                         fontFamily: FONTS.mono,
                         fontSize: 11,
                         letterSpacing: "0.24em",
-                        color: PALETTE.accent,
+                        color: C.accent,
                         textTransform: "uppercase",
                         marginBottom: 14,
                       }}
@@ -214,7 +181,7 @@ export default async function BlogListPage() {
                       style={{
                         fontSize: i === 0 ? 28 : 22,
                         fontWeight: 700,
-                        color: PALETTE.ink,
+                        color: C.ink,
                         lineHeight: 1.35,
                       }}
                     >
@@ -224,7 +191,7 @@ export default async function BlogListPage() {
                       style={{
                         marginTop: 10,
                         fontSize: 13,
-                        color: PALETTE.sub,
+                        color: C.sub,
                         lineHeight: 1.7,
                       }}
                     >
@@ -237,12 +204,12 @@ export default async function BlogListPage() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      borderTop: `1px solid ${PALETTE.line}`,
+                      borderTop: `1px solid ${C.line}`,
                       paddingTop: 14,
                       fontFamily: FONTS.mono,
                       fontSize: 11,
                       letterSpacing: "0.22em",
-                      color: PALETTE.ink,
+                      color: C.ink,
                     }}
                   >
                     <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
@@ -262,7 +229,7 @@ export default async function BlogListPage() {
               fontSize: 12,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
               textDecoration: "none",
             }}
           >

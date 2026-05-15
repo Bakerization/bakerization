@@ -8,26 +8,10 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getServerLocale } from "@/lib/i18n";
 import { getLocalizedPost } from "@/lib/blog-localize";
 import { BlogPost } from "@/lib/blog-types";
+import { C, FONTS } from "@/lib/theme";
 
 type Params = {
   params: Promise<{ slug: string }>;
-};
-
-const PALETTE = {
-  bg: "#0e0700",
-  paper: "#f6e7c9",
-  card: "#1b0e02",
-  ink: "#f6e7c9",
-  sub: "#a88a5e",
-  line: "#3a2710",
-  accent: "#e89a1f",
-};
-
-const FONTS = {
-  display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
 };
 
 function tokenize(text: string) {
@@ -112,8 +96,8 @@ export default async function BlogDetailPage({ params }: Params) {
     <main
       style={{
         minHeight: "100vh",
-        background: PALETTE.bg,
-        color: PALETTE.ink,
+        background: C.bg,
+        color: C.ink,
         fontFamily: FONTS.body,
         paddingTop: 64,
       }}
@@ -130,8 +114,8 @@ export default async function BlogDetailPage({ params }: Params) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderTop: `1px solid ${PALETTE.line}`,
-            borderBottom: `1px solid ${PALETTE.line}`,
+            borderTop: `1px solid ${C.line}`,
+            borderBottom: `1px solid ${C.line}`,
             padding: "16px 0",
             marginBottom: 40,
           }}
@@ -142,7 +126,7 @@ export default async function BlogDetailPage({ params }: Params) {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
             }}
           >
             ▍{t.section}
@@ -168,13 +152,13 @@ export default async function BlogDetailPage({ params }: Params) {
                 fontSize: 12,
                 letterSpacing: "0.24em",
                 textTransform: "uppercase",
-                color: PALETTE.sub,
+                color: C.sub,
                 marginBottom: 18,
               }}
             >
               {new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}
               {!post.published && (
-                <span style={{ marginLeft: 12, color: PALETTE.accent }}>
+                <span style={{ marginLeft: 12, color: C.accent }}>
                   · {t.draft}
                 </span>
               )}
@@ -187,7 +171,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 lineHeight: 1.1,
                 letterSpacing: -2,
                 fontWeight: 700,
-                color: PALETTE.ink,
+                color: C.ink,
               }}
             >
               {localized.title}
@@ -197,7 +181,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 marginTop: 28,
                 width: 80,
                 height: 3,
-                background: PALETTE.accent,
+                background: C.accent,
               }}
             />
             <p
@@ -205,7 +189,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 marginTop: 24,
                 fontSize: 17,
                 lineHeight: 1.95,
-                color: PALETTE.sub,
+                color: C.sub,
                 margin: "24px 0 0",
               }}
             >
@@ -218,7 +202,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 position: "relative",
                 aspectRatio: "4/5",
                 overflow: "hidden",
-                border: `1px solid ${PALETTE.line}`,
+                border: `1px solid ${C.line}`,
               }}
             >
               <img
@@ -236,8 +220,8 @@ export default async function BlogDetailPage({ params }: Params) {
             <div
               style={{
                 aspectRatio: "4/5",
-                background: PALETTE.card,
-                border: `1px solid ${PALETTE.line}`,
+                background: C.card,
+                border: `1px solid ${C.line}`,
               }}
             />
           )}
@@ -259,8 +243,8 @@ export default async function BlogDetailPage({ params }: Params) {
             position: "sticky",
             top: 96,
             alignSelf: "start",
-            background: PALETTE.card,
-            border: `1.5px solid ${PALETTE.line}`,
+            background: C.card,
+            border: `1.5px solid ${C.line}`,
             padding: 24,
           }}
         >
@@ -271,14 +255,14 @@ export default async function BlogDetailPage({ params }: Params) {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
               marginBottom: 14,
             }}
           >
             ▎{t.toc}
           </h2>
           {toc.length === 0 ? (
-            <p style={{ fontSize: 13, color: PALETTE.sub, margin: 0 }}>
+            <p style={{ fontSize: 13, color: C.sub, margin: 0 }}>
               {t.noHeadings}
             </p>
           ) : (
@@ -295,7 +279,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 >
                   <a
                     href={`#${item.id}`}
-                    style={{ color: PALETTE.ink, textDecoration: "none" }}
+                    style={{ color: C.ink, textDecoration: "none" }}
                   >
                     {item.text}
                   </a>
@@ -308,7 +292,7 @@ export default async function BlogDetailPage({ params }: Params) {
             style={{
               marginTop: 28,
               paddingTop: 22,
-              borderTop: `1px solid ${PALETTE.line}`,
+              borderTop: `1px solid ${C.line}`,
             }}
           >
             <h3
@@ -318,14 +302,14 @@ export default async function BlogDetailPage({ params }: Params) {
                 fontSize: 11,
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: PALETTE.accent,
+                color: C.accent,
                 marginBottom: 14,
               }}
             >
               ▎{t.relatedPosts}
             </h3>
             {relatedPosts.length === 0 ? (
-              <p style={{ fontSize: 13, color: PALETTE.sub, margin: 0 }}>
+              <p style={{ fontSize: 13, color: C.sub, margin: 0 }}>
                 {t.noRelated}
               </p>
             ) : (
@@ -340,7 +324,7 @@ export default async function BlogDetailPage({ params }: Params) {
                         display: "flex",
                         gap: 10,
                         padding: 8,
-                        border: `1px solid ${PALETTE.line}`,
+                        border: `1px solid ${C.line}`,
                         textDecoration: "none",
                         color: "inherit",
                       }}
@@ -361,7 +345,7 @@ export default async function BlogDetailPage({ params }: Params) {
                           style={{
                             width: 56,
                             height: 56,
-                            background: PALETTE.bg,
+                            background: C.bg,
                           }}
                         />
                       )}
@@ -370,7 +354,7 @@ export default async function BlogDetailPage({ params }: Params) {
                           margin: 0,
                           fontSize: 12,
                           fontWeight: 700,
-                          color: PALETTE.ink,
+                          color: C.ink,
                           lineHeight: 1.4,
                           display: "-webkit-box",
                           WebkitLineClamp: 3,
@@ -390,7 +374,7 @@ export default async function BlogDetailPage({ params }: Params) {
 
         <div>
           <article
-            className="blog-content-dark"
+            className="blog-content-rich"
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
@@ -406,8 +390,8 @@ export default async function BlogDetailPage({ params }: Params) {
               <Link
                 href={`/blog/${prevPost.slug}`}
                 style={{
-                  background: PALETTE.card,
-                  border: `1.5px solid ${PALETTE.line}`,
+                  background: C.card,
+                  border: `1.5px solid ${C.line}`,
                   padding: 24,
                   textDecoration: "none",
                   color: "inherit",
@@ -422,7 +406,7 @@ export default async function BlogDetailPage({ params }: Params) {
                     fontSize: 11,
                     letterSpacing: "0.24em",
                     textTransform: "uppercase",
-                    color: PALETTE.accent,
+                    color: C.accent,
                   }}
                 >
                   ← {t.previousPost}
@@ -431,7 +415,7 @@ export default async function BlogDetailPage({ params }: Params) {
                   style={{
                     fontSize: 16,
                     fontWeight: 700,
-                    color: PALETTE.ink,
+                    color: C.ink,
                     lineHeight: 1.4,
                   }}
                 >
@@ -446,8 +430,8 @@ export default async function BlogDetailPage({ params }: Params) {
               <Link
                 href={`/blog/${nextPost.slug}`}
                 style={{
-                  background: PALETTE.card,
-                  border: `1.5px solid ${PALETTE.line}`,
+                  background: C.card,
+                  border: `1.5px solid ${C.line}`,
                   padding: 24,
                   textDecoration: "none",
                   color: "inherit",
@@ -463,7 +447,7 @@ export default async function BlogDetailPage({ params }: Params) {
                     fontSize: 11,
                     letterSpacing: "0.24em",
                     textTransform: "uppercase",
-                    color: PALETTE.accent,
+                    color: C.accent,
                   }}
                 >
                   {t.nextPost} →
@@ -472,7 +456,7 @@ export default async function BlogDetailPage({ params }: Params) {
                   style={{
                     fontSize: 16,
                     fontWeight: 700,
-                    color: PALETTE.ink,
+                    color: C.ink,
                     lineHeight: 1.4,
                   }}
                 >
@@ -492,7 +476,7 @@ export default async function BlogDetailPage({ params }: Params) {
                 fontSize: 12,
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
-                color: PALETTE.accent,
+                color: C.accent,
                 textDecoration: "none",
               }}
             >

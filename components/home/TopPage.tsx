@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { CSSProperties, ReactNode, useEffect, useRef } from "react";
+import { C, FONTS } from "@/lib/theme";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type BlogTeaser = {
   slug: string;
@@ -12,27 +14,6 @@ type BlogTeaser = {
 };
 
 type Props = { posts?: BlogTeaser[] };
-
-const PALETTE = {
-  bg: "#0e0700",
-  paper: "#f6e7c9",
-  card: "#1b0e02",
-  ink: "#f6e7c9",
-  sub: "#a88a5e",
-  line: "#3a2710",
-  rule: "#f6e7c9",
-  tag: "#f6e7c9",
-  slab: "#1b0e02",
-  onSlab: "#f6e7c9",
-  accent: "#e89a1f",
-};
-
-const FONTS = {
-  display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
-};
 
 const COPY = {
   brand: "Bakerization",
@@ -150,7 +131,7 @@ function ScaledStage({ children }: { children: ReactNode }) {
 function Rule({ style }: { style?: CSSProperties }) {
   return (
     <div
-      style={{ width: "100%", height: 1, background: PALETTE.line, ...style }}
+      style={{ width: "100%", height: 1, background: C.line, ...style }}
     />
   );
 }
@@ -185,7 +166,7 @@ function Nav() {
           fontSize: 22,
           fontWeight: 500,
           letterSpacing: 0.3,
-          color: PALETTE.ink,
+          color: C.ink,
           textDecoration: "none",
         }}
       >
@@ -197,12 +178,13 @@ function Nav() {
           margin: 0,
           padding: 0,
           display: "flex",
-          gap: 26,
+          alignItems: "center",
+          gap: 22,
           fontFamily: FONTS.mono,
           fontSize: 12,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          color: PALETTE.sub,
+          color: C.sub,
         }}
       >
         {items.map((x) => (
@@ -215,7 +197,10 @@ function Nav() {
             </Link>
           </li>
         ))}
-        <li style={{ color: PALETTE.accent }}>JA / EN</li>
+        <li style={{ color: C.accent }}>JA / EN</li>
+        <li style={{ display: "inline-flex", alignItems: "center" }}>
+          <ThemeToggle />
+        </li>
       </ul>
     </div>
   );
@@ -229,8 +214,8 @@ function CtaPrimary({ href, children }: { href: string; children: ReactNode }) {
     <Link
       href={href}
       style={{
-        background: PALETTE.accent,
-        color: PALETTE.paper,
+        background: C.accent,
+        color: C.paper,
         border: "none",
         padding: "16px 24px",
         fontFamily: FONTS.body,
@@ -262,9 +247,9 @@ function CtaGhost({
       href={href}
       style={{
         background: "transparent",
-        color: onPhoto ? "#fbf3df" : PALETTE.ink,
+        color: onPhoto ? "#fbf3df" : C.ink,
         border: `1px solid ${
-          onPhoto ? "rgba(255,250,238,.65)" : PALETTE.line
+          onPhoto ? "rgba(255,250,238,.65)" : C.line
         }`,
         padding: "16px 24px",
         fontFamily: FONTS.body,
@@ -292,7 +277,7 @@ function Hero() {
         position: "relative",
         height: 880,
         overflow: "hidden",
-        background: PALETTE.bg,
+        background: C.bg,
       }}
     >
       <div
@@ -304,8 +289,8 @@ function Hero() {
       >
         <div
           style={{
-            background: PALETTE.bg,
-            color: PALETTE.ink,
+            background: C.bg,
+            color: C.ink,
             padding: "96px 60px 48px",
             display: "flex",
             flexDirection: "column",
@@ -321,10 +306,10 @@ function Hero() {
               fontSize: 11,
               letterSpacing: "0.24em",
               textTransform: "uppercase",
-              color: PALETTE.sub,
+              color: C.sub,
             }}
           >
-            <span style={{ color: PALETTE.accent }}>■ BAKERIZATION</span>
+            <span style={{ color: C.accent }}>■ BAKERIZATION</span>
             <span>FEATURE.001</span>
           </div>
 
@@ -335,7 +320,7 @@ function Hero() {
                 fontSize: 12,
                 letterSpacing: "0.32em",
                 textTransform: "uppercase",
-                color: PALETTE.sub,
+                color: C.sub,
                 marginBottom: 26,
               }}
             >
@@ -349,19 +334,19 @@ function Hero() {
                 letterSpacing: -6,
                 fontWeight: 700,
                 margin: 0,
-                color: PALETTE.ink,
+                color: C.ink,
                 textTransform: "uppercase",
               }}
             >
               We<br />Bake<br />the<br />
-              <span style={{ color: PALETTE.accent }}>Future.</span>
+              <span style={{ color: C.accent }}>Future.</span>
             </h1>
             <div
               style={{
                 marginTop: 32,
                 width: 80,
                 height: 2,
-                background: PALETTE.accent,
+                background: C.accent,
               }}
             />
             <p
@@ -369,7 +354,7 @@ function Hero() {
                 marginTop: 26,
                 fontSize: 17,
                 lineHeight: 1.95,
-                color: PALETTE.sub,
+                color: C.sub,
                 maxWidth: 460,
               }}
             >
@@ -389,7 +374,7 @@ function Hero() {
               fontSize: 11,
               letterSpacing: "0.24em",
               textTransform: "uppercase",
-              color: PALETTE.sub,
+              color: C.sub,
             }}
           >
             <span>↓ KEEP READING</span>
@@ -422,7 +407,7 @@ function Hero() {
               position: "absolute",
               left: 32,
               bottom: 32,
-              color: PALETTE.paper,
+              color: C.paper,
               fontFamily: FONTS.mono,
               fontSize: 10,
               letterSpacing: "0.24em",
@@ -448,8 +433,8 @@ function About() {
       id="about"
       style={{
         padding: "120px 60px 120px",
-        background: PALETTE.bg,
-        color: PALETTE.ink,
+        background: C.bg,
+        color: C.ink,
       }}
     >
       <div
@@ -457,8 +442,8 @@ function About() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderTop: `1px solid ${PALETTE.line}`,
-          borderBottom: `1px solid ${PALETTE.line}`,
+          borderTop: `1px solid ${C.line}`,
+          borderBottom: `1px solid ${C.line}`,
           padding: "16px 0",
           marginBottom: 64,
         }}
@@ -469,7 +454,7 @@ function About() {
             fontSize: 11,
             letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: PALETTE.accent,
+            color: C.accent,
           }}
         >
           ▍FEATURE.001 — {c.labelJa}
@@ -480,7 +465,7 @@ function About() {
             fontSize: 11,
             letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: PALETTE.sub,
+            color: C.sub,
           }}
         >
           What is Bakerization? / p. 02
@@ -502,7 +487,7 @@ function About() {
               fontSize: 12,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.sub,
+              color: C.sub,
               marginBottom: 18,
             }}
           >
@@ -516,18 +501,18 @@ function About() {
               lineHeight: 1.08,
               letterSpacing: -3,
               fontWeight: 700,
-              color: PALETTE.ink,
+              color: C.ink,
             }}
           >
             22世紀には、
             <br />
             どんなパン屋さんが
             <br />
-            <span style={{ color: PALETTE.accent }}>あるでしょうか？</span>
+            <span style={{ color: C.accent }}>あるでしょうか？</span>
           </h2>
           <Rule
             style={{
-              background: PALETTE.accent,
+              background: C.accent,
               height: 3,
               width: 100,
               margin: "40px 0",
@@ -537,7 +522,7 @@ function About() {
             style={{
               fontSize: 17,
               lineHeight: 1.95,
-              color: PALETTE.sub,
+              color: C.sub,
               margin: 0,
               maxWidth: 520,
             }}
@@ -585,7 +570,7 @@ function pStyle(spaced = false): CSSProperties {
   return {
     fontSize: 16,
     lineHeight: 2,
-    color: PALETTE.ink,
+    color: C.ink,
     margin: spaced ? "24px 0 0" : 0,
   };
 }
@@ -598,7 +583,7 @@ function Services() {
   return (
     <section
       id="services"
-      style={{ padding: "120px 64px", background: PALETTE.bg }}
+      style={{ padding: "120px 64px", background: C.bg }}
     >
       <div
         style={{
@@ -611,8 +596,8 @@ function Services() {
         <div>
           <div
             style={{
-              background: PALETTE.slab,
-              color: PALETTE.onSlab,
+              background: C.slab,
+              color: C.onSlab,
               padding: "10px 14px",
               display: "inline-block",
               fontFamily: FONTS.mono,
@@ -631,7 +616,7 @@ function Services() {
               lineHeight: 1.08,
               letterSpacing: -2,
               fontWeight: 700,
-              color: PALETTE.ink,
+              color: C.ink,
               margin: 0,
             }}
           >
@@ -642,7 +627,7 @@ function Services() {
           style={{
             fontFamily: FONTS.mono,
             fontSize: 12,
-            color: PALETTE.sub,
+            color: C.sub,
             letterSpacing: "0.2em",
           }}
         >
@@ -663,14 +648,14 @@ function Services() {
             <div
               key={it.num}
               style={{
-                background: onAccent ? PALETTE.accent : PALETTE.card,
-                color: onAccent ? PALETTE.paper : PALETTE.ink,
+                background: onAccent ? C.accent : C.card,
+                color: onAccent ? C.paper : C.ink,
                 padding: 36,
                 minHeight: 400,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                border: onAccent ? "none" : `1.5px solid ${PALETTE.ink}`,
+                border: onAccent ? "none" : `1.5px solid ${C.ink}`,
               }}
             >
               <div>
@@ -737,7 +722,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
   const c = COPY.blog;
   const items = posts.length ? posts : c.posts;
   return (
-    <section style={{ padding: "120px 64px", background: PALETTE.bg }}>
+    <section style={{ padding: "120px 64px", background: C.bg }}>
       <div
         style={{
           display: "flex",
@@ -749,8 +734,8 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
         <div>
           <div
             style={{
-              background: PALETTE.slab,
-              color: PALETTE.onSlab,
+              background: C.slab,
+              color: C.onSlab,
               padding: "10px 14px",
               display: "inline-block",
               fontFamily: FONTS.mono,
@@ -769,7 +754,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
               lineHeight: 1.08,
               letterSpacing: -2,
               fontWeight: 700,
-              color: PALETTE.ink,
+              color: C.ink,
               margin: 0,
             }}
           >
@@ -781,7 +766,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
           style={{
             fontFamily: FONTS.mono,
             fontSize: 12,
-            color: PALETTE.accent,
+            color: C.accent,
             letterSpacing: "0.2em",
             textDecoration: "none",
           }}
@@ -803,8 +788,8 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
               key={p.slug || p.date}
               href={href}
               style={{
-                background: PALETTE.card,
-                border: `1.5px solid ${PALETTE.ink}`,
+                background: C.card,
+                border: `1.5px solid ${C.ink}`,
                 padding: i === 0 ? 32 : 28,
                 minHeight: i === 0 ? 380 : 320,
                 display: "flex",
@@ -820,7 +805,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
                     fontFamily: FONTS.mono,
                     fontSize: 11,
                     letterSpacing: "0.24em",
-                    color: PALETTE.accent,
+                    color: C.accent,
                     textTransform: "uppercase",
                     marginBottom: 16,
                   }}
@@ -831,7 +816,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
                   style={{
                     fontSize: i === 0 ? 28 : 22,
                     fontWeight: 700,
-                    color: PALETTE.ink,
+                    color: C.ink,
                     lineHeight: 1.35,
                   }}
                 >
@@ -841,7 +826,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
                   style={{
                     marginTop: 10,
                     fontSize: 13,
-                    color: PALETTE.sub,
+                    color: C.sub,
                     lineHeight: 1.6,
                     fontStyle: "italic",
                   }}
@@ -855,12 +840,12 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  borderTop: `1px solid ${PALETTE.line}`,
+                  borderTop: `1px solid ${C.line}`,
                   paddingTop: 14,
                   fontFamily: FONTS.mono,
                   fontSize: 11,
                   letterSpacing: "0.22em",
-                  color: PALETTE.ink,
+                  color: C.ink,
                 }}
               >
                 <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
@@ -880,11 +865,11 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
 function Ikeda() {
   const c = COPY.ikeda;
   return (
-    <section style={{ padding: "120px 64px", background: PALETTE.bg }}>
+    <section style={{ padding: "120px 64px", background: C.bg }}>
       <div
         style={{
-          background: PALETTE.slab,
-          color: PALETTE.onSlab,
+          background: C.slab,
+          color: C.onSlab,
           padding: 56,
           display: "grid",
           gridTemplateColumns: "0.9fr 1.6fr",
@@ -893,7 +878,7 @@ function Ikeda() {
         }}
       >
         <div>
-          <div style={{ background: PALETTE.accent, padding: 12 }}>
+          <div style={{ background: C.accent, padding: 12 }}>
             <div
               style={{ width: "100%", aspectRatio: "4/5", overflow: "hidden" }}
             >
@@ -915,7 +900,7 @@ function Ikeda() {
               fontFamily: FONTS.mono,
               fontSize: 11,
               letterSpacing: "0.24em",
-              color: PALETTE.paper,
+              color: C.paper,
               opacity: 0.7,
               textTransform: "uppercase",
             }}
@@ -928,8 +913,8 @@ function Ikeda() {
             style={{
               display: "inline-block",
               padding: "8px 12px",
-              background: PALETTE.accent,
-              color: PALETTE.paper,
+              background: C.accent,
+              color: C.paper,
               fontFamily: FONTS.mono,
               fontSize: 11,
               letterSpacing: "0.24em",
@@ -946,14 +931,14 @@ function Ikeda() {
               lineHeight: 1.55,
               margin: 0,
               fontWeight: 500,
-              color: PALETTE.paper,
+              color: C.paper,
             }}
           >
             {c.quoteJa}
           </p>
           <Rule
             style={{
-              background: PALETTE.paper,
+              background: C.paper,
               opacity: 0.4,
               margin: "36px 0",
               width: 60,
@@ -980,8 +965,8 @@ function Contact() {
       id="contact"
       style={{
         padding: "120px 64px",
-        background: PALETTE.accent,
-        color: PALETTE.paper,
+        background: C.accent,
+        color: C.paper,
       }}
     >
       <div
@@ -995,8 +980,8 @@ function Contact() {
         <div>
           <div
             style={{
-              background: PALETTE.slab,
-              color: PALETTE.onSlab,
+              background: C.slab,
+              color: C.onSlab,
               padding: "10px 14px",
               display: "inline-block",
               fontFamily: FONTS.mono,
@@ -1015,7 +1000,7 @@ function Contact() {
               lineHeight: 1.08,
               letterSpacing: -2,
               fontWeight: 700,
-              color: PALETTE.paper,
+              color: C.paper,
               margin: 0,
             }}
           >
@@ -1036,8 +1021,8 @@ function Contact() {
         <div>
           <div
             style={{
-              background: PALETTE.slab,
-              color: PALETTE.onSlab,
+              background: C.slab,
+              color: C.onSlab,
               padding: 32,
             }}
           >
@@ -1057,19 +1042,19 @@ function Contact() {
             </div>
             <Rule
               style={{
-                background: PALETTE.onSlab,
+                background: C.onSlab,
                 opacity: 0.2,
                 margin: "20px 0",
                 height: 1,
               }}
             />
-            <a
-              href="mailto:info@bakerization.com"
+            <Link
+              href="/contact"
               style={{
                 width: "100%",
                 padding: "20px 24px",
-                background: PALETTE.onSlab,
-                color: PALETTE.slab,
+                background: C.onSlab,
+                color: C.slab,
                 border: "none",
                 fontFamily: FONTS.body,
                 fontSize: 15,
@@ -1082,7 +1067,7 @@ function Contact() {
               }}
             >
               お問い合わせフォームを開く →
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -1098,8 +1083,8 @@ function Footer() {
     <footer
       style={{
         padding: "48px 64px",
-        background: PALETTE.slab,
-        color: PALETTE.onSlab,
+        background: C.slab,
+        color: C.onSlab,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -1138,8 +1123,8 @@ export default function TopPage({ posts = [] }: Props) {
         className="marker-on"
         style={{
           width: 1280,
-          background: PALETTE.bg,
-          color: PALETTE.ink,
+          background: C.bg,
+          color: C.ink,
           fontFamily: FONTS.body,
           fontSynthesis: "none",
           WebkitFontSmoothing: "antialiased",

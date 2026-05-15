@@ -5,7 +5,7 @@ import { getAuthSession } from "@/lib/auth";
 export default async function NewBlogPage() {
   const session = await getAuthSession();
   if (session?.user?.role !== "admin") {
-    redirect("/admin/login?callbackUrl=/blog/new");
+    redirect("/admen/login?callbackUrl=/blog/new");
   }
 
   return <BlogEditor />;

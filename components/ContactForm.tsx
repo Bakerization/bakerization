@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Locale } from "@/lib/i18n";
+import { C, FONTS } from "@/lib/theme";
 
 export default function ContactForm({ locale }: { locale: Locale }) {
   const [name, setName] = useState("");
@@ -17,19 +18,21 @@ export default function ContactForm({ locale }: { locale: Locale }) {
           name: "Name",
           email: "Email",
           message: "Message",
-          sending: "Sending...",
-          send: "Send",
+          sending: "Sending…",
+          send: "Send →",
           failure: "Failed to send. Please try again later.",
           success: "Your inquiry was sent successfully.",
+          required: "Required",
         }
       : {
           name: "お名前",
           email: "メールアドレス",
-          message: "お問い合わせ内容",
-          sending: "送信中...",
-          send: "送信する",
+          message: "ご相談内容",
+          sending: "送信中…",
+          send: "送信する →",
           failure: "送信に失敗しました。時間をおいて再度お試しください。",
           success: "お問い合わせを受け付けました。ありがとうございます。",
+          required: "必須",
         };
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -56,39 +59,88 @@ export default function ContactForm({ locale }: { locale: Locale }) {
     setStatus(t.success);
   }
 
+  const fieldStyle: React.CSSProperties = {
+    width: "100%",
+    background: C.fieldBg,
+    color: C.ink,
+    border: `1.5px solid ${C.fieldBorder}`,
+    padding: "14px 16px",
+    fontFamily: FONTS.body,
+    fontSize: 15,
+    outline: "none",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase",
+    color: C.sub,
+    marginBottom: 10,
+  };
+
   return (
-    <form onSubmit={onSubmit} className="mx-auto mt-10 max-w-2xl space-y-4 text-left">
-      <label className="block">
-        <span className="mb-1 block text-sm text-amber-900">{t.name}</span>
+    <form
+      onSubmit={onSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: 24 }}
+    >
+      <div>
+        <div style={labelStyle}>
+          <span>▎{t.name}</span>
+          <span style={{ color: C.accent }}>{t.required}</span>
+        </div>
         <input
-          className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
+          style={fieldStyle}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          maxLength={120}
         />
-      </label>
-      <label className="block">
-        <span className="mb-1 block text-sm text-amber-900">{t.email}</span>
+      </div>
+
+      <div>
+        <div style={labelStyle}>
+          <span>▎{t.email}</span>
+          <span style={{ color: C.accent }}>{t.required}</span>
+        </div>
         <input
+          style={fieldStyle}
           type="email"
-          className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          maxLength={254}
         />
-      </label>
-      <label className="block">
-        <span className="mb-1 block text-sm text-amber-900">{t.message}</span>
+      </div>
+
+      <div>
+        <div style={labelStyle}>
+          <span>▎{t.message}</span>
+          <span style={{ color: C.accent }}>{t.required}</span>
+        </div>
         <textarea
-          rows={6}
-          className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
+          style={{ ...fieldStyle, minHeight: 180, resize: "vertical" }}
+          rows={8}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
+          maxLength={5000}
         />
-      </label>
+      </div>
 
-      <label className="hidden" aria-hidden="true">
+      <label
+        style={{
+          position: "absolute",
+          left: -9999,
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+        }}
+        aria-hidden="true"
+      >
         Website
         <input
           tabIndex={-1}
@@ -101,12 +153,37 @@ export default function ContactForm({ locale }: { locale: Locale }) {
       <button
         type="submit"
         disabled={loading}
-        className="inline-block rounded-xl bg-amber-200 px-8 py-3 font-bold text-amber-900 hover:bg-amber-300 disabled:opacity-60"
+        style={{
+          alignSelf: "flex-start",
+          padding: "18px 28px",
+          background: C.accent,
+          color: C.bg,
+          border: "none",
+          fontFamily: FONTS.body,
+          fontSize: 15,
+          fontWeight: 700,
+          letterSpacing: 0.4,
+          cursor: loading ? "wait" : "pointer",
+          opacity: loading ? 0.6 : 1,
+        }}
       >
         {loading ? t.sending : t.send}
       </button>
 
-      {status && <p className="text-sm text-amber-900/80">{status}</p>}
+      {status && (
+        <p
+          style={{
+            fontFamily: FONTS.mono,
+            fontSize: 12,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: status === t.success ? C.accent : C.sub,
+            margin: 0,
+          }}
+        >
+          {status}
+        </p>
+      )}
     </form>
   );
 }

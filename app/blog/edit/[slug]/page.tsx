@@ -11,7 +11,7 @@ export default async function EditBlogPage({ params }: Params) {
   const session = await getAuthSession();
   if (session?.user?.role !== "admin") {
     const { slug } = await params;
-    redirect(`/admin/login?callbackUrl=/blog/edit/${slug}`);
+    redirect(`/admen/login?callbackUrl=/blog/edit/${slug}`);
   }
 
   const { slug } = await params;

@@ -2,41 +2,183 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EditorContent, useEditor, Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import { BlogPost } from "@/lib/blog-types";
 import { toSlug, toLinkSafeUrl } from "@/lib/slug";
+import { C, FONTS } from "@/lib/theme";
 
 type Props = {
   initialPost?: BlogPost;
 };
 
-type LinkPreview = {
-  title: string;
-  description: string;
-  image: string;
-  url: string;
+type Locale = "ja" | "en";
+
+const TOOLBAR_BUTTON_STYLE: React.CSSProperties = {
+  fontFamily: FONTS.mono,
+  fontSize: 11,
+  letterSpacing: "0.18em",
+  textTransform: "uppercase",
+  padding: "8px 12px",
+  background: "transparent",
+  color: C.sub,
+  border: `1px solid ${C.line}`,
+  cursor: "pointer",
 };
 
-function ToolbarButton({
-  label,
-  onClick,
+function tbStyle(active: boolean): React.CSSProperties {
+  return {
+    ...TOOLBAR_BUTTON_STYLE,
+    color: active ? C.bg : C.sub,
+    background: active ? C.accent : "transparent",
+    borderColor: active ? C.accent : C.line,
+  };
+}
+
+function Toolbar({
+  editor,
+  onImage,
 }: {
-  label: string;
-  onClick: () => void;
+  editor: Editor | null;
+  onImage: () => void;
 }) {
+  if (!editor) return null;
+
+  function setLink() {
+    const previous = editor!.getAttributes("link").href as string | undefined;
+    const url = window.prompt("リンクURL", previous || "https://");
+    if (url === null) return;
+    if (url === "") {
+      editor!.chain().focus().unsetLink().run();
+      return;
+    }
+    editor!
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: toLinkSafeUrl(url) })
+      .run();
+  }
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded border border-amber-200 px-3 py-1 text-sm text-amber-900 hover:bg-amber-50"
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 6,
+        padding: 10,
+        borderBottom: `1px solid ${C.line}`,
+        background: C.bg,
+      }}
     >
-      {label}
-    </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("bold"))}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        title="Bold (⌘B)"
+      >
+        B
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("italic"))}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        title="Italic (⌘I)"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("strike"))}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+      >
+        S
+      </button>
+      <span style={{ width: 1, background: C.line, margin: "0 4px" }} />
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("heading", { level: 2 }))}
+        onClick={() =>
+          editor.chain().focus().toggleHeading({ level: 2 }).run()
+        }
+      >
+        H2
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("heading", { level: 3 }))}
+        onClick={() =>
+          editor.chain().focus().toggleHeading({ level: 3 }).run()
+        }
+      >
+        H3
+      </button>
+      <span style={{ width: 1, background: C.line, margin: "0 4px" }} />
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("bulletList"))}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+      >
+        • List
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("orderedList"))}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+      >
+        1. List
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("blockquote"))}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+      >
+        “ Quote
+      </button>
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("codeBlock"))}
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+      >
+        {"</>"}
+      </button>
+      <span style={{ width: 1, background: C.line, margin: "0 4px" }} />
+      <button
+        type="button"
+        style={tbStyle(editor.isActive("link"))}
+        onClick={setLink}
+      >
+        🔗 Link
+      </button>
+      <button type="button" style={tbStyle(false)} onClick={onImage}>
+        🖼 Image
+      </button>
+      <span style={{ flex: 1 }} />
+      <button
+        type="button"
+        style={tbStyle(false)}
+        onClick={() => editor.chain().focus().undo().run()}
+        title="Undo (⌘Z)"
+      >
+        ↶
+      </button>
+      <button
+        type="button"
+        style={tbStyle(false)}
+        onClick={() => editor.chain().focus().redo().run()}
+        title="Redo (⌘⇧Z)"
+      >
+        ↷
+      </button>
+    </div>
   );
 }
 
 export default function BlogEditor({ initialPost }: Props) {
   const router = useRouter();
-  const editorRef = useRef<HTMLDivElement>(null);
   const inlineImageInputRef = useRef<HTMLInputElement>(null);
   const heroImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,10 +187,10 @@ export default function BlogEditor({ initialPost }: Props) {
   const [slug, setSlug] = useState(initialPost?.slug || "");
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt || "");
   const [excerptEn, setExcerptEn] = useState(initialPost?.excerptEn || "");
-  const [heroImageUrl, setHeroImageUrl] = useState(initialPost?.heroImageUrl || "");
-  const [contentHtml, setContentHtml] = useState(initialPost?.contentHtml || "");
-  const [contentHtmlEn, setContentHtmlEn] = useState(initialPost?.contentHtmlEn || "");
-  const [editingLocale, setEditingLocale] = useState<"ja" | "en">("ja");
+  const [heroImageUrl, setHeroImageUrl] = useState(
+    initialPost?.heroImageUrl || ""
+  );
+  const [editingLocale, setEditingLocale] = useState<Locale>("ja");
   const [published, setPublished] = useState(initialPost?.published || false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -58,30 +200,41 @@ export default function BlogEditor({ initialPost }: Props) {
     [title, titleEn]
   );
 
-  function runCommand(command: string, value?: string) {
-    document.execCommand(command, false, value);
-    syncEditorHtml();
-  }
+  const editorJa = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({ openOnClick: false, autolink: true }),
+      Placeholder.configure({ placeholder: "本文をここに書く…" }),
+    ],
+    content: initialPost?.contentHtml || "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class: "blog-content-rich tiptap",
+        style: `min-height: 420px; padding: 24px; outline: none;`,
+      },
+    },
+  });
 
-  function syncEditorHtml() {
-    const value = editorRef.current?.innerHTML || "";
-    if (editingLocale === "ja") {
-      setContentHtml(value);
-    } else {
-      setContentHtmlEn(value);
-    }
-  }
+  const editorEn = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({ openOnClick: false, autolink: true }),
+      Placeholder.configure({ placeholder: "Write the English version…" }),
+    ],
+    content: initialPost?.contentHtmlEn || "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        class: "blog-content-rich tiptap",
+        style: `min-height: 420px; padding: 24px; outline: none;`,
+      },
+    },
+  });
 
-  function switchEditorLanguage(next: "ja" | "en") {
-    if (next === editingLocale) return;
-    const currentValue = editorRef.current?.innerHTML || "";
-    if (editingLocale === "ja") {
-      setContentHtml(currentValue);
-    } else {
-      setContentHtmlEn(currentValue);
-    }
-    setEditingLocale(next);
-  }
+  const activeEditor = editingLocale === "ja" ? editorJa : editorEn;
 
   async function uploadFile(file: File, prefix: string) {
     const formData = new FormData();
@@ -91,72 +244,24 @@ export default function BlogEditor({ initialPost }: Props) {
       method: "POST",
       body: formData,
     });
-
-    if (!response.ok) {
-      throw new Error("画像アップロードに失敗しました。");
-    }
-
+    if (!response.ok) throw new Error("画像アップロードに失敗しました。");
     const data = (await response.json()) as { url: string };
     return data.url;
   }
 
-  async function onUploadInlineImage(file: File) {
+  async function onPickInlineImage(file: File) {
     const url = await uploadFile(file, "blog-assets/inline/");
-    runCommand("insertImage", url);
+    activeEditor?.chain().focus().setImage({ src: url }).run();
   }
 
-  async function onUploadHeroImage(file: File) {
+  async function onPickHeroImage(file: File) {
     const url = await uploadFile(file, "blog-assets/hero/");
     setHeroImageUrl(url);
-  }
-
-  async function insertLinkPreview() {
-    const rawUrl = window.prompt("URLを入力してください");
-    if (!rawUrl) {
-      return;
-    }
-
-    const safeUrl = toLinkSafeUrl(rawUrl);
-    const response = await fetch(
-      `/api/link-preview?url=${encodeURIComponent(safeUrl)}`
-    );
-    if (!response.ok) {
-      setMessage("リンク情報の取得に失敗しました。");
-      return;
-    }
-
-    const preview = (await response.json()) as LinkPreview;
-    const card = `
-      <a href="${preview.url}" target="_blank" rel="noopener noreferrer" style="display:block;border:1px solid #ead5b7;border-radius:12px;overflow:hidden;text-decoration:none;color:#3b3128;margin:16px 0;background:#fffdf9;">
-        ${
-          preview.image
-            ? `<img src="${preview.image}" alt="${preview.title}" style="width:100%;max-height:220px;object-fit:cover;" />`
-            : ""
-        }
-        <div style="padding:12px 14px;">
-          <strong style="display:block;font-size:16px;line-height:1.4;">${preview.title}</strong>
-          <p style="margin:6px 0 0;color:#6f5f4f;font-size:14px;line-height:1.5;">${preview.description || ""}</p>
-        </div>
-      </a>
-    `;
-    runCommand("insertHTML", card);
-  }
-
-  function insertLink() {
-    const rawUrl = window.prompt("リンクURLを入力してください");
-    if (!rawUrl) {
-      return;
-    }
-    runCommand("createLink", toLinkSafeUrl(rawUrl));
   }
 
   async function savePost(nextPublished: boolean) {
     setSaving(true);
     setMessage("");
-    const latestEditorHtml = editorRef.current?.innerHTML || "";
-    const latestJaHtml = editingLocale === "ja" ? latestEditorHtml : contentHtml;
-    const latestEnHtml =
-      editingLocale === "en" ? latestEditorHtml : contentHtmlEn;
 
     const response = await fetch("/api/blog/post", {
       method: "POST",
@@ -168,8 +273,8 @@ export default function BlogEditor({ initialPost }: Props) {
         excerpt,
         excerptEn,
         heroImageUrl,
-        contentHtml: latestJaHtml,
-        contentHtmlEn: latestEnHtml,
+        contentHtml: editorJa?.getHTML() || "",
+        contentHtmlEn: editorEn?.getHTML() || "",
         published: nextPublished,
         createdAt: initialPost?.createdAt,
       }),
@@ -188,197 +293,285 @@ export default function BlogEditor({ initialPost }: Props) {
     router.push(`/blog/${data.post.slug}`);
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────
+  const fieldStyle: React.CSSProperties = {
+    width: "100%",
+    background: C.fieldBg,
+    color: C.ink,
+    border: `1.5px solid ${C.fieldBorder}`,
+    padding: "12px 14px",
+    fontFamily: FONTS.body,
+    fontSize: 15,
+    outline: "none",
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase",
+    color: C.sub,
+    marginBottom: 8,
+  };
+
   return (
-    <main className="min-h-screen bg-[#fffcf7] px-6 py-24">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <h1 className="text-3xl font-bold text-amber-950">
-          {initialPost ? "ブログ編集" : "新規ブログ作成"}
-        </h1>
-
-        <section className="rounded-2xl border border-amber-100 bg-white p-6">
-          <div className="grid gap-4">
-            <label className="block">
-              <span className="mb-1 block text-sm text-amber-900">タイトル</span>
-              <input
-                className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="記事タイトル"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-sm text-amber-900">Title (English)</span>
-              <input
-                className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-                value={titleEn}
-                onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="Post title"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-sm text-amber-900">スラッグ</span>
-              <input
-                className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-                value={slug}
-                onChange={(e) => setSlug(toSlug(e.target.value))}
-                placeholder={generatedSlug}
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-sm text-amber-900">概要</span>
-              <textarea
-                className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-                rows={3}
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-sm text-amber-900">Excerpt (English)</span>
-              <textarea
-                className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-                rows={3}
-                value={excerptEn}
-                onChange={(e) => setExcerptEn(e.target.value)}
-              />
-            </label>
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-amber-100 bg-white p-6">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-amber-950">ヒーロー画像</h2>
-            <button
-              type="button"
-              className="rounded border border-amber-200 px-3 py-1 text-sm text-amber-900 hover:bg-amber-50"
-              onClick={() => heroImageInputRef.current?.click()}
-            >
-              画像アップロード
-            </button>
-          </div>
-          <input
-            ref={heroImageInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={async (e) => {
-              const input = e.currentTarget;
-              const file = input.files?.[0];
-              if (!file) return;
-              await onUploadHeroImage(file);
-              input.value = "";
+    <main
+      style={{
+        minHeight: "100vh",
+        background: C.bg,
+        color: C.ink,
+        fontFamily: FONTS.body,
+        paddingTop: 96,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: "32px 48px 96px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderTop: `1px solid ${C.line}`,
+            borderBottom: `1px solid ${C.line}`,
+            padding: "16px 0",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: C.accent,
             }}
-          />
-          <input
-            className="w-full rounded-lg border border-amber-200 px-3 py-2 text-amber-950 outline-none focus:border-amber-400"
-            value={heroImageUrl}
-            onChange={(e) => setHeroImageUrl(e.target.value)}
-            placeholder="https://..."
-          />
-          {heroImageUrl && (
-            <img
-              src={heroImageUrl}
-              alt="Hero preview"
-              className="mt-4 h-48 w-full rounded-xl object-cover"
+          >
+            ▍ADMEN — {initialPost ? "Edit Entry" : "New Entry"}
+          </span>
+          <span
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: published ? C.accent : C.sub,
+            }}
+          >
+            {published ? "公開中" : "下書き"}
+          </span>
+        </div>
+
+        {/* Meta block */}
+        <section
+          style={{
+            background: C.card,
+            border: `1.5px solid ${C.line}`,
+            padding: 32,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 22,
+          }}
+        >
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={labelStyle}>▎タイトル (JA)</span>
+            <input
+              style={fieldStyle}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="記事タイトル"
             />
-          )}
+          </div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={labelStyle}>▎Title (EN)</span>
+            <input
+              style={fieldStyle}
+              value={titleEn}
+              onChange={(e) => setTitleEn(e.target.value)}
+              placeholder="Post title"
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>▎スラッグ</span>
+            <input
+              style={fieldStyle}
+              value={slug}
+              onChange={(e) => setSlug(toSlug(e.target.value))}
+              placeholder={generatedSlug}
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>▎ヒーロー画像</span>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                style={fieldStyle}
+                value={heroImageUrl}
+                onChange={(e) => setHeroImageUrl(e.target.value)}
+                placeholder="https://..."
+              />
+              <button
+                type="button"
+                onClick={() => heroImageInputRef.current?.click()}
+                style={{
+                  background: C.accent,
+                  color: C.bg,
+                  border: "none",
+                  padding: "0 16px",
+                  fontFamily: FONTS.mono,
+                  fontSize: 11,
+                  letterSpacing: "0.2em",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Upload
+              </button>
+            </div>
+            <input
+              ref={heroImageInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={async (e) => {
+                const input = e.currentTarget;
+                const file = input.files?.[0];
+                if (!file) return;
+                await onPickHeroImage(file);
+                input.value = "";
+              }}
+            />
+            {heroImageUrl && (
+              <img
+                src={heroImageUrl}
+                alt="hero preview"
+                style={{
+                  marginTop: 12,
+                  width: "100%",
+                  height: 160,
+                  objectFit: "cover",
+                  border: `1px solid ${C.line}`,
+                }}
+              />
+            )}
+          </div>
+          <div>
+            <span style={labelStyle}>▎概要 (JA)</span>
+            <textarea
+              style={{ ...fieldStyle, minHeight: 90, resize: "vertical" }}
+              rows={3}
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>▎Excerpt (EN)</span>
+            <textarea
+              style={{ ...fieldStyle, minHeight: 90, resize: "vertical" }}
+              rows={3}
+              value={excerptEn}
+              onChange={(e) => setExcerptEn(e.target.value)}
+            />
+          </div>
         </section>
 
-        <section className="rounded-2xl border border-amber-100 bg-white p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => switchEditorLanguage("ja")}
-              className={`rounded-md border px-3 py-1 text-sm font-semibold ${
-                editingLocale === "ja"
-                  ? "border-amber-400 bg-amber-200 text-amber-900"
-                  : "border-amber-200 text-amber-900 hover:bg-amber-50"
-              }`}
-            >
-              本文 (日本語)
-            </button>
-            <button
-              type="button"
-              onClick={() => switchEditorLanguage("en")}
-              className={`rounded-md border px-3 py-1 text-sm font-semibold ${
-                editingLocale === "en"
-                  ? "border-amber-400 bg-amber-200 text-amber-900"
-                  : "border-amber-200 text-amber-900 hover:bg-amber-50"
-              }`}
-            >
-              Body (English)
-            </button>
+        {/* Editor */}
+        <section
+          style={{
+            background: C.card,
+            border: `1.5px solid ${C.line}`,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              borderBottom: `1px solid ${C.line}`,
+              background: C.bg,
+            }}
+          >
+            {(["ja", "en"] as Locale[]).map((loc) => (
+              <button
+                key={loc}
+                type="button"
+                onClick={() => setEditingLocale(loc)}
+                style={{
+                  flex: 1,
+                  padding: "14px 18px",
+                  background:
+                    editingLocale === loc ? C.card : "transparent",
+                  color: editingLocale === loc ? C.accent : C.sub,
+                  border: "none",
+                  borderRight: loc === "ja" ? `1px solid ${C.line}` : "none",
+                  cursor: "pointer",
+                  fontFamily: FONTS.mono,
+                  fontSize: 11,
+                  letterSpacing: "0.24em",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                {loc === "ja" ? "本文 (日本語)" : "Body (English)"}
+              </button>
+            ))}
           </div>
 
-          <div className="mb-3 flex flex-wrap gap-2">
-            <ToolbarButton label="太字" onClick={() => runCommand("bold")} />
-            <ToolbarButton label="斜体" onClick={() => runCommand("italic")} />
-            <ToolbarButton
-              label="下線"
-              onClick={() => runCommand("underline")}
-            />
-            <ToolbarButton
-              label="見出し2"
-              onClick={() => runCommand("formatBlock", "h2")}
-            />
-            <ToolbarButton
-              label="見出し3"
-              onClick={() => runCommand("formatBlock", "h3")}
-            />
-            <ToolbarButton
-              label="箇条書き"
-              onClick={() => runCommand("insertUnorderedList")}
-            />
-            <ToolbarButton label="リンク" onClick={insertLink} />
-            <ToolbarButton
-              label="色テキスト"
-              onClick={() =>
-                runCommand("foreColor", window.prompt("色コード", "#d97706") || "#d97706")
-              }
-            />
-            <ToolbarButton
-              label="リンク内容取得"
-              onClick={insertLinkPreview}
-            />
-            <ToolbarButton
-              label="本文画像"
-              onClick={() => inlineImageInputRef.current?.click()}
-            />
-          </div>
-
+          <Toolbar
+            editor={activeEditor}
+            onImage={() => inlineImageInputRef.current?.click()}
+          />
           <input
             ref={inlineImageInputRef}
             type="file"
             accept="image/*"
-            className="hidden"
+            style={{ display: "none" }}
             onChange={async (e) => {
               const input = e.currentTarget;
               const file = input.files?.[0];
               if (!file) return;
-              await onUploadInlineImage(file);
+              await onPickInlineImage(file);
               input.value = "";
             }}
           />
 
-          <div
-            key={editingLocale}
-            ref={editorRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={syncEditorHtml}
-            className="blog-editor min-h-[360px] rounded-xl border border-amber-200 p-4 outline-none focus:border-amber-400"
-            dangerouslySetInnerHTML={{
-              __html: editingLocale === "ja" ? contentHtml : contentHtmlEn,
-            }}
-          />
+          <div style={{ background: C.bg }}>
+            <div style={{ display: editingLocale === "ja" ? "block" : "none" }}>
+              <EditorContent editor={editorJa} />
+            </div>
+            <div style={{ display: editingLocale === "en" ? "block" : "none" }}>
+              <EditorContent editor={editorEn} />
+            </div>
+          </div>
         </section>
 
-        <div className="flex flex-wrap gap-3">
+        {/* Actions */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
           <button
             type="button"
             disabled={saving}
             onClick={() => savePost(false)}
-            className="rounded-lg border border-amber-200 px-4 py-2 font-semibold text-amber-900 hover:bg-amber-50 disabled:opacity-60"
+            style={{
+              padding: "14px 22px",
+              background: "transparent",
+              color: C.ink,
+              border: `1.5px solid ${C.line}`,
+              fontFamily: FONTS.body,
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 0.3,
+              cursor: saving ? "wait" : "pointer",
+              opacity: saving ? 0.5 : 1,
+            }}
           >
             下書き保存
           </button>
@@ -386,24 +579,55 @@ export default function BlogEditor({ initialPost }: Props) {
             type="button"
             disabled={saving}
             onClick={() => savePost(true)}
-            className="rounded-lg bg-amber-200 px-4 py-2 font-semibold text-amber-900 hover:bg-amber-300 disabled:opacity-60"
+            style={{
+              padding: "14px 22px",
+              background: C.accent,
+              color: C.bg,
+              border: "none",
+              fontFamily: FONTS.body,
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 0.4,
+              cursor: saving ? "wait" : "pointer",
+              opacity: saving ? 0.5 : 1,
+            }}
           >
-            公開する
+            公開する →
           </button>
           {initialPost?.slug && (
             <a
               href={`/blog/${initialPost.slug}`}
-              className="rounded-lg border border-amber-200 px-4 py-2 font-semibold text-amber-900 hover:bg-amber-50"
+              style={{
+                padding: "14px 22px",
+                background: "transparent",
+                color: C.sub,
+                border: `1.5px solid ${C.line}`,
+                fontFamily: FONTS.body,
+                fontSize: 14,
+                fontWeight: 600,
+                letterSpacing: 0.3,
+                textDecoration: "none",
+              }}
             >
               記事を表示
             </a>
           )}
         </div>
 
-        {message && <p className="text-sm text-amber-800">{message}</p>}
-        <p className="text-xs text-amber-900/60">
-          現在の状態: {published ? "公開中" : "下書き"}
-        </p>
+        {message && (
+          <p
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: C.accent,
+              margin: 0,
+            }}
+          >
+            {message}
+          </p>
+        )}
       </div>
     </main>
   );

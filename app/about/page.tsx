@@ -1,28 +1,11 @@
 import Link from "next/link";
 import { getServerLocale } from "@/lib/i18n";
+import { C, FONTS } from "@/lib/theme";
 
 export const metadata = {
   title: "団体情報 | Bakerization",
   description:
     "Bakerizationの代表者プロフィールと、私たちが大切にする倫理観・行動原則。",
-};
-
-const PALETTE = {
-  bg: "#0e0700",
-  paper: "#f6e7c9",
-  card: "#1b0e02",
-  ink: "#f6e7c9",
-  sub: "#a88a5e",
-  line: "#3a2710",
-  accent: "#e89a1f",
-  slab: "#1b0e02",
-};
-
-const FONTS = {
-  display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
 };
 
 export default async function AboutPage() {
@@ -85,8 +68,8 @@ export default async function AboutPage() {
     <main
       style={{
         minHeight: "100vh",
-        background: PALETTE.bg,
-        color: PALETTE.ink,
+        background: C.bg,
+        color: C.ink,
         fontFamily: FONTS.body,
         paddingTop: 96,
       }}
@@ -98,8 +81,8 @@ export default async function AboutPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderTop: `1px solid ${PALETTE.line}`,
-            borderBottom: `1px solid ${PALETTE.line}`,
+            borderTop: `1px solid ${C.line}`,
+            borderBottom: `1px solid ${C.line}`,
             padding: "16px 0",
             marginBottom: 64,
           }}
@@ -110,7 +93,7 @@ export default async function AboutPage() {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
             }}
           >
             ▍SECTION V — {t.tag} / {t.section}
@@ -121,7 +104,7 @@ export default async function AboutPage() {
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: PALETTE.sub,
+              color: C.sub,
             }}
           >
             {t.page}
@@ -137,7 +120,7 @@ export default async function AboutPage() {
             lineHeight: 0.9,
             letterSpacing: -4,
             fontWeight: 700,
-            color: PALETTE.ink,
+            color: C.ink,
             textTransform: "uppercase",
           }}
         >
@@ -145,7 +128,7 @@ export default async function AboutPage() {
           <br />
           {t.headlineMid}
           <br />
-          <span style={{ color: PALETTE.accent }}>{t.headlineBot}</span>
+          <span style={{ color: C.accent }}>{t.headlineBot}</span>
         </h1>
 
         <div
@@ -153,7 +136,7 @@ export default async function AboutPage() {
             marginTop: 32,
             width: 100,
             height: 3,
-            background: PALETTE.accent,
+            background: C.accent,
           }}
         />
 
@@ -162,7 +145,7 @@ export default async function AboutPage() {
             marginTop: 28,
             fontSize: 18,
             lineHeight: 1.95,
-            color: PALETTE.sub,
+            color: C.sub,
             maxWidth: 720,
           }}
         >
@@ -173,7 +156,7 @@ export default async function AboutPage() {
         <section
           style={{
             marginTop: 80,
-            background: PALETTE.slab,
+            background: C.slab,
             padding: 56,
             display: "grid",
             gridTemplateColumns: "0.85fr 1.55fr",
@@ -182,7 +165,7 @@ export default async function AboutPage() {
           }}
         >
           <div>
-            <div style={{ background: PALETTE.accent, padding: 12 }}>
+            <div style={{ background: C.accent, padding: 12 }}>
               <div
                 style={{ width: "100%", aspectRatio: "4/5", overflow: "hidden" }}
               >
@@ -204,7 +187,7 @@ export default async function AboutPage() {
                 fontFamily: FONTS.mono,
                 fontSize: 11,
                 letterSpacing: "0.24em",
-                color: PALETTE.paper,
+                color: C.paper,
                 opacity: 0.7,
                 textTransform: "uppercase",
               }}
@@ -214,7 +197,7 @@ export default async function AboutPage() {
             <div style={{ marginTop: 18, fontSize: 24, fontWeight: 700 }}>
               {t.name}
             </div>
-            <div style={{ marginTop: 4, fontSize: 13, color: PALETTE.sub }}>
+            <div style={{ marginTop: 4, fontSize: 13, color: C.sub }}>
               {t.nameJa}
             </div>
             <div
@@ -223,7 +206,7 @@ export default async function AboutPage() {
                 fontFamily: FONTS.mono,
                 fontSize: 11,
                 letterSpacing: "0.22em",
-                color: PALETTE.accent,
+                color: C.accent,
                 textTransform: "uppercase",
               }}
             >
@@ -236,8 +219,8 @@ export default async function AboutPage() {
               style={{
                 display: "inline-block",
                 padding: "8px 12px",
-                background: PALETTE.accent,
-                color: PALETTE.paper,
+                background: C.accent,
+                color: C.paper,
                 fontFamily: FONTS.mono,
                 fontSize: 11,
                 letterSpacing: "0.24em",
@@ -255,7 +238,7 @@ export default async function AboutPage() {
                 lineHeight: 1.15,
                 letterSpacing: -1.5,
                 fontWeight: 700,
-                color: PALETTE.paper,
+                color: C.paper,
               }}
             >
               {t.opEdTitle}
@@ -265,7 +248,7 @@ export default async function AboutPage() {
                 margin: "32px 0",
                 width: 60,
                 height: 2,
-                background: PALETTE.paper,
+                background: C.paper,
                 opacity: 0.4,
               }}
             />
@@ -276,14 +259,14 @@ export default async function AboutPage() {
                 lineHeight: 1.65,
                 margin: 0,
                 fontWeight: 500,
-                color: PALETTE.paper,
+                color: C.paper,
               }}
             >
               <span
                 style={{
                   fontFamily: FONTS.display,
                   fontSize: 60,
-                  color: PALETTE.accent,
+                  color: C.accent,
                   lineHeight: 0.4,
                   display: "inline-block",
                   verticalAlign: "top",
@@ -313,7 +296,7 @@ export default async function AboutPage() {
                 fontSize: 11,
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: PALETTE.accent,
+                color: C.accent,
                 marginBottom: 18,
               }}
             >
@@ -323,7 +306,7 @@ export default async function AboutPage() {
               style={{
                 fontSize: 17,
                 lineHeight: 2,
-                color: PALETTE.ink,
+                color: C.ink,
                 margin: 0,
               }}
             >
@@ -337,7 +320,7 @@ export default async function AboutPage() {
                 fontSize: 11,
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: PALETTE.accent,
+                color: C.accent,
                 marginBottom: 18,
               }}
             >
@@ -353,8 +336,8 @@ export default async function AboutPage() {
                     gap: 16,
                     padding: "20px 0",
                     borderTop:
-                      i === 0 ? `1px solid ${PALETTE.line}` : "none",
-                    borderBottom: `1px solid ${PALETTE.line}`,
+                      i === 0 ? `1px solid ${C.line}` : "none",
+                    borderBottom: `1px solid ${C.line}`,
                   }}
                 >
                   <span
@@ -362,7 +345,7 @@ export default async function AboutPage() {
                       fontFamily: FONTS.display,
                       fontSize: 32,
                       fontWeight: 700,
-                      color: PALETTE.accent,
+                      color: C.accent,
                       lineHeight: 1,
                     }}
                   >
@@ -372,7 +355,7 @@ export default async function AboutPage() {
                     style={{
                       fontSize: 16,
                       lineHeight: 1.7,
-                      color: PALETTE.ink,
+                      color: C.ink,
                     }}
                   >
                     {p}
@@ -391,7 +374,7 @@ export default async function AboutPage() {
               fontSize: 12,
               letterSpacing: "0.22em",
               textTransform: "uppercase",
-              color: PALETTE.accent,
+              color: C.accent,
               textDecoration: "none",
             }}
           >

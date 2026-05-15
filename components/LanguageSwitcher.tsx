@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Locale } from "@/lib/i18n";
+import { C, FONTS } from "@/lib/theme";
 
 type Props = {
   locale: Locale;
@@ -16,12 +17,12 @@ export default function LanguageSwitcher({ locale }: Props) {
   }
 
   const btnBase: React.CSSProperties = {
-    fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+    fontFamily: FONTS.mono,
     fontSize: 11,
     letterSpacing: "0.18em",
     fontWeight: 600,
-    padding: "8px 12px",
-    border: "1px solid #3a2710",
+    padding: "6px 10px",
+    border: `1px solid ${C.line}`,
     background: "transparent",
     cursor: "pointer",
     textTransform: "uppercase",
@@ -35,9 +36,9 @@ export default function LanguageSwitcher({ locale }: Props) {
         aria-label="Switch to Japanese"
         style={{
           ...btnBase,
-          color: locale === "ja" ? "#0e0700" : "#a88a5e",
-          background: locale === "ja" ? "#e89a1f" : "transparent",
-          borderColor: locale === "ja" ? "#e89a1f" : "#3a2710",
+          color: locale === "ja" ? C.bg : C.sub,
+          background: locale === "ja" ? C.accent : "transparent",
+          borderColor: locale === "ja" ? C.accent : C.line,
         }}
       >
         JA
@@ -48,9 +49,9 @@ export default function LanguageSwitcher({ locale }: Props) {
         aria-label="Switch to English"
         style={{
           ...btnBase,
-          color: locale === "en" ? "#0e0700" : "#a88a5e",
-          background: locale === "en" ? "#e89a1f" : "transparent",
-          borderColor: locale === "en" ? "#e89a1f" : "#3a2710",
+          color: locale === "en" ? C.bg : C.sub,
+          background: locale === "en" ? C.accent : "transparent",
+          borderColor: locale === "en" ? C.accent : C.line,
         }}
       >
         EN
