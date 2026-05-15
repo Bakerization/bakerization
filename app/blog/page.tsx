@@ -38,9 +38,13 @@ export default async function BlogListPage() {
         paddingTop: 96,
       }}
     >
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}>
+      <div
+        className="mob-pad"
+        style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
+      >
         {/* Header */}
         <div
+          className="mob-flex-wrap"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -76,14 +80,17 @@ export default async function BlogListPage() {
         </div>
 
         <div
+          className="mob-stack"
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "end",
             marginBottom: 56,
+            gap: 24,
           }}
         >
           <h1
+            className="mob-h2"
             style={{
               fontFamily: FONTS.display,
               fontSize: 84,
@@ -115,6 +122,7 @@ export default async function BlogListPage() {
           </p>
         ) : (
           <div
+            className="mob-1col"
             style={{
               display: "grid",
               gridTemplateColumns: "1.4fr 1fr 1fr",

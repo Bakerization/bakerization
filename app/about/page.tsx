@@ -174,10 +174,12 @@ export default async function AboutPage() {
       }}
     >
       <div
+        className="mob-pad"
         style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
       >
         {/* Header strip */}
         <div
+          className="mob-flex-wrap"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -214,6 +216,7 @@ export default async function AboutPage() {
 
         {/* Big headline */}
         <h1
+          className="mob-h1"
           style={{
             margin: 0,
             fontFamily: FONTS.display,
@@ -255,6 +258,7 @@ export default async function AboutPage() {
 
         {/* Op-ed slab — shared founders' quote */}
         <section
+          className="mob-pad-card-lg"
           style={{
             marginTop: 80,
             background: C.slab,
@@ -278,6 +282,7 @@ export default async function AboutPage() {
             {t.opEdLabel}
           </div>
           <h2
+            className="mob-h3"
             style={{
               margin: 0,
               fontFamily: FONTS.display,
@@ -300,6 +305,7 @@ export default async function AboutPage() {
             }}
           />
           <p
+            className="mob-quote"
             style={{
               fontFamily: FONTS.display,
               fontSize: 24,
@@ -320,6 +326,7 @@ export default async function AboutPage() {
 
         {/* Statement + Principles */}
         <section
+          className="mob-1col"
           style={{
             marginTop: 80,
             display: "grid",
@@ -441,6 +448,7 @@ function FounderCard({
 }) {
   return (
     <section
+      className="mob-founder mob-pad-card-lg"
       style={{
         marginTop: 56,
         background: primary ? C.slab : C.card,

@@ -327,6 +327,7 @@ export default function BlogEditor({ initialPost }: Props) {
       }}
     >
       <div
+        className="mob-pad"
         style={{
           maxWidth: 1100,
           margin: "0 auto",
@@ -372,6 +373,7 @@ export default function BlogEditor({ initialPost }: Props) {
 
         {/* Meta block */}
         <section
+          className="mob-1col mob-pad-card"
           style={{
             background: C.card,
             border: `1.5px solid ${C.line}`,

@@ -164,3 +164,108 @@ body {
 .tiptap:focus {
   outline: none;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive helpers — class-driven so inline styles can keep
+   sizes for desktop, while mobile gets overrides via media query.
+   Used in TopPage, About, Blog, Contact, Admen pages.
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 880px) {
+  /* Collapse 2/3/4-col grids to a single column */
+  .mob-1col {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  /* Stack a flex row vertically */
+  .mob-stack {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  /* Wrap a flex row */
+  .mob-flex-wrap {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  /* Reduce page padding on small viewports */
+  .mob-pad {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .mob-pad-v-sm {
+    padding-top: 56px !important;
+    padding-bottom: 56px !important;
+  }
+  .mob-pad-card {
+    padding: 28px !important;
+  }
+  .mob-pad-card-lg {
+    padding: 32px !important;
+  }
+  /* Hero / poster section height auto on mobile */
+  .mob-h-auto {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  /* Big hero block padding */
+  .mob-hero-pad {
+    padding: 64px 20px 56px !important;
+  }
+  /* Fluid headline scales */
+  .mob-h1 {
+    font-size: clamp(44px, 13vw, 168px) !important;
+    line-height: 0.95 !important;
+    letter-spacing: -2px !important;
+  }
+  .mob-h2 {
+    font-size: clamp(36px, 10vw, 96px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -1.5px !important;
+  }
+  .mob-h3 {
+    font-size: clamp(28px, 8vw, 72px) !important;
+    line-height: 1.1 !important;
+    letter-spacing: -1px !important;
+  }
+  /* Big number / kicker reductions */
+  .mob-num {
+    font-size: clamp(48px, 14vw, 88px) !important;
+  }
+  /* Hide non-essential bits */
+  .mob-hide {
+    display: none !important;
+  }
+  /* Make a side image span full width when stacked */
+  .mob-img-stack {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+  }
+  /* Quote / large copy slightly tightened */
+  .mob-quote {
+    font-size: clamp(18px, 5vw, 36px) !important;
+    line-height: 1.55 !important;
+  }
+  /* Two-col founder card flips to portrait-on-top */
+  .mob-founder {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  /* Reduce body large copy a bit */
+  .mob-body-sm {
+    font-size: 15px !important;
+  }
+  /* Blog detail TOC sidebar — drop sticky and move to bottom */
+  .mob-toc-bottom {
+    position: static !important;
+    margin-top: 32px !important;
+    order: 2 !important;
+  }
+  /* Footer columns stack & smaller text */
+  .mob-footer {
+    flex-direction: column !important;
+    gap: 14px !important;
+    text-align: center !important;
+    padding: 32px 20px !important;
+  }
+}

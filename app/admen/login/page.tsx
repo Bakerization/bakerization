@@ -77,6 +77,7 @@ export default function AdmenLoginPage() {
       }}
     >
       <div
+        className="mob-pad-card-lg"
         style={{
           width: "100%",
           maxWidth: 440,

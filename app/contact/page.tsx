@@ -48,6 +48,7 @@ export default async function ContactPage() {
       }}
     >
       <div
+        className="mob-pad"
         style={{
           maxWidth: 1280,
           margin: "0 auto",
@@ -56,6 +57,7 @@ export default async function ContactPage() {
       >
         {/* Strip */}
         <div
+          className="mob-flex-wrap"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -92,6 +94,7 @@ export default async function ContactPage() {
 
         {/* Headline */}
         <h1
+          className="mob-h1"
           style={{
             margin: 0,
             fontFamily: FONTS.display,
@@ -133,6 +136,7 @@ export default async function ContactPage() {
 
         {/* Body — form + email block */}
         <section
+          className="mob-1col"
           style={{
             marginTop: 80,
             display: "grid",
@@ -142,6 +146,7 @@ export default async function ContactPage() {
           }}
         >
           <div
+            className="mob-pad-card-lg"
             style={{
               background: C.card,
               border: `1.5px solid ${C.line}`,
@@ -164,6 +169,7 @@ export default async function ContactPage() {
           </div>
 
           <div
+            className="mob-pad-card-lg"
             style={{
               background: C.slab,
               color: C.onSlab,

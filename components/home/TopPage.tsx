@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties, ReactNode, useEffect, useRef } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -104,25 +104,11 @@ const COPY = {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   Scaled stage — keep the design at 1280px wide, scale with viewport
+   Stage — fluid container capped at 1280px (no more zoom scaling)
    ───────────────────────────────────────────────────────────── */
-function ScaledStage({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const apply = () => {
-      const el = ref.current;
-      if (!el) return;
-      const scale = Math.min(1, window.innerWidth / 1280);
-      (el.style as CSSStyleDeclaration & { zoom?: string }).zoom = String(scale);
-    };
-    apply();
-    window.addEventListener("resize", apply);
-    return () => window.removeEventListener("resize", apply);
-  }, []);
-
+function Stage({ children }: { children: ReactNode }) {
   return (
-    <div ref={ref} style={{ width: 1280, margin: "0 auto" }}>
+    <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto" }}>
       {children}
     </div>
   );
@@ -149,6 +135,7 @@ function Nav() {
   ];
   return (
     <div
+      className="mob-flex-wrap mob-pad"
       style={{
         position: "relative",
         zIndex: 10,
@@ -157,6 +144,7 @@ function Nav() {
         justifyContent: "space-between",
         padding: "20px 56px",
         background: "transparent",
+        gap: 12,
       }}
     >
       <Link
@@ -173,6 +161,7 @@ function Nav() {
         {COPY.brand}
       </Link>
       <ul
+        className="mob-flex-wrap"
         style={{
           listStyle: "none",
           margin: 0,
@@ -273,6 +262,7 @@ function CtaGhost({
 function Hero() {
   return (
     <section
+      className="mob-h-auto"
       style={{
         position: "relative",
         height: 880,
@@ -281,6 +271,7 @@ function Hero() {
       }}
     >
       <div
+        className="mob-1col"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
@@ -288,6 +279,7 @@ function Hero() {
         }}
       >
         <div
+          className="mob-hero-pad"
           style={{
             background: C.bg,
             color: C.ink,
@@ -295,6 +287,7 @@ function Hero() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            gap: 36,
             position: "relative",
           }}
         >
@@ -327,6 +320,7 @@ function Hero() {
               — A MANIFESTO FOR JAPANESE BREAD
             </div>
             <h1
+              className="mob-h1"
               style={{
                 fontFamily: FONTS.display,
                 fontSize: 168,
@@ -382,7 +376,13 @@ function Hero() {
           </div>
         </div>
 
-        <div style={{ position: "relative", overflow: "hidden" }}>
+        <div
+          style={{
+            position: "relative",
+            overflow: "hidden",
+            minHeight: 320,
+          }}
+        >
           <img
             src="/top.jpeg"
             alt=""
@@ -431,6 +431,7 @@ function About() {
   return (
     <section
       id="about"
+      className="mob-pad mob-pad-v-sm"
       style={{
         padding: "120px 60px 120px",
         background: C.bg,
@@ -438,6 +439,7 @@ function About() {
       }}
     >
       <div
+        className="mob-flex-wrap"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -473,6 +475,7 @@ function About() {
       </div>
 
       <div
+        className="mob-1col"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
@@ -494,6 +497,7 @@ function About() {
             ↗ A QUESTION
           </div>
           <h2
+            className="mob-h2"
             style={{
               margin: 0,
               fontFamily: FONTS.display,
@@ -538,6 +542,7 @@ function About() {
       </div>
 
       <div
+        className="mob-1col"
         style={{
           marginTop: 80,
           display: "grid",
@@ -583,14 +588,17 @@ function Services() {
   return (
     <section
       id="services"
+      className="mob-pad mob-pad-v-sm"
       style={{ padding: "120px 64px", background: C.bg }}
     >
       <div
+        className="mob-stack"
         style={{
           display: "flex",
           alignItems: "end",
           justifyContent: "space-between",
           marginBottom: 56,
+          gap: 24,
         }}
       >
         <div>
@@ -610,6 +618,7 @@ function Services() {
             ▍{c.labelJa}
           </div>
           <h2
+            className="mob-h2"
             style={{
               fontFamily: FONTS.display,
               fontSize: 72,
@@ -636,6 +645,7 @@ function Services() {
       </div>
 
       <div
+        className="mob-1col"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
@@ -647,11 +657,12 @@ function Services() {
           return (
             <div
               key={it.num}
+              className="mob-pad-card-lg"
               style={{
                 background: onAccent ? C.accent : C.card,
                 color: onAccent ? C.paper : C.ink,
                 padding: 36,
-                minHeight: 400,
+                minHeight: 320,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -660,6 +671,7 @@ function Services() {
             >
               <div>
                 <div
+                  className="mob-num"
                   style={{
                     fontFamily: FONTS.display,
                     fontSize: 88,
@@ -722,13 +734,18 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
   const c = COPY.blog;
   const items = posts.length ? posts : c.posts;
   return (
-    <section style={{ padding: "120px 64px", background: C.bg }}>
+    <section
+      className="mob-pad mob-pad-v-sm"
+      style={{ padding: "120px 64px", background: C.bg }}
+    >
       <div
+        className="mob-stack"
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "end",
           marginBottom: 48,
+          gap: 24,
         }}
       >
         <div>
@@ -748,6 +765,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
             ▍{c.labelJa}
           </div>
           <h2
+            className="mob-h3"
             style={{
               fontFamily: FONTS.display,
               fontSize: 64,
@@ -775,6 +793,7 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
         </Link>
       </div>
       <div
+        className="mob-1col"
         style={{
           display: "grid",
           gridTemplateColumns: "1.4fr 1fr 1fr",
@@ -865,8 +884,12 @@ function Blog({ posts }: { posts: BlogTeaser[] }) {
 function Ikeda() {
   const c = COPY.ikeda;
   return (
-    <section style={{ padding: "120px 64px", background: C.bg }}>
+    <section
+      className="mob-pad mob-pad-v-sm"
+      style={{ padding: "120px 64px", background: C.bg }}
+    >
       <div
+        className="mob-founder mob-pad-card-lg"
         style={{
           background: C.slab,
           color: C.onSlab,
@@ -925,10 +948,11 @@ function Ikeda() {
             ▍{c.labelJa}
           </div>
           <p
+            className="mob-quote"
             style={{
               fontFamily: FONTS.display,
-              fontSize: 36,
-              lineHeight: 1.55,
+              fontSize: 30,
+              lineHeight: 1.6,
               margin: 0,
               fontWeight: 500,
               color: C.paper,
@@ -963,6 +987,7 @@ function Contact() {
   return (
     <section
       id="contact"
+      className="mob-pad mob-pad-v-sm"
       style={{
         padding: "120px 64px",
         background: C.accent,
@@ -970,6 +995,7 @@ function Contact() {
       }}
     >
       <div
+        className="mob-1col"
         style={{
           display: "grid",
           gridTemplateColumns: "1.2fr 1fr",
@@ -994,6 +1020,7 @@ function Contact() {
             ▍{c.labelJa}
           </div>
           <h2
+            className="mob-h2"
             style={{
               fontFamily: FONTS.display,
               fontSize: 72,
@@ -1081,6 +1108,7 @@ function Contact() {
 function Footer() {
   return (
     <footer
+      className="mob-footer"
       style={{
         padding: "48px 64px",
         background: C.slab,
@@ -1118,11 +1146,11 @@ function Footer() {
    ───────────────────────────────────────────────────────────── */
 export default function TopPage({ posts = [] }: Props) {
   return (
-    <ScaledStage>
+    <Stage>
       <div
         className="marker-on"
         style={{
-          width: 1280,
+          width: "100%",
           background: C.bg,
           color: C.ink,
           fontFamily: FONTS.body,
@@ -1139,6 +1167,6 @@ export default function TopPage({ posts = [] }: Props) {
         <Contact />
         <Footer />
       </div>
-    </ScaledStage>
+    </Stage>
   );
 }

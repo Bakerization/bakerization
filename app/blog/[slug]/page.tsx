@@ -103,6 +103,7 @@ export default async function BlogDetailPage({ params }: Params) {
       }}
     >
       <section
+        className="mob-pad"
         style={{
           maxWidth: 1280,
           margin: "0 auto",
@@ -110,6 +111,7 @@ export default async function BlogDetailPage({ params }: Params) {
         }}
       >
         <div
+          className="mob-flex-wrap"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -138,6 +140,7 @@ export default async function BlogDetailPage({ params }: Params) {
         </div>
 
         <div
+          className="mob-1col"
           style={{
             display: "grid",
             gridTemplateColumns: "1.2fr 1fr",
@@ -164,6 +167,7 @@ export default async function BlogDetailPage({ params }: Params) {
               )}
             </div>
             <h1
+              className="mob-h3"
               style={{
                 margin: 0,
                 fontFamily: FONTS.display,
@@ -229,6 +233,7 @@ export default async function BlogDetailPage({ params }: Params) {
       </section>
 
       <div
+        className="mob-pad mob-1col"
         style={{
           maxWidth: 1280,
           margin: "0 auto",
@@ -239,6 +244,7 @@ export default async function BlogDetailPage({ params }: Params) {
         }}
       >
         <aside
+          className="mob-toc-bottom"
           style={{
             position: "sticky",
             top: 96,
@@ -379,6 +385,7 @@ export default async function BlogDetailPage({ params }: Params) {
           />
 
           <div
+            className="mob-1col"
             style={{
               marginTop: 56,
               display: "grid",

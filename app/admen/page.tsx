@@ -27,6 +27,7 @@ export default async function AdmenDashboard() {
       }}
     >
       <div
+        className="mob-pad"
         style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 48px 96px" }}
       >
         <div
@@ -70,6 +71,7 @@ export default async function AdmenDashboard() {
         </div>
 
         <h1
+          className="mob-h3"
           style={{
             margin: 0,
             fontFamily: FONTS.display,
@@ -107,6 +109,7 @@ export default async function AdmenDashboard() {
           {posts.map((post) => (
             <article
               key={post.slug}
+              className="mob-1col"
               style={{
                 background: C.card,
                 border: `1.5px solid ${C.line}`,

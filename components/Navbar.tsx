@@ -34,6 +34,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
       }}
     >
       <nav
+        className="mob-pad mob-flex-wrap"
         style={{
           maxWidth: 1280,
           margin: "0 auto",
@@ -41,6 +42,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 12,
         }}
       >
         <Link
@@ -57,6 +59,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
           Bakerization
         </Link>
         <ul
+          className="mob-flex-wrap"
           style={{
             listStyle: "none",
             margin: 0,
