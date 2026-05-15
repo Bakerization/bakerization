@@ -19,7 +19,19 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <body className="antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Zen+Kaku+Gothic+Antique:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        />
+      </head>
+      <body className="antialiased editorial">
         <Providers>
           <Navbar locale={locale} />
           {children}

@@ -16,6 +16,29 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Editorial palette body — used on home + linked pages */
+body.editorial {
+  background: #0e0700;
+  color: #f6e7c9;
+  font-family: "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif;
+}
+
+/* Editorial highlighter ・ 蛍光ペン */
+.mk {
+  padding: 0 0.14em;
+  background-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 52%,
+    rgba(232, 154, 31, 0.55) 52%,
+    rgba(232, 154, 31, 0.42) 92%,
+    transparent 92%,
+    transparent 100%
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
 .blog-editor:focus {
   box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
 }
@@ -61,4 +84,73 @@ html {
   height: auto;
   border-radius: 0.9rem;
   margin: 1.1rem 0;
+}
+
+/* Editorial (dark) variant of blog content */
+.blog-content-dark {
+  color: #f6e7c9;
+  line-height: 1.95;
+  font-family: "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif;
+  font-size: 16px;
+}
+
+.blog-content-dark h2 {
+  margin-top: 2.6rem;
+  margin-bottom: 0.9rem;
+  font-family: "Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP",
+    sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #f6e7c9;
+  border-top: 1px solid #3a2710;
+  padding-top: 1.4rem;
+}
+
+.blog-content-dark h3 {
+  margin-top: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-family: "Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP",
+    sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #e89a1f;
+}
+
+.blog-content-dark p {
+  margin: 1rem 0;
+}
+
+.blog-content-dark a {
+  color: #e89a1f;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.blog-content-dark ul,
+.blog-content-dark ol {
+  margin: 1rem 0 1.2rem 1.4rem;
+}
+
+.blog-content-dark img {
+  width: 100%;
+  height: auto;
+  margin: 1.4rem 0;
+  border: 1px solid #3a2710;
+}
+
+.blog-content-dark blockquote {
+  margin: 1.4rem 0;
+  padding: 1rem 1.4rem;
+  border-left: 3px solid #e89a1f;
+  color: #a88a5e;
+  font-style: italic;
+}
+
+.blog-content-dark code {
+  background: #1b0e02;
+  color: #f6e7c9;
+  padding: 2px 6px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.9em;
 }

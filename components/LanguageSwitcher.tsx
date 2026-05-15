@@ -15,32 +15,43 @@ export default function LanguageSwitcher({ locale }: Props) {
     router.refresh();
   }
 
-  const baseClass =
-    "rounded-md border px-2 py-1 text-xs font-semibold transition-colors";
+  const btnBase: React.CSSProperties = {
+    fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+    fontSize: 11,
+    letterSpacing: "0.18em",
+    fontWeight: 600,
+    padding: "8px 12px",
+    border: "1px solid #3a2710",
+    background: "transparent",
+    cursor: "pointer",
+    textTransform: "uppercase",
+  };
 
   return (
-    <div className="flex items-center gap-2">
+    <div style={{ display: "flex", gap: 6 }}>
       <button
         type="button"
-        className={`${baseClass} ${
-          locale === "ja"
-            ? "border-amber-400 bg-amber-200 text-amber-900"
-            : "border-amber-200 text-amber-900/70 hover:bg-amber-50"
-        }`}
         onClick={() => changeLanguage("ja")}
         aria-label="Switch to Japanese"
+        style={{
+          ...btnBase,
+          color: locale === "ja" ? "#0e0700" : "#a88a5e",
+          background: locale === "ja" ? "#e89a1f" : "transparent",
+          borderColor: locale === "ja" ? "#e89a1f" : "#3a2710",
+        }}
       >
         JA
       </button>
       <button
         type="button"
-        className={`${baseClass} ${
-          locale === "en"
-            ? "border-amber-400 bg-amber-200 text-amber-900"
-            : "border-amber-200 text-amber-900/70 hover:bg-amber-50"
-        }`}
         onClick={() => changeLanguage("en")}
         aria-label="Switch to English"
+        style={{
+          ...btnBase,
+          color: locale === "en" ? "#0e0700" : "#a88a5e",
+          background: locale === "en" ? "#e89a1f" : "transparent",
+          borderColor: locale === "en" ? "#e89a1f" : "#3a2710",
+        }}
       >
         EN
       </button>

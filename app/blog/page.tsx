@@ -5,8 +5,25 @@ import { getServerLocale } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export const metadata = {
-  title: "ブログ | Bakerization",
-  description: "Bakerizationの活動や知見を紹介するブログです。",
+  title: "Journal | Bakerization",
+  description: "Bakerizationの活動や知見を紹介するジャーナルです。",
+};
+
+const PALETTE = {
+  bg: "#0e0700",
+  paper: "#f6e7c9",
+  card: "#1b0e02",
+  ink: "#f6e7c9",
+  sub: "#a88a5e",
+  line: "#3a2710",
+  accent: "#e89a1f",
+};
+
+const FONTS = {
+  display:
+    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
+  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
+  mono: '"JetBrains Mono", ui-monospace, monospace',
 };
 
 export default async function BlogListPage() {
@@ -15,33 +32,102 @@ export default async function BlogListPage() {
   const t =
     locale === "en"
       ? {
-          heading: "Bakerization Blog",
+          label: "Journal",
+          heading: "Latest notes from the field.",
           admin: "Admin",
-          empty: "No published blog posts yet.",
+          empty: "No published entries yet.",
           dateLocale: "en-US",
         }
       : {
-          heading: "Bakerization Blog",
+          label: "ジャーナル",
+          heading: "現場から、最新の記録。",
           admin: "管理画面",
           empty: "公開中の記事はまだありません。",
           dateLocale: "ja-JP",
         };
 
   return (
-    <main className="min-h-screen bg-[#fffcf7] px-6 py-24">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <p className="text-sm tracking-widest text-amber-700">BLOG</p>
-            <h1 className="mt-2 text-4xl font-bold text-amber-950">
-              {t.heading}
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
+    <main
+      style={{
+        minHeight: "100vh",
+        background: PALETTE.bg,
+        color: PALETTE.ink,
+        fontFamily: FONTS.body,
+        paddingTop: 96,
+      }}
+    >
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "end",
+            borderTop: `1px solid ${PALETTE.line}`,
+            borderBottom: `1px solid ${PALETTE.line}`,
+            padding: "16px 0",
+            marginBottom: 48,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: PALETTE.accent,
+            }}
+          >
+            ▍SECTION IV — {t.label}
+          </span>
+          <span
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: PALETTE.sub,
+            }}
+          >
+            JOURNAL · p. 008
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "end",
+            marginBottom: 56,
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: FONTS.display,
+              fontSize: 84,
+              lineHeight: 1.05,
+              letterSpacing: -3,
+              fontWeight: 700,
+              color: PALETTE.ink,
+              margin: 0,
+            }}
+          >
+            {t.heading}
+          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
             <Link
               href="/admin"
-              className="rounded-lg border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-50"
+              style={{
+                fontFamily: FONTS.mono,
+                fontSize: 11,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: PALETTE.sub,
+                border: `1px solid ${PALETTE.line}`,
+                padding: "10px 14px",
+                textDecoration: "none",
+              }}
             >
               {t.admin}
             </Link>
@@ -49,42 +135,140 @@ export default async function BlogListPage() {
         </div>
 
         {posts.length === 0 ? (
-          <p className="rounded-2xl border border-amber-100 bg-white p-6 text-amber-900/70">
+          <p
+            style={{
+              border: `1.5px solid ${PALETTE.ink}`,
+              background: PALETTE.card,
+              padding: 32,
+              color: PALETTE.sub,
+              fontSize: 14,
+            }}
+          >
             {t.empty}
           </p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            {posts.map((post) => {
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.4fr 1fr 1fr",
+              gap: 18,
+            }}
+          >
+            {posts.map((post, i) => {
               const localized = getLocalizedPost(post, locale);
-
+              const date = new Date(post.updatedAt).toLocaleDateString(
+                t.dateLocale
+              );
               return (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group relative overflow-hidden rounded-3xl border border-amber-100 bg-white"
+                  style={{
+                    background: PALETTE.card,
+                    border: `1.5px solid ${PALETTE.ink}`,
+                    padding: i === 0 ? 32 : 28,
+                    minHeight: i === 0 ? 420 : 360,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
                 >
-                  {post.heroImageUrl ? (
-                  <img
-                    src={post.heroImageUrl}
-                    alt={localized.title}
-                    className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  ) : (
-                    <div className="h-64 w-full bg-[#f4e8d6]" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                    <h2 className="text-2xl font-bold leading-tight">{localized.title}</h2>
-                    <p className="mt-2 text-sm text-white/85">{localized.excerpt}</p>
-                    <p className="mt-3 text-xs text-white/70">
-                      {new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}
+                  <div>
+                    {post.heroImageUrl ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          aspectRatio: i === 0 ? "16/9" : "4/3",
+                          overflow: "hidden",
+                          marginBottom: 20,
+                          border: `1px solid ${PALETTE.line}`,
+                        }}
+                      >
+                        <img
+                          src={post.heroImageUrl}
+                          alt={localized.title}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            filter: "saturate(.9) contrast(1.05)",
+                          }}
+                        />
+                      </div>
+                    ) : null}
+                    <div
+                      style={{
+                        fontFamily: FONTS.mono,
+                        fontSize: 11,
+                        letterSpacing: "0.24em",
+                        color: PALETTE.accent,
+                        textTransform: "uppercase",
+                        marginBottom: 14,
+                      }}
+                    >
+                      {t.label} · {date}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: i === 0 ? 28 : 22,
+                        fontWeight: 700,
+                        color: PALETTE.ink,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {localized.title}
+                    </div>
+                    <p
+                      style={{
+                        marginTop: 10,
+                        fontSize: 13,
+                        color: PALETTE.sub,
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {localized.excerpt}
                     </p>
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 24,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      borderTop: `1px solid ${PALETTE.line}`,
+                      paddingTop: 14,
+                      fontFamily: FONTS.mono,
+                      fontSize: 11,
+                      letterSpacing: "0.22em",
+                      color: PALETTE.ink,
+                    }}
+                  >
+                    <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
+                    <span>→</span>
                   </div>
                 </Link>
               );
             })}
           </div>
         )}
+
+        <div style={{ marginTop: 64 }}>
+          <Link
+            href="/"
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 12,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: PALETTE.accent,
+              textDecoration: "none",
+            }}
+          >
+            ← {locale === "en" ? "Back to Home" : "トップへ戻る"}
+          </Link>
+        </div>
       </div>
     </main>
   );

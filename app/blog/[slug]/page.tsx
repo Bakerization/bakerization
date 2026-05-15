@@ -13,6 +13,23 @@ type Params = {
   params: Promise<{ slug: string }>;
 };
 
+const PALETTE = {
+  bg: "#0e0700",
+  paper: "#f6e7c9",
+  card: "#1b0e02",
+  ink: "#f6e7c9",
+  sub: "#a88a5e",
+  line: "#3a2710",
+  accent: "#e89a1f",
+};
+
+const FONTS = {
+  display:
+    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
+  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
+  mono: '"JetBrains Mono", ui-monospace, monospace',
+};
+
 function tokenize(text: string) {
   return text
     .toLowerCase()
@@ -30,9 +47,7 @@ function relatedScore(base: BlogPost, target: BlogPost) {
   );
   let score = 0;
   for (const token of targetTokens) {
-    if (baseTokens.has(token)) {
-      score += 1;
-    }
+    if (baseTokens.has(token)) score += 1;
   }
   return score;
 }
@@ -53,7 +68,8 @@ export default async function BlogDetailPage({ params }: Params) {
   const { html, toc } = enrichHtmlWithToc(localized.contentHtml);
   const publishedPosts = await listPosts(false);
   const currentIndex = publishedPosts.findIndex((item) => item.slug === post.slug);
-  const prevPost = currentIndex >= 0 ? (publishedPosts[currentIndex + 1] ?? null) : null;
+  const prevPost =
+    currentIndex >= 0 ? publishedPosts[currentIndex + 1] ?? null : null;
   const nextPost = currentIndex > 0 ? publishedPosts[currentIndex - 1] : null;
   const relatedPosts = publishedPosts
     .filter((item) => item.slug !== post.slug)
@@ -68,18 +84,19 @@ export default async function BlogDetailPage({ params }: Params) {
   const t =
     locale === "en"
       ? {
-          backToBlog: "Back to Blog",
-          draft: "Draft",
+          backToBlog: "← Back to Journal",
+          draft: "DRAFT",
           toc: "Table of Contents",
-          noHeadings: "No headings available.",
-          previousPost: "Previous Post",
-          nextPost: "Next Post",
-          relatedPosts: "Related Posts",
-          noRelated: "No related posts available.",
+          noHeadings: "No headings.",
+          previousPost: "Previous",
+          nextPost: "Next",
+          relatedPosts: "Related",
+          noRelated: "No related entries.",
           dateLocale: "en-US",
+          section: "Journal · Entry",
         }
       : {
-          backToBlog: "ブログ一覧へ",
+          backToBlog: "← ジャーナル一覧へ",
           draft: "下書き",
           toc: "目次",
           noHeadings: "見出しがありません。",
@@ -88,61 +105,197 @@ export default async function BlogDetailPage({ params }: Params) {
           relatedPosts: "関連記事",
           noRelated: "関連記事はまだありません。",
           dateLocale: "ja-JP",
+          section: "ジャーナル · 記事",
         };
 
   return (
-    <main className="min-h-screen bg-[#fffcf7] pb-24">
-      <section className="relative h-[48vh] min-h-[320px]">
-        {post.heroImageUrl ? (
-          <img
-            src={post.heroImageUrl}
-            alt={post.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="h-full w-full bg-[#f4e8d6]" />
-        )}
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="absolute left-4 top-5 z-20 md:left-8">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-white"
+    <main
+      style={{
+        minHeight: "100vh",
+        background: PALETTE.bg,
+        color: PALETTE.ink,
+        fontFamily: FONTS.body,
+        paddingTop: 64,
+      }}
+    >
+      <section
+        style={{
+          maxWidth: 1280,
+          margin: "0 auto",
+          padding: "32px 64px 0",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderTop: `1px solid ${PALETTE.line}`,
+            borderBottom: `1px solid ${PALETTE.line}`,
+            padding: "16px 0",
+            marginBottom: 40,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: PALETTE.accent,
+            }}
           >
-            <span aria-hidden="true">←</span>
-            <span>{t.backToBlog}</span>
-          </Link>
-        </div>
-        <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-6xl p-6 text-white md:p-10">
-          <p className="text-sm tracking-widest text-white/80">BLOG</p>
-          <h1 className="mt-2 max-w-4xl text-3xl font-bold leading-tight md:text-5xl">
-            {localized.title}
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm text-white/85 md:text-base">
-            {localized.excerpt}
-          </p>
-          <div className="mt-4 flex items-center gap-3 text-xs text-white/70">
-            <span>{new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}</span>
-            {!post.published && <span>{t.draft}</span>}
+            ▍{t.section}
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
             <AdminEditButton slug={post.slug} locale={locale} />
           </div>
         </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: 48,
+            alignItems: "start",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontFamily: FONTS.mono,
+                fontSize: 12,
+                letterSpacing: "0.24em",
+                textTransform: "uppercase",
+                color: PALETTE.sub,
+                marginBottom: 18,
+              }}
+            >
+              {new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}
+              {!post.published && (
+                <span style={{ marginLeft: 12, color: PALETTE.accent }}>
+                  · {t.draft}
+                </span>
+              )}
+            </div>
+            <h1
+              style={{
+                margin: 0,
+                fontFamily: FONTS.display,
+                fontSize: 64,
+                lineHeight: 1.1,
+                letterSpacing: -2,
+                fontWeight: 700,
+                color: PALETTE.ink,
+              }}
+            >
+              {localized.title}
+            </h1>
+            <div
+              style={{
+                marginTop: 28,
+                width: 80,
+                height: 3,
+                background: PALETTE.accent,
+              }}
+            />
+            <p
+              style={{
+                marginTop: 24,
+                fontSize: 17,
+                lineHeight: 1.95,
+                color: PALETTE.sub,
+                margin: "24px 0 0",
+              }}
+            >
+              {localized.excerpt}
+            </p>
+          </div>
+          {post.heroImageUrl ? (
+            <div
+              style={{
+                position: "relative",
+                aspectRatio: "4/5",
+                overflow: "hidden",
+                border: `1px solid ${PALETTE.line}`,
+              }}
+            >
+              <img
+                src={post.heroImageUrl}
+                alt={localized.title}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "saturate(.95) contrast(1.05)",
+                }}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                aspectRatio: "4/5",
+                background: PALETTE.card,
+                border: `1px solid ${PALETTE.line}`,
+              }}
+            />
+          )}
+        </div>
       </section>
 
-      <div className="mx-auto mt-10 grid w-full max-w-6xl gap-8 px-6 lg:grid-cols-[280px_1fr]">
-        <aside className="rounded-2xl border border-amber-100 bg-white p-5 lg:sticky lg:top-20 lg:h-fit">
-          <h2 className="mb-3 text-sm font-bold tracking-widest text-amber-800">
-            {t.toc}
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: "0 auto",
+          padding: "80px 64px",
+          display: "grid",
+          gridTemplateColumns: "280px 1fr",
+          gap: 56,
+        }}
+      >
+        <aside
+          style={{
+            position: "sticky",
+            top: 96,
+            alignSelf: "start",
+            background: PALETTE.card,
+            border: `1.5px solid ${PALETTE.line}`,
+            padding: 24,
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: PALETTE.accent,
+              marginBottom: 14,
+            }}
+          >
+            ▎{t.toc}
           </h2>
           {toc.length === 0 ? (
-            <p className="text-sm text-amber-900/60">{t.noHeadings}</p>
+            <p style={{ fontSize: 13, color: PALETTE.sub, margin: 0 }}>
+              {t.noHeadings}
+            </p>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {toc.map((item) => (
-                <li key={item.id} className={item.level === 3 ? "ml-4" : ""}>
+                <li
+                  key={item.id}
+                  style={{
+                    marginLeft: item.level === 3 ? 14 : 0,
+                    padding: "6px 0",
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                  }}
+                >
                   <a
                     href={`#${item.id}`}
-                    className="text-amber-900/85 hover:text-amber-700"
+                    style={{ color: PALETTE.ink, textDecoration: "none" }}
                   >
                     {item.text}
                   </a>
@@ -151,32 +304,80 @@ export default async function BlogDetailPage({ params }: Params) {
             </ul>
           )}
 
-          <div className="mt-8 border-t border-amber-100 pt-5">
-            <h3 className="mb-3 text-sm font-bold tracking-widest text-amber-800">
-              {t.relatedPosts}
+          <div
+            style={{
+              marginTop: 28,
+              paddingTop: 22,
+              borderTop: `1px solid ${PALETTE.line}`,
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontFamily: FONTS.mono,
+                fontSize: 11,
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: PALETTE.accent,
+                marginBottom: 14,
+              }}
+            >
+              ▎{t.relatedPosts}
             </h3>
             {relatedPosts.length === 0 ? (
-              <p className="text-sm text-amber-900/60">{t.noRelated}</p>
+              <p style={{ fontSize: 13, color: PALETTE.sub, margin: 0 }}>
+                {t.noRelated}
+              </p>
             ) : (
-              <div className="space-y-3">
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {relatedPosts.map((related) => {
                   const rel = getLocalizedPost(related, locale);
                   return (
                     <Link
                       key={related.slug}
                       href={`/blog/${related.slug}`}
-                      className="flex gap-3 rounded-lg border border-amber-100 p-2 hover:bg-amber-50/50"
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        padding: 8,
+                        border: `1px solid ${PALETTE.line}`,
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
                     >
                       {related.heroImageUrl ? (
                         <img
                           src={related.heroImageUrl}
                           alt={rel.title}
-                          className="h-14 w-14 rounded-md object-cover"
+                          style={{
+                            width: 56,
+                            height: 56,
+                            objectFit: "cover",
+                            filter: "saturate(.9)",
+                          }}
                         />
                       ) : (
-                        <div className="h-14 w-14 rounded-md bg-[#f4e8d6]" />
+                        <div
+                          style={{
+                            width: 56,
+                            height: 56,
+                            background: PALETTE.bg,
+                          }}
+                        />
                       )}
-                      <p className="line-clamp-2 text-sm font-semibold text-amber-900">
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: PALETTE.ink,
+                          lineHeight: 1.4,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
                         {rel.title}
                       </p>
                     </Link>
@@ -187,66 +388,116 @@ export default async function BlogDetailPage({ params }: Params) {
           </div>
         </aside>
 
-        <div className="space-y-8">
+        <div>
           <article
-            className="blog-content rounded-2xl border border-amber-100 bg-white p-6 md:p-10"
+            className="blog-content-dark"
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div
+            style={{
+              marginTop: 56,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 16,
+            }}
+          >
             {prevPost ? (
               <Link
                 href={`/blog/${prevPost.slug}`}
-                className="group overflow-hidden rounded-2xl border border-amber-100 bg-white"
+                style={{
+                  background: PALETTE.card,
+                  border: `1.5px solid ${PALETTE.line}`,
+                  padding: 24,
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
               >
-                {prevPost.heroImageUrl ? (
-                  <img
-                    src={prevPost.heroImageUrl}
-                    alt={getLocalizedPost(prevPost, locale).title}
-                    className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="h-32 w-full bg-[#f4e8d6]" />
-                )}
-                <div className="p-4">
-                  <p className="text-xs font-semibold tracking-widest text-amber-700">
-                    {t.previousPost}
-                  </p>
-                  <p className="mt-1 text-base font-bold text-amber-950">
-                    {getLocalizedPost(prevPost, locale).title}
-                  </p>
-                </div>
+                <span
+                  style={{
+                    fontFamily: FONTS.mono,
+                    fontSize: 11,
+                    letterSpacing: "0.24em",
+                    textTransform: "uppercase",
+                    color: PALETTE.accent,
+                  }}
+                >
+                  ← {t.previousPost}
+                </span>
+                <span
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: PALETTE.ink,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {getLocalizedPost(prevPost, locale).title}
+                </span>
               </Link>
             ) : (
-              <div className="hidden md:block" />
+              <div />
             )}
 
             {nextPost ? (
               <Link
                 href={`/blog/${nextPost.slug}`}
-                className="group overflow-hidden rounded-2xl border border-amber-100 bg-white"
+                style={{
+                  background: PALETTE.card,
+                  border: `1.5px solid ${PALETTE.line}`,
+                  padding: 24,
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  textAlign: "right",
+                }}
               >
-                {nextPost.heroImageUrl ? (
-                  <img
-                    src={nextPost.heroImageUrl}
-                    alt={getLocalizedPost(nextPost, locale).title}
-                    className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="h-32 w-full bg-[#f4e8d6]" />
-                )}
-                <div className="p-4">
-                  <p className="text-xs font-semibold tracking-widest text-amber-700">
-                    {t.nextPost}
-                  </p>
-                  <p className="mt-1 text-base font-bold text-amber-950">
-                    {getLocalizedPost(nextPost, locale).title}
-                  </p>
-                </div>
+                <span
+                  style={{
+                    fontFamily: FONTS.mono,
+                    fontSize: 11,
+                    letterSpacing: "0.24em",
+                    textTransform: "uppercase",
+                    color: PALETTE.accent,
+                  }}
+                >
+                  {t.nextPost} →
+                </span>
+                <span
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: PALETTE.ink,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {getLocalizedPost(nextPost, locale).title}
+                </span>
               </Link>
             ) : (
-              <div className="hidden md:block" />
+              <div />
             )}
+          </div>
+
+          <div style={{ marginTop: 56 }}>
+            <Link
+              href="/blog"
+              style={{
+                fontFamily: FONTS.mono,
+                fontSize: 12,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: PALETTE.accent,
+                textDecoration: "none",
+              }}
+            >
+              {t.backToBlog}
+            </Link>
           </div>
         </div>
       </div>
