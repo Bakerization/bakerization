@@ -47,7 +47,7 @@ html {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 /* Editorial highlighter ・ 蛍光ペン */
@@ -72,15 +72,14 @@ body {
 .blog-content-rich {
   color: var(--ink);
   line-height: 1.95;
-  font-family: "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 16px;
 }
 
 .blog-content-rich h2 {
   margin-top: 2.6rem;
   margin-bottom: 0.9rem;
-  font-family: "Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP",
-    sans-serif;
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   font-size: 1.9rem;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -92,8 +91,7 @@ body {
 .blog-content-rich h3 {
   margin-top: 1.8rem;
   margin-bottom: 0.5rem;
-  font-family: "Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP",
-    sans-serif;
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   font-size: 1.35rem;
   font-weight: 600;
   color: var(--accent);
@@ -133,7 +131,7 @@ body {
   background: var(--card);
   color: var(--ink);
   padding: 2px 6px;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.9em;
 }
 
@@ -142,7 +140,7 @@ body {
   border: 1px solid var(--line);
   padding: 1rem;
   overflow-x: auto;
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.9em;
   margin: 1.4rem 0;
 }

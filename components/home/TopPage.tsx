@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import Image from "next/image";
 import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -383,14 +382,13 @@ function Hero() {
             minHeight: 320,
           }}
         >
-          <img
-            src="/top.jpeg"
+          <Image
+            src="/top.webp"
             alt=""
+            fill
+            priority
+            sizes="(max-width: 880px) 100vw, 50vw"
             style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
               objectFit: "cover",
               filter: "saturate(1.08) contrast(1.12) brightness(.78)",
             }}
@@ -903,14 +901,19 @@ function Ikeda() {
         <div>
           <div style={{ background: C.accent, padding: 12 }}>
             <div
-              style={{ width: "100%", aspectRatio: "4/5", overflow: "hidden" }}
+              style={{
+                position: "relative",
+                width: "100%",
+                aspectRatio: "4/5",
+                overflow: "hidden",
+              }}
             >
-              <img
-                src="/ikeda.jpeg"
+              <Image
+                src="/ikeda.webp"
                 alt={c.name}
+                fill
+                sizes="(max-width: 880px) 100vw, 360px"
                 style={{
-                  width: "100%",
-                  height: "100%",
                   objectFit: "cover",
                   filter: "saturate(1.1) contrast(1.05)",
                 }}

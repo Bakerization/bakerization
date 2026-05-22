@@ -22,9 +22,9 @@ export const C = {
 
 export const FONTS = {
   display:
-    '"Space Grotesk", "Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  body: '"Zen Kaku Gothic Antique", "Noto Sans JP", sans-serif',
-  mono: '"JetBrains Mono", ui-monospace, monospace',
+    'var(--font-display), var(--font-body), system-ui, sans-serif',
+  body: 'var(--font-body), system-ui, sans-serif',
+  mono: 'var(--font-mono), ui-monospace, monospace',
 } as const;
 
 export type ThemeMode = "dark" | "light";

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Locale } from "@/lib/i18n";
 
 export default function Hero({ locale }: { locale: Locale }) {
@@ -13,10 +14,13 @@ export default function Hero({ locale }: { locale: Locale }) {
       id="hero"
       className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-16 overflow-hidden"
     >
-      <img
-        src="/top.jpeg"
+      <Image
+        src="/top.webp"
         alt="Bakery hero background"
-        className="absolute inset-0 h-full w-full object-cover grayscale"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover grayscale"
       />
       <div className="absolute inset-0 bg-black/35" />
       <div className="relative z-10 max-w-5xl">

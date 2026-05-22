@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getServerLocale } from "@/lib/i18n";
 import { C, FONTS } from "@/lib/theme";
 
@@ -81,7 +82,7 @@ export default async function AboutPage() {
 
   const hatanaka: Founder = isEn
     ? {
-        imageSrc: "/kenji.jpeg",
+        imageSrc: "/kenji.webp",
         imageAlt: "Kenji Hatanaka",
         kicker: "Representative Director · CEO",
         name: "Kenji Hatanaka",
@@ -93,7 +94,7 @@ export default async function AboutPage() {
         ],
       }
     : {
-        imageSrc: "/kenji.jpeg",
+        imageSrc: "/kenji.webp",
         imageAlt: "畑中 健司",
         kicker: "代表取締役 · CEO",
         name: "畑中 健司",
@@ -107,7 +108,7 @@ export default async function AboutPage() {
 
   const ikeda: Founder = isEn
     ? {
-        imageSrc: "/ikeda.jpeg",
+        imageSrc: "/ikeda.webp",
         imageAlt: "Hiroaki Ikeda",
         kicker: "Co-founder · COO",
         name: "Hiroaki Ikeda",
@@ -135,7 +136,7 @@ export default async function AboutPage() {
         ],
       }
     : {
-        imageSrc: "/ikeda.jpeg",
+        imageSrc: "/ikeda.webp",
         imageAlt: "池田 浩明",
         kicker: "共同代表 · COO",
         name: "池田 浩明",
@@ -463,13 +464,21 @@ function FounderCard({
     >
       <div>
         <div style={{ background: C.accent, padding: 12 }}>
-          <div style={{ width: "100%", aspectRatio: "4/5", overflow: "hidden" }}>
-            <img
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              aspectRatio: "4/5",
+              overflow: "hidden",
+            }}
+          >
+            <Image
               src={founder.imageSrc}
               alt={founder.imageAlt}
+              fill
+              sizes="(max-width: 880px) 100vw, 420px"
+              priority={primary}
               style={{
-                width: "100%",
-                height: "100%",
                 objectFit: "cover",
                 filter: "saturate(1.05) contrast(1.05)",
               }}
