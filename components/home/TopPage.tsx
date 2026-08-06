@@ -1139,7 +1139,29 @@ function Footer() {
         © {new Date().getFullYear()} Bakerization · We Bake the Future · ALL RIGHTS
         RESERVED
       </span>
-      <span style={{ opacity: 0.85 }}>JA · EN</span>
+      <span
+        className="mob-flex-wrap"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 20,
+          justifyContent: "center",
+        }}
+      >
+        <Link
+          href="/app"
+          style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
+        >
+          アプリについて
+        </Link>
+        <Link
+          href="/privacy"
+          style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
+        >
+          プライバシーポリシー
+        </Link>
+        <span style={{ opacity: 0.85 }}>JA · EN</span>
+      </span>
     </footer>
   );
 }
