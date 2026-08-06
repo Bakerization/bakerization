@@ -62,6 +62,27 @@ const COPY = {
       },
     ],
   },
+  product: {
+    labelJa: "プロダクト",
+    titleEn: "Product.",
+    items: [
+      {
+        num: "01",
+        name: "kiji hub",
+        points: [
+          "ミキシングのデータと環境データを計測し、仕込みの条件とあわせて記録",
+          <>
+            機械学習・AIを駆使したミキサーの自動制御によって、その日ごとの
+            <strong>最適なミキシング</strong>を自動で再現
+          </>,
+          "パン職人の負担を軽減",
+        ] as ReactNode[],
+        href: "/app",
+        cta: "kiji hubを見る",
+        privacy: "/privacy",
+      },
+    ],
+  },
   blog: {
     labelJa: "ジャーナル",
     titleJa: "現場から、最新の記録。",
@@ -125,10 +146,11 @@ function Rule({ style }: { style?: CSSProperties }) {
    Nav
    ───────────────────────────────────────────────────────────── */
 function Nav() {
-  const items = [
+  const items: { label: string; href: string; drop?: string }[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
     { label: "Services", href: "#services" },
+    { label: "Product", href: "/app", drop: "kiji hub" },
     { label: "Journal", href: "/blog" },
     { label: "Contact", href: "#contact" },
   ];
@@ -176,13 +198,34 @@ function Nav() {
         }}
       >
         {items.map((x) => (
-          <li key={x.label}>
+          <li key={x.label} className={x.drop ? "nav-drop" : undefined}>
             <Link
               href={x.href}
               style={{ color: "inherit", textDecoration: "none" }}
             >
               {x.label}
             </Link>
+            {x.drop && (
+              <div className="nav-drop-menu">
+                <Link
+                  href={x.href}
+                  style={{
+                    display: "block",
+                    padding: "10px 16px",
+                    background: C.card,
+                    border: `1px solid ${C.line}`,
+                    color: C.ink,
+                    textDecoration: "none",
+                    textTransform: "none",
+                    letterSpacing: "0.08em",
+                    fontSize: 12,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {x.drop}
+                </Link>
+              </div>
+            )}
           </li>
         ))}
         <li style={{ color: C.accent }}>JA / EN</li>
@@ -652,21 +695,21 @@ function Services() {
       >
         {c.items.map((it, i) => {
           const onAccent = i === 1;
-          return (
-            <div
-              key={it.num}
-              className="mob-pad-card-lg"
-              style={{
-                background: onAccent ? C.accent : C.card,
-                color: onAccent ? C.paper : C.ink,
-                padding: 36,
-                minHeight: 320,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                border: onAccent ? "none" : `1.5px solid ${C.ink}`,
-              }}
-            >
+          // 02「データの可視化」は kiji hub のページへの入口を兼ねる
+          const isProduct = onAccent;
+          const cardStyle: CSSProperties = {
+            background: onAccent ? C.accent : C.card,
+            color: onAccent ? C.paper : C.ink,
+            padding: 36,
+            minHeight: 320,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            border: onAccent ? "none" : `1.5px solid ${C.ink}`,
+            textDecoration: "none",
+          };
+          const body = (
+            <>
               <div>
                 <div
                   className="mob-num"
@@ -701,6 +744,18 @@ function Services() {
                 >
                   {it.body}
                 </p>
+                {isProduct && (
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.85,
+                      margin: "14px 0 0",
+                      fontWeight: 700,
+                    }}
+                  >
+                    kiji hubというSaaSを開発中です。
+                  </p>
+                )}
               </div>
               <div
                 style={{
@@ -717,9 +772,205 @@ function Services() {
                 <span>{it.en}</span>
                 <span>↗</span>
               </div>
+            </>
+          );
+          return isProduct ? (
+            <Link
+              key={it.num}
+              href="/app"
+              className="mob-pad-card-lg"
+              style={cardStyle}
+            >
+              {body}
+            </Link>
+          ) : (
+            <div key={it.num} className="mob-pad-card-lg" style={cardStyle}>
+              {body}
             </div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Product — Service. と同じ組み。見出しは外に出し、
+   プロダクトが増えたら COPY.product.items に足すだけでよい。
+   ───────────────────────────────────────────────────────────── */
+function Product() {
+  const c = COPY.product;
+  const cols = Math.min(c.items.length, 3);
+  return (
+    <section
+      id="product"
+      className="mob-pad"
+      style={{ padding: "0 64px 120px", background: C.bg }}
+    >
+      <div
+        className="mob-stack"
+        style={{
+          display: "flex",
+          alignItems: "end",
+          justifyContent: "space-between",
+          marginBottom: 56,
+          gap: 24,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              background: C.slab,
+              color: C.onSlab,
+              padding: "10px 14px",
+              display: "inline-block",
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.24em",
+              textTransform: "uppercase",
+              marginBottom: 24,
+            }}
+          >
+            ▍{c.labelJa}
+          </div>
+          <h2
+            className="mob-h2"
+            style={{
+              fontFamily: FONTS.display,
+              fontSize: 72,
+              lineHeight: 1.08,
+              letterSpacing: -2,
+              fontWeight: 700,
+              color: C.ink,
+              margin: 0,
+            }}
+          >
+            {c.titleEn}
+          </h2>
+        </div>
+        <span
+          style={{
+            fontFamily: FONTS.mono,
+            fontSize: 12,
+            color: C.sub,
+            letterSpacing: "0.2em",
+          }}
+        >
+          {c.items.length} PRODUCT{c.items.length > 1 ? "S" : ""}
+          {c.items.length > 1
+            ? ` → ${c.items.map((it) => it.num).join(" / ")}`
+            : ""}
+        </span>
+      </div>
+
+      <div
+        className="mob-1col"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gap: 18,
+          alignItems: "start",
+        }}
+      >
+        {c.items.map((it) => (
+          <div
+            key={it.num}
+            className="mob-pad-card-lg"
+            style={{
+              background: C.card,
+              border: `1.5px solid ${C.ink}`,
+              padding: 40,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              minHeight: 280,
+            }}
+          >
+            <div>
+              {c.items.length > 1 && (
+                <div
+                  className="mob-num"
+                  style={{
+                    fontFamily: FONTS.display,
+                    fontSize: 88,
+                    fontWeight: 700,
+                    lineHeight: 0.9,
+                    color: C.accent,
+                    marginBottom: 24,
+                  }}
+                >
+                  {it.num}
+                </div>
+              )}
+              <div
+                style={{
+                  fontFamily: FONTS.display,
+                  fontSize: 40,
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  letterSpacing: -1,
+                  color: C.ink,
+                }}
+              >
+                {it.name}
+              </div>
+              <ul
+                style={{
+                  listStyle: "none",
+                  margin: "20px 0 0",
+                  padding: 0,
+                  maxWidth: 720,
+                }}
+              >
+                {it.points.map((pt, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "22px 1fr",
+                      gap: 10,
+                      padding: "12px 0",
+                      borderTop: i === 0 ? `1px solid ${C.line}` : "none",
+                      borderBottom: `1px solid ${C.line}`,
+                      fontSize: 15,
+                      lineHeight: 1.8,
+                      color: C.ink,
+                    }}
+                  >
+                    <span style={{ color: C.accent, fontWeight: 700 }}>—</span>
+                    <span>{pt}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div
+              className="mob-flex-wrap"
+              style={{
+                marginTop: 32,
+                display: "flex",
+                alignItems: "center",
+                gap: 24,
+                flexWrap: "wrap",
+              }}
+            >
+              <CtaPrimary href={it.href}>{it.cta}</CtaPrimary>
+              <Link
+                href={it.privacy}
+                style={{
+                  fontFamily: FONTS.mono,
+                  fontSize: 11,
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  color: C.accent,
+                  textDecoration: "none",
+                }}
+              >
+                プライバシーポリシー →
+              </Link>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -1106,67 +1357,6 @@ function Contact() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Footer
-   ───────────────────────────────────────────────────────────── */
-function Footer() {
-  return (
-    <footer
-      className="mob-footer"
-      style={{
-        padding: "48px 64px",
-        background: C.slab,
-        color: C.onSlab,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        fontFamily: FONTS.mono,
-        fontSize: 11,
-        letterSpacing: "0.22em",
-        textTransform: "uppercase",
-      }}
-    >
-      <span
-        style={{
-          fontFamily: FONTS.display,
-          fontSize: 18,
-          letterSpacing: 0,
-          textTransform: "none",
-        }}
-      >
-        Bakerization
-      </span>
-      <span style={{ opacity: 0.65 }}>
-        © {new Date().getFullYear()} Bakerization · We Bake the Future · ALL RIGHTS
-        RESERVED
-      </span>
-      <span
-        className="mob-flex-wrap"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 20,
-          justifyContent: "center",
-        }}
-      >
-        <Link
-          href="/app"
-          style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
-        >
-          アプリについて
-        </Link>
-        <Link
-          href="/privacy"
-          style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
-        >
-          プライバシーポリシー
-        </Link>
-        <span style={{ opacity: 0.85 }}>JA · EN</span>
-      </span>
-    </footer>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
 export default function TopPage({ posts = [] }: Props) {
@@ -1187,10 +1377,10 @@ export default function TopPage({ posts = [] }: Props) {
         <Hero />
         <About />
         <Services />
+        <Product />
         <Blog posts={posts} />
         <Ikeda />
         <Contact />
-        <Footer />
       </div>
     </Stage>
   );
