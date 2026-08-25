@@ -58,7 +58,7 @@ export default async function RootLayout({
         <Providers theme={theme}>
           <Navbar locale={locale} />
           {children}
-          <SiteFooter />
+          <SiteFooter locale={locale} />
         </Providers>
       </body>
     </html>

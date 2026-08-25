@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { C, FONTS } from "@/lib/theme";
 import { APP } from "@/lib/company";
+import { Locale } from "@/lib/i18n";
+import InlineLanguageSwitcher from "@/components/InlineLanguageSwitcher";
 
 /**
  * 全ページ共通のフッター。app/layout.tsx から {children} の下に置いている。
@@ -10,7 +12,7 @@ import { APP } from "@/lib/company";
  * Google の OAuth 審査は「プライバシーポリシーがホームページからリンクされて
  * いること」を求めるので、この導線は消さないこと。
  */
-export default function SiteFooter() {
+export default function SiteFooter({ locale }: { locale: Locale }) {
   return (
     <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto" }}>
       <footer
@@ -67,9 +69,11 @@ export default function SiteFooter() {
             href="/privacy"
             style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
           >
-            プライバシーポリシー
+            {locale === "en" ? "Privacy Policy" : "プライバシーポリシー"}
           </Link>
-          <span style={{ opacity: 0.85 }}>JA · EN</span>
+          <span style={{ opacity: 0.85 }}>
+            <InlineLanguageSwitcher locale={locale} separator=" · " />
+          </span>
         </span>
       </footer>
     </div>
