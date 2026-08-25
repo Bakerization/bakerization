@@ -267,3 +267,43 @@ body {
     padding: 32px 20px !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Nav dropdown — Product にカーソルを合わせると kiji hub が出る。
+   ホバーが使えない端末では Product 自体が /app へのリンクになる。
+   ───────────────────────────────────────────────────────────── */
+.nav-drop {
+  position: relative;
+}
+.nav-drop-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 130ms ease, transform 130ms ease, visibility 130ms;
+}
+.nav-drop:hover .nav-drop-menu,
+.nav-drop:focus-within .nav-drop-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-drop-menu {
+    transition: none;
+  }
+}
+@media (max-width: 880px) {
+  .nav-drop-menu {
+    display: none;
+  }
+}
+
+/* インラインの言語切替 — 見た目は文字のまま、キーボード操作時だけ枠を出す */
+.lang-inline:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -402,7 +402,7 @@ export default function PrivacyPage() {
             color: C.sub,
           }}
         >
-          Bakerizationが提供するミキシング記録アプリ「{APP.bothNames}
+          Bakerizationが提供するミキシング記録アプリ「{APP.name}」「{APP.logName}
           」において取得する情報、その利用目的、保存先、第三者への提供、保管期間および削除の方法について定めます。
         </p>
 
@@ -540,8 +540,6 @@ function BlockView({ block }: { block: Block }) {
               gap: 16,
               padding: "12px 0",
               borderTop: `1px solid ${C.line}`,
-              borderBottom:
-                i === block.rows.length - 1 ? `1px solid ${C.line}` : "none",
             }}
           >
             <dt

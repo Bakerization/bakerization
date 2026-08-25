@@ -1,71 +1,271 @@
 import Link from "next/link";
 import { C, FONTS } from "@/lib/theme";
 import { APP, COMPANY, COMPANY_ADDRESS } from "@/lib/company";
+import { getServerLocale, Locale } from "@/lib/i18n";
 
-export const metadata = {
-  title: "kiji hub について | Bakerization",
-  description:
-    "Bakerizationが提供するミキシング記録アプリ kiji hub の機能、ログイン方法、取得する情報の概要。",
-};
-
-/* ─────────────────────────────────────────────────────────────
-   何ができるか — 4つの機能カード
-   ───────────────────────────────────────────────────────────── */
-const FEATURES: { no: string; title: string; lead: string; items: string[] }[] =
-  [
-    {
-      no: "01",
-      title: "計測・記録する",
-      lead: "ミキサーに後付けしたデバイスが、ミキシング中の状態を自動で計測し、記録します。",
-      items: [
-        "電力",
-        "回転速度",
-        "カメラによる映像",
-        "マイクによる録音",
-        "室温・湿度（別途購入の温湿度計により計測）",
-      ],
-    },
-    {
-      no: "02",
-      title: "入力する",
-      lead: "その日の仕込みの条件を、職人が入力します。",
-      items: [
-        "レシピ・重量（事前にレシピを設定すれば、重量を自動で計算します）",
-        "粉温度・水温・こね上げ温度・小麦粉ロット",
-        "生地の評価",
-      ],
-    },
-    {
-      no: "03",
-      title: "見返す",
-      lead: "記録した内容を、あとから確認・共有できます。",
-      items: [
-        "一覧・グラフでの表示",
-        "CSVでの書き出し",
-        "保存した映像・録音の再生",
-      ],
-    },
-  ];
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return locale === "en"
+    ? {
+        title: `About ${APP.name} | Bakerization`,
+        description: `What ${APP.name}, a mixing recorder for bakeries by Bakerization, does — its features, how you sign in, and what information it collects.`,
+      }
+    : {
+        title: `${APP.name} について | Bakerization`,
+        description: `Bakerizationが提供するミキシング記録アプリ ${APP.name} の機能、ログイン方法、取得する情報の概要。`,
+      };
+}
 
 /* ─────────────────────────────────────────────────────────────
-   取得する情報と保存先（概要）— 詳細は /privacy
+   ページ本文 — 日本語と英語で同じ組みを使う
    ───────────────────────────────────────────────────────────── */
-const STORAGE: [string, string][] = [
-  [
-    "アカウント情報（メールアドレス、店舗名、電話番号、住所）",
-    "Supabase／東京リージョン（日本国内）",
-  ],
-  [
-    "ミキシングデータ・環境データ・入力データ",
-    "Supabase／東京リージョン（日本国内）",
-  ],
-  [
-    "映像データ・録音データ",
-    "Backblaze B2／US Westリージョン（米国）",
-  ],
-];
+function copyFor(locale: Locale) {
+  const isEn = locale === "en";
+  return {
+    headline: isEn
+      ? ["Every mix,", "kept in numbers", "and video."]
+      : ["ミキシングを、", "数値と映像で", "残す。"],
+    deck: isEn ? (
+      <>
+        {APP.name} is a working tool for bakeries. A device retrofitted to your
+        mixer measures the mixing data and records it alongside the day&apos;s
+        conditions. It also reproduces{" "}
+        <strong>the optimal mix</strong> for that day automatically, through
+        mixer control driven by machine learning and AI.
+      </>
+    ) : (
+      <>
+        {APP.name}{" "}
+        は、ベーカリー向けの業務用ツールです。ミキサーに後付けしたデバイスが、ミキシングデータを計測し、仕込みの条件とあわせて記録します。また、機械学習・AIを駆使したミキサーの自動制御によって、その日に合わせた
+        <strong>最適なミキシング</strong>を自動で再現します。
+      </>
+    ),
+    featuresLabel: isEn ? "What it does" : "このアプリでできること",
+    features: isEn
+      ? [
+          {
+            no: "01",
+            title: "Measure and record",
+            lead: "A device retrofitted to the mixer measures and records what happens during mixing, automatically.",
+            items: [
+              "Power",
+              "Rotation speed",
+              "Video from a camera",
+              "Audio from a microphone",
+              "Room temperature and humidity (measured by a separately purchased thermo-hygrometer)",
+            ],
+          },
+          {
+            no: "02",
+            title: "Enter",
+            lead: "The baker enters the conditions for that day's batch.",
+            items: [
+              "Recipe and weights (set the recipe in advance and the weights are calculated for you)",
+              "Flour temperature, water temperature, final dough temperature, flour lot",
+              "An assessment of the dough",
+            ],
+          },
+          {
+            no: "03",
+            title: "Look back",
+            lead: "Everything recorded can be reviewed and shared later.",
+            items: [
+              "Lists and graphs",
+              "CSV export",
+              "Playback of saved video and audio",
+            ],
+          },
+          {
+            no: "04",
+            title: `Control (${APP.name})`,
+            lead: "The device controls the mixer automatically to achieve the optimal mix.",
+            items: [
+              "AI and machine learning",
+              "Control of the mixer's rotation speed",
+              "Ends the mix at the right moment, using power and video data",
+            ],
+          },
+        ]
+      : [
+          {
+            no: "01",
+            title: "計測・記録する",
+            lead: "ミキサーに後付けしたデバイスが、ミキシング中の状態を自動で計測し、記録します。",
+            items: [
+              "電力",
+              "回転速度",
+              "カメラによる映像",
+              "マイクによる録音",
+              "室温・湿度（別途購入の温湿度計により計測）",
+            ],
+          },
+          {
+            no: "02",
+            title: "入力する",
+            lead: "その日の仕込みの条件を、職人が入力します。",
+            items: [
+              "レシピ・重量（事前にレシピを設定すれば、重量を自動で計算します）",
+              "粉温度・水温・こね上げ温度・小麦粉ロット",
+              "生地の評価",
+            ],
+          },
+          {
+            no: "03",
+            title: "見返す",
+            lead: "記録した内容を、あとから確認・共有できます。",
+            items: [
+              "一覧・グラフでの表示",
+              "CSVでの書き出し",
+              "保存した映像・録音の再生",
+            ],
+          },
+          {
+            no: "04",
+            title: `制御する（${APP.name}）`,
+            lead: "ミキサーをデバイスが自動で制御し、最適なミキシングを実現します。",
+            items: [
+              "AI・機械学習",
+              "ミキサーの回転速度を制御",
+              "電力と映像データにより、最適なタイミングでミキシングを終了",
+            ],
+          },
+        ],
+    lineupLabel: isEn ? "Product line" : "製品構成",
+    lineup: isEn
+      ? [
+          {
+            title: APP.name,
+            body: "Measures and records the mixing data, and controls the mixer on top of that.",
+          },
+          {
+            title: `${APP.logName} (early version)`,
+            body: "Measures, records and stores the mixing data only. It does not control the mixer.",
+          },
+        ]
+      : [
+          {
+            title: APP.name,
+            body: "ミキシングデータの計測・記録に加えて、ミキサーの制御を行います。",
+          },
+          {
+            title: `${APP.logName}（先行版）`,
+            body: "ミキシングデータの計測・記録と保存のみを行います。ミキサーの制御は行いません。",
+          },
+        ],
+    loginLabel: isEn ? "Signing in" : "ログインについて",
+    loginLead: isEn
+      ? "You need an account to use it. There are two ways to sign in. Either way, we ask for your shop name, phone number and address when you register."
+      : "本アプリのご利用にはログインが必要です。次の2つの方法に対応しています。いずれの場合も、アカウントの登録時に店舗名、電話番号、住所をご入力いただきます。",
+    method: isEn ? "Method" : "方法",
+    google: {
+      title: isEn ? "Sign in with a Google account" : "Googleアカウントでログイン",
+      rows: isEn
+        ? ([
+            ["What we receive", "Email address"],
+            ["Purpose", "Identifying the account, signing in, resetting the password"],
+          ] as [string, string][])
+        : ([
+            ["取得する情報", "メールアドレス"],
+            ["利用目的", "アカウントの識別、ログイン、パスワードの再設定"],
+          ] as [string, string][]),
+      body1: isEn ? (
+        <>
+          The email address we receive from your Google account is used{" "}
+          <strong>only</strong> to identify the account, to sign you in, and to
+          reset your password. We do not receive your profile picture. We do not
+          use it for advertising, and we do not sell it to anyone.
+        </>
+      ) : (
+        <>
+          Googleアカウントから取得したメールアドレスは、アカウントの識別、ログイン、およびパスワードの再設定
+          <strong>のみ</strong>
+          に使用します。プロフィール画像は取得しません。広告目的での利用、および第三者への販売は行いません。
+        </>
+      ),
+      body2: isEn ? (
+        <>
+          <strong>
+            We never access data held in your other Google services
+          </strong>{" "}
+          — Gmail, Drive, Calendar, Contacts and the rest.
+        </>
+      ) : (
+        <>
+          Gmail、Googleドライブ、Googleカレンダー、連絡先など、
+          <strong>他のGoogleサービスのデータには一切アクセスしません。</strong>
+        </>
+      ),
+    },
+    password: {
+      title: isEn
+        ? "Sign in with an email address and password"
+        : "メールアドレスとパスワードでログイン",
+      rows: isEn
+        ? ([
+            ["What we receive", "Email address / password"],
+            ["Purpose", "Identifying the account, signing in, resetting the password"],
+          ] as [string, string][])
+        : ([
+            ["取得する情報", "メールアドレス／パスワード"],
+            ["利用目的", "アカウントの識別、ログイン、パスワードの再設定"],
+          ] as [string, string][]),
+    },
+    deleteLabel: isEn ? "How to delete your account" : "削除方法",
+    deleteBody: isEn
+      ? "You can delete your account yourself at any time, from the settings screen in the app. Deleting it removes your registered information, including anything received from your Google account."
+      : "アカウントは、アプリ内の設定画面からいつでもご自身で削除できます。削除すると、Googleアカウントから取得した情報を含む登録情報が削除されます。",
+    storageLabel: isEn
+      ? "What we collect and where it is kept"
+      : "取得する情報と保存先",
+    storage: isEn
+      ? ([
+          [
+            "Account information (email address, shop name, phone number, address)",
+            "Supabase / Tokyo region (Japan)",
+          ],
+          [
+            "Mixing data, environmental data, entered data",
+            "Supabase / Tokyo region (Japan)",
+          ],
+          ["Video and audio data", "Backblaze B2 / US West region (United States)"],
+        ] as [string, string][])
+      : ([
+          [
+            "アカウント情報（メールアドレス、店舗名、電話番号、住所）",
+            "Supabase／東京リージョン（日本国内）",
+          ],
+          [
+            "ミキシングデータ・環境データ・入力データ",
+            "Supabase／東京リージョン（日本国内）",
+          ],
+          ["映像データ・録音データ", "Backblaze B2／US Westリージョン（米国）"],
+        ] as [string, string][]),
+    storageNote: isEn
+      ? "The full breakdown of what we collect, why we use it, how long we keep it, how we think about sharing it, and how to delete it, is set out in the privacy policy."
+      : "取得する情報の内訳、利用目的、保管期間、第三者提供の考え方、削除の方法については、プライバシーポリシーに記載しています。",
+    companyLabel: isEn ? "Business information" : "事業者情報",
+    companyRows: (isEn
+      ? [
+          ["Name", COMPANY.name],
+          ...(COMPANY_ADDRESS ? [["Address", COMPANY_ADDRESS]] : []),
+          ["Contact", COMPANY.email],
+        ]
+      : [
+          ["事業者名", COMPANY.name],
+          ...(COMPANY_ADDRESS ? [["所在地", COMPANY_ADDRESS]] : []),
+          ["お問い合わせ", COMPANY.email],
+        ]) as [string, string][],
+    policyLink: isEn ? "Read the privacy policy →" : "プライバシーポリシーを読む →",
+    back: isEn ? "← Back to Home" : "← トップへ戻る",
+  };
+}
 
-export default function AppPage() {
+type Copy = ReturnType<typeof copyFor>;
+
+export default async function AppPage() {
+  const locale = await getServerLocale();
+  const t = copyFor(locale);
+
   return (
     <main
       style={{
@@ -85,7 +285,6 @@ export default function AppPage() {
           className="mob-flex-wrap"
           style={{
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
             borderTop: `1px solid ${C.line}`,
             borderBottom: `1px solid ${C.line}`,
@@ -101,18 +300,7 @@ export default function AppPage() {
               color: C.accent,
             }}
           >
-            ▍SECTION VII — {APP.name}
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            p. 021
+            ▍{APP.name}
           </span>
         </div>
 
@@ -129,11 +317,11 @@ export default function AppPage() {
             color: C.ink,
           }}
         >
-          ミキシングを、
+          {t.headline[0]}
           <br />
-          数値と映像で
+          {t.headline[1]}
           <br />
-          <span style={{ color: C.accent }}>残す。</span>
+          <span style={{ color: C.accent }}>{t.headline[2]}</span>
         </h1>
 
         <div
@@ -149,30 +337,28 @@ export default function AppPage() {
             maxWidth: 720,
           }}
         >
-          {APP.name} は、ベーカリー向けの業務用ツールです。ミキサーに後付けしたデバイスが、生地のこね上がりまでのミキシングデータを計測し、職人が入力した仕込みの条件とあわせて記録・保存します。
+          {t.deck}
         </p>
 
         {/* プライバシーポリシーへの導線（上部） */}
         <div style={{ marginTop: 28 }}>
-          <PolicyLink />
+          <PolicyLink label={t.policyLink} />
         </div>
 
         {/* ── できること ── */}
-        <SectionLabel style={{ marginTop: 80 }}>
-          このアプリでできること
-        </SectionLabel>
+        <SectionLabel style={{ marginTop: 80 }}>{t.featuresLabel}</SectionLabel>
 
         <section
           className="mob-1col"
           style={{
             marginTop: 24,
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(2, 1fr)",
             gap: 24,
             alignItems: "start",
           }}
         >
-          {FEATURES.map((f) => (
+          {t.features.map((f) => (
             <div
               key={f.no}
               className="mob-pad-card"
@@ -239,7 +425,7 @@ export default function AppPage() {
         </section>
 
         {/* ── 製品構成 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>製品構成</SectionLabel>
+        <SectionLabel style={{ marginTop: 80 }}>{t.lineupLabel}</SectionLabel>
         <div
           className="mob-1col"
           style={{
@@ -250,16 +436,15 @@ export default function AppPage() {
             alignItems: "start",
           }}
         >
-          <Card title="kiji hub">
-            ミキシングデータの計測・記録に加えて、ミキサーの制御を行います。
-          </Card>
-          <Card title="kiji hub log（先行版）">
-            ミキシングデータの計測・記録と保存のみを行います。ミキサーの制御は行いません。
-          </Card>
+          {t.lineup.map((p) => (
+            <Card key={p.title} title={p.title}>
+              {p.body}
+            </Card>
+          ))}
         </div>
 
         {/* ── ログインについて ── */}
-        <SectionLabel style={{ marginTop: 80 }}>ログインについて</SectionLabel>
+        <SectionLabel style={{ marginTop: 80 }}>{t.loginLabel}</SectionLabel>
         <p
           style={{
             marginTop: 20,
@@ -269,7 +454,7 @@ export default function AppPage() {
             maxWidth: 780,
           }}
         >
-          本アプリのご利用にはログインが必要です。次の2つの方法に対応しています。いずれの場合も、アカウントの登録時に店舗名、電話番号、住所をご入力いただきます。
+          {t.loginLead}
         </p>
 
         <div
@@ -291,18 +476,7 @@ export default function AppPage() {
               padding: 36,
             }}
           >
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 14,
-              }}
-            >
-              方法 01
-            </div>
+            <MethodLabel>{t.method} 01</MethodLabel>
             <h3
               style={{
                 margin: 0,
@@ -311,17 +485,9 @@ export default function AppPage() {
                 color: C.ink,
               }}
             >
-              Googleアカウントでログイン
+              {t.google.title}
             </h3>
-            <DefList
-              rows={[
-                ["取得する情報", "メールアドレス"],
-                [
-                  "利用目的",
-                  "アカウントの識別、ログイン、パスワードの再設定",
-                ],
-              ]}
-            />
+            <DefList rows={t.google.rows} />
             <p
               style={{
                 margin: "24px 0 0",
@@ -330,7 +496,7 @@ export default function AppPage() {
                 color: C.ink,
               }}
             >
-              Googleアカウントから取得したメールアドレスは、アカウントの識別、ログイン、およびパスワードの再設定<strong>のみ</strong>に使用します。プロフィール画像は取得しません。広告目的での利用、および第三者への販売は行いません。
+              {t.google.body1}
             </p>
             <p
               style={{
@@ -340,7 +506,7 @@ export default function AppPage() {
                 color: C.ink,
               }}
             >
-              Gmail、Googleドライブ、Googleカレンダー、連絡先など、<strong>他のGoogleサービスのデータには一切アクセスしません。</strong>
+              {t.google.body2}
             </p>
           </div>
 
@@ -353,18 +519,7 @@ export default function AppPage() {
               padding: 36,
             }}
           >
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 14,
-              }}
-            >
-              方法 02
-            </div>
+            <MethodLabel>{t.method} 02</MethodLabel>
             <h3
               style={{
                 margin: 0,
@@ -373,21 +528,13 @@ export default function AppPage() {
                 color: C.ink,
               }}
             >
-              メールアドレスとパスワードでログイン
+              {t.password.title}
             </h3>
-            <DefList
-              rows={[
-                ["取得する情報", "メールアドレス／パスワード"],
-                [
-                  "利用目的",
-                  "アカウントの識別、ログイン、パスワードの再設定",
-                ],
-              ]}
-            />
+            <DefList rows={t.password.rows} />
           </div>
         </div>
 
-        {/* なぜログインが必要か */}
+        {/* 削除方法 */}
         <div
           className="mob-pad-card-lg"
           style={{
@@ -407,7 +554,7 @@ export default function AppPage() {
               marginBottom: 16,
             }}
           >
-            ▎削除方法
+            ▎{t.deleteLabel}
           </div>
           <p
             style={{
@@ -418,16 +565,14 @@ export default function AppPage() {
               maxWidth: 880,
             }}
           >
-            アカウントは、アプリ内の設定画面からいつでもご自身で削除できます。削除すると、Googleアカウントから取得した情報を含む登録情報が削除されます。
+            {t.deleteBody}
           </p>
         </div>
 
         {/* ── 取得する情報と保存先 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>
-          取得する情報と保存先
-        </SectionLabel>
+        <SectionLabel style={{ marginTop: 80 }}>{t.storageLabel}</SectionLabel>
         <div style={{ marginTop: 24 }}>
-          {STORAGE.map(([what, where], i) => (
+          {t.storage.map(([what, where], i) => (
             <div
               key={what}
               className="mob-1col"
@@ -465,24 +610,16 @@ export default function AppPage() {
             maxWidth: 780,
           }}
         >
-          取得する情報の内訳、利用目的、保管期間、第三者提供の考え方、削除の方法については、プライバシーポリシーに記載しています。
+          {t.storageNote}
         </p>
         <div style={{ marginTop: 20 }}>
-          <PolicyLink />
+          <PolicyLink label={t.policyLink} />
         </div>
 
         {/* ── 事業者情報 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>事業者情報</SectionLabel>
+        <SectionLabel style={{ marginTop: 80 }}>{t.companyLabel}</SectionLabel>
         <div style={{ marginTop: 24, maxWidth: 780 }}>
-          <DefList
-            rows={[
-              ["事業者名", COMPANY.name],
-              ...(COMPANY_ADDRESS
-                ? ([["所在地", COMPANY_ADDRESS]] as [string, string][])
-                : []),
-              ["お問い合わせ", COMPANY.email],
-            ]}
-          />
+          <DefList rows={t.companyRows} />
         </div>
 
         <div style={{ marginTop: 64 }}>
@@ -497,7 +634,7 @@ export default function AppPage() {
               textDecoration: "none",
             }}
           >
-            ← トップへ戻る
+            {t.back}
           </Link>
         </div>
       </div>
@@ -527,6 +664,23 @@ function SectionLabel({
       }}
     >
       ▎{children}
+    </div>
+  );
+}
+
+function MethodLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        fontFamily: FONTS.mono,
+        fontSize: 11,
+        letterSpacing: "0.24em",
+        textTransform: "uppercase",
+        color: C.accent,
+        marginBottom: 14,
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -602,7 +756,7 @@ function DefList({ rows }: { rows: [string, string][] }) {
   );
 }
 
-function PolicyLink() {
+function PolicyLink({ label }: { label: string }) {
   return (
     <Link
       href="/privacy"
@@ -618,7 +772,7 @@ function PolicyLink() {
         textDecoration: "none",
       }}
     >
-      プライバシーポリシーを読む →
+      {label}
     </Link>
   );
 }

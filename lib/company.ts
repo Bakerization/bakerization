@@ -45,6 +45,4 @@ export const APP = {
   name: "kiji hub",
   /** 記録・保存のみの先行版 */
   logName: "kiji hub log",
-  /** 法的文書で両方を指すときの表記 */
-  bothNames: "kiji hub および kiji hub log",
 } as const;

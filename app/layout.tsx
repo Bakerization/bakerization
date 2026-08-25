@@ -10,6 +10,7 @@ import Providers from "@/app/providers";
 import { getServerLocale } from "@/lib/i18n";
 import { THEME_COOKIE, normalizeTheme } from "@/lib/theme";
 import Navbar from "@/components/Navbar";
+import SiteFooter from "@/components/SiteFooter";
 
 const fontDisplay = Space_Grotesk({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default async function RootLayout({
         <Providers theme={theme}>
           <Navbar locale={locale} />
           {children}
+          <SiteFooter locale={locale} />
         </Providers>
       </body>
     </html>

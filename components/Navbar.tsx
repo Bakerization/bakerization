@@ -15,6 +15,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
 
   const t = {
     home: "Home",
+    product: "Product",
     services: "Services",
     journal: "Journal",
     about: "About",
@@ -81,11 +82,46 @@ export default function Navbar({ locale }: { locale: Locale }) {
           </li>
           <li>
             <Link
+              href="/about"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.about}
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/#services"
               style={{ color: "inherit", textDecoration: "none" }}
             >
               {t.services}
             </Link>
+          </li>
+          <li className="nav-drop">
+            <Link
+              href="/app"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.product}
+            </Link>
+            <div className="nav-drop-menu">
+              <Link
+                href="/app"
+                style={{
+                  display: "block",
+                  padding: "10px 16px",
+                  background: C.card,
+                  border: `1px solid ${C.line}`,
+                  color: C.ink,
+                  textDecoration: "none",
+                  textTransform: "none",
+                  letterSpacing: "0.08em",
+                  fontSize: 12,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                kiji hub
+              </Link>
+            </div>
           </li>
           <li>
             <Link
@@ -93,14 +129,6 @@ export default function Navbar({ locale }: { locale: Locale }) {
               style={{ color: "inherit", textDecoration: "none" }}
             >
               {t.journal}
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/about"
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
-              {t.about}
             </Link>
           </li>
           <li>
