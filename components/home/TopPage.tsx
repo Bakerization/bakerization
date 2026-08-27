@@ -216,8 +216,8 @@ function copyFor(locale: Locale) {
     },
     ikeda: {
       label: isEn ? "A word from our founder" : "代表メッセージ",
-      name: isEn ? "Hiroaki Ikeda" : "池田 弘明",
-      nameAlt: isEn ? "池田 弘明" : "Hiroaki Ikeda",
+      name: isEn ? "Hiroaki Ikeda" : "池田 浩明",
+      nameAlt: isEn ? "池田 浩明" : "Hiroaki Ikeda",
       role: isEn ? "Co-founder & COO" : "共同代表 COO / Co-founder & COO",
       quote: isEn
         ? "A morning that smells of wheat — may it remain in the 22nd century too. Baking has carried mornings in our towns for generations. We don't want to lighten the craft; we want to give it a shape that can continue. Data and systems, in the end, exist for people."
@@ -1026,7 +1026,6 @@ function Product({ c }: { c: Copy["product"] }) {
                   listStyle: "none",
                   margin: "20px 0 0",
                   padding: 0,
-                  maxWidth: 720,
                 }}
               >
                 {it.points.map((pt, i) => (
