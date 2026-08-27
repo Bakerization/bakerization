@@ -161,25 +161,32 @@ function copyFor(locale: Locale) {
       title: isEn ? "Sign in with a Google account" : "Googleアカウントでログイン",
       rows: isEn
         ? ([
-            ["What we receive", "Email address"],
-            ["Purpose", "Identifying the account, signing in, resetting the password"],
+            ["What we receive", "Email address / name / profile picture"],
+            ["What we store", "Email address only"],
+            [
+              "Purpose",
+              "Identifying the account, signing in, resetting the password",
+            ],
           ] as [string, string][])
         : ([
-            ["取得する情報", "メールアドレス"],
+            ["受け取る情報", "メールアドレス／氏名／プロフィール画像"],
+            ["保存・利用する情報", "メールアドレスのみ"],
             ["利用目的", "アカウントの識別、ログイン、パスワードの再設定"],
           ] as [string, string][]),
       body1: isEn ? (
         <>
-          The email address we receive from your Google account is used{" "}
-          <strong>only</strong> to identify the account, to sign you in, and to
-          reset your password. We do not receive your profile picture. We do not
-          use it for advertising, and we do not sell it to anyone.
+          From your Google account we receive your email address, name and
+          profile picture. Of these, the only one we store and use is{" "}
+          <strong>the email address</strong>, and we use it solely to identify
+          the account, to sign you in, and to reset your password. We do not
+          store your name or your profile picture. We do not use any of it for
+          advertising, and we do not sell it to anyone.
         </>
       ) : (
         <>
-          Googleアカウントから取得したメールアドレスは、アカウントの識別、ログイン、およびパスワードの再設定
-          <strong>のみ</strong>
-          に使用します。プロフィール画像は取得しません。広告目的での利用、および第三者への販売は行いません。
+          Googleアカウントからは、メールアドレス・氏名・プロフィール画像を受け取ります。このうち当社が保存し利用するのは
+          <strong>メールアドレスのみ</strong>
+          で、アカウントの識別、ログイン、およびパスワードの再設定のみに使用します。氏名およびプロフィール画像は保存しません。広告目的での利用、および第三者への販売は行いません。
         </>
       ),
       body2: isEn ? (
@@ -334,7 +341,6 @@ export default async function AppPage() {
             fontSize: 18,
             lineHeight: 1.95,
             color: C.sub,
-            maxWidth: 720,
           }}
         >
           {t.deck}
@@ -451,7 +457,6 @@ export default async function AppPage() {
             fontSize: 16,
             lineHeight: 1.95,
             color: C.sub,
-            maxWidth: 780,
           }}
         >
           {t.loginLead}
@@ -562,7 +567,6 @@ export default async function AppPage() {
               fontSize: 16,
               lineHeight: 1.95,
               color: C.ink,
-              maxWidth: 880,
             }}
           >
             {t.deleteBody}
@@ -607,7 +611,6 @@ export default async function AppPage() {
             fontSize: 16,
             lineHeight: 1.95,
             color: C.sub,
-            maxWidth: 780,
           }}
         >
           {t.storageNote}
@@ -618,7 +621,7 @@ export default async function AppPage() {
 
         {/* ── 事業者情報 ── */}
         <SectionLabel style={{ marginTop: 80 }}>{t.companyLabel}</SectionLabel>
-        <div style={{ marginTop: 24, maxWidth: 780 }}>
+        <div style={{ marginTop: 24 }}>
           <DefList rows={t.companyRows} />
         </div>
 
