@@ -13,8 +13,8 @@ type Credential = string;
 type SocialLink = { label: string; href: string };
 
 type Founder = {
-  imageSrc: string;
-  imageAlt: string;
+  imageSrc?: string;
+  imageAlt?: string;
   kicker: string;
   name: string;
   nameAlt: string;
@@ -82,8 +82,6 @@ export default async function AboutPage() {
 
   const hatanaka: Founder = isEn
     ? {
-        imageSrc: "/kenji.webp",
-        imageAlt: "Kenji Hatanaka",
         kicker: "Representative Director · CEO",
         name: "Kenji Hatanaka",
         nameAlt: "畑中 健司",
@@ -94,8 +92,6 @@ export default async function AboutPage() {
         ],
       }
     : {
-        imageSrc: "/kenji.webp",
-        imageAlt: "畑中 健司",
         kicker: "代表取締役 · CEO",
         name: "畑中 健司",
         nameAlt: "Kenji Hatanaka",
@@ -463,28 +459,30 @@ function FounderCard({
       }}
     >
       <div>
-        <div style={{ background: C.accent, padding: 12 }}>
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              aspectRatio: "4/5",
-              overflow: "hidden",
-            }}
-          >
-            <Image
-              src={founder.imageSrc}
-              alt={founder.imageAlt}
-              fill
-              sizes="(max-width: 880px) 100vw, 420px"
-              priority={primary}
+        {founder.imageSrc && (
+          <div style={{ background: C.accent, padding: 12 }}>
+            <div
               style={{
-                objectFit: "cover",
-                filter: "saturate(1.05) contrast(1.05)",
+                position: "relative",
+                width: "100%",
+                aspectRatio: "4/5",
+                overflow: "hidden",
               }}
-            />
+            >
+              <Image
+                src={founder.imageSrc}
+                alt={founder.imageAlt ?? ""}
+                fill
+                sizes="(max-width: 880px) 100vw, 420px"
+                priority={primary}
+                style={{
+                  objectFit: "cover",
+                  filter: "saturate(1.05) contrast(1.05)",
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div
           style={{
             marginTop: 16,
