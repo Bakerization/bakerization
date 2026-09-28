@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { BlogPost } from "@/lib/blog-types";
 import { savePost } from "@/lib/blog-store";
 import { toSlug } from "@/lib/slug";

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { getPost, listPosts } from "@/lib/blog-store";
 import { enrichHtmlWithToc } from "@/lib/content-utils";
 import AdminEditButton from "@/components/blog/AdminEditButton";

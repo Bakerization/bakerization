@@ -1,127 +1,101 @@
-import type { NextAuthOptions } from "next-auth";
-import { getServerSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-
-const adminEmail = process.env.ADMIN_EMAIL;
-const adminPassword = process.env.ADMIN_PASSWORD;
-const authSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+import { betterAuth } from "better-auth";
+import { admin, jwt } from "better-auth/plugins";
+import { nextCookies } from "better-auth/next-js";
+import { apiKey } from "@better-auth/api-key";
+import { mcp } from "@better-auth/mcp";
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
+import { PostgresDialect, type PostgresPool } from "kysely";
+import { Pool } from "@neondatabase/serverless";
 
 // ─────────────────────────────────────────────────────────────
-// In-memory rate limiter for failed login attempts.
-// Window: 5 minutes, max 5 failed attempts per IP, lockout 15 min.
-// In-memory is fine for single-instance runtimes (Vercel default).
-// If the deployment scales horizontally, swap this for a Neon/Upstash table.
+// Better Auth is the single auth system for the site:
+//   - /admen (blog admin)          → role "admin"
+//   - /research (members area)     → role "member" | "admin"
+//   - /api/mcp (Claude connector)  → OAuth 2.1 tokens issued here
+//   - REST uploads                 → per-member API keys (prefix rk_)
+// Keep this module free of `next/headers` so the CLI / scripts can load it.
 // ─────────────────────────────────────────────────────────────
-type RateEntry = { count: number; firstAt: number; lockedUntil: number };
-const attempts = new Map<string, RateEntry>();
-const WINDOW_MS = 5 * 60 * 1000;
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000;
 
-function clientIp(
-  req: { headers?: Record<string, string | string[] | undefined> } | undefined
-): string {
-  const h = req?.headers || {};
-  const fwd = h["x-forwarded-for"];
-  if (typeof fwd === "string" && fwd.length > 0) {
-    return fwd.split(",")[0].trim();
-  }
-  const real = h["x-real-ip"];
-  if (typeof real === "string" && real.length > 0) return real;
-  return "unknown";
+function resolveAppUrl() {
+  const explicit = process.env.BETTER_AUTH_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, "");
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
 }
 
-function isLocked(ip: string): boolean {
-  const e = attempts.get(ip);
-  if (!e) return false;
-  const now = Date.now();
-  if (e.lockedUntil > now) return true;
-  if (now - e.firstAt > WINDOW_MS) {
-    attempts.delete(ip);
-    return false;
-  }
-  return false;
-}
+export const APP_URL = resolveAppUrl();
+export const MCP_RESOURCE = `${APP_URL}/api/mcp`;
+export const RESEARCH_SCOPE = "research";
 
-function recordFailure(ip: string) {
-  const now = Date.now();
-  const e = attempts.get(ip);
-  if (!e || now - e.firstAt > WINDOW_MS) {
-    attempts.set(ip, { count: 1, firstAt: now, lockedUntil: 0 });
-    return;
-  }
-  e.count += 1;
-  if (e.count >= MAX_ATTEMPTS) {
-    e.lockedUntil = now + LOCKOUT_MS;
-  }
-}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 3,
+  idleTimeoutMillis: 10_000,
+});
+pool.on("error", (error: Error) => {
+  console.error("[auth] neon pool error", error);
+});
 
-function clearAttempts(ip: string) {
-  attempts.delete(ip);
-}
-
-export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt", maxAge: 8 * 60 * 60 }, // 8h
-  secret: authSecret,
-  providers: [
-    CredentialsProvider({
-      name: "Admin",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials, req) {
-        const ip = clientIp(
-          req as { headers?: Record<string, string | string[] | undefined> }
-        );
-
-        if (isLocked(ip)) {
-          // Same null result as bad credentials — don't tell the attacker they tripped the lock.
-          return null;
-        }
-
-        if (!adminEmail || !adminPassword || !credentials) {
-          recordFailure(ip);
-          return null;
-        }
-
-        const email = credentials.email as string | undefined;
-        const password = credentials.password as string | undefined;
-
-        if (email === adminEmail && password === adminPassword) {
-          clearAttempts(ip);
-          return {
-            id: "admin",
-            name: "Admin",
-            email: adminEmail,
-            role: "admin",
-          };
-        }
-
-        recordFailure(ip);
-        return null;
-      },
+export const auth = betterAuth({
+  appName: "Bakerization",
+  baseURL: APP_URL,
+  secret: process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  database: {
+    // Neon's Pool is pg-compatible at runtime; its types differ slightly from kysely's.
+    dialect: new PostgresDialect({ pool: pool as unknown as PostgresPool }),
+    type: "postgres",
+    transaction: true,
+  },
+  trustedOrigins: Array.from(
+    new Set([
+      APP_URL,
+      "https://bakerization.com",
+      "https://www.bakerization.com",
+    ])
+  ),
+  emailAndPassword: {
+    enabled: true,
+    // Accounts are issued by an admin from /research/members.
+    disableSignUp: true,
+    minPasswordLength: 10,
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24,
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
+  },
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+    },
+  },
+  // The jwt plugin's /token endpoint is not needed (and confusing next to /oauth2/token).
+  disabledPaths: ["/token"],
+  plugins: [
+    jwt({ disableSettingJwtHeader: true }),
+    admin({ defaultRole: "user", adminRoles: ["admin"] }),
+    apiKey({
+      defaultPrefix: "rk_",
+      defaultKeyLength: 40,
+      keyExpiration: { defaultExpiresIn: null },
+      rateLimit: { enabled: true, timeWindow: 60_000, maxRequests: 120 },
     }),
+    mcp({
+      loginPage: "/research/login",
+      consentPage: "/research/consent",
+      resource: MCP_RESOURCE,
+      scopes: ["openid", "profile", "email", "offline_access", RESEARCH_SCOPE],
+    }),
+    cimd({
+      fetchClientMetadataResource,
+      metadataProfile: "mcp-2026-07-28",
+    }),
+    // Must stay last so it can read Set-Cookie headers produced by other plugins.
+    nextCookies(),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user?.role) {
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user && token.role) {
-        session.user.role = token.role;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/admen/login",
-  },
-};
+});
 
-export function getAuthSession() {
-  return getServerSession(authOptions);
-}
+export type AuthSession = typeof auth.$Infer.Session;

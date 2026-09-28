@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { uploadBlogAsset } from "@/lib/blog-store";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
