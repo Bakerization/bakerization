@@ -12,6 +12,10 @@ type Props = {
   defaultCallback: string;
   /** callbackUrl must start with one of these prefixes (open-redirect guard). */
   allowedPrefixes: string[];
+  /** Optional "forgot password" link shown under the form. */
+  forgotHref?: string;
+  /** Optional one-line notice above the form (e.g. after setting a password). */
+  notice?: string;
 };
 
 function readCallback(defaultCallback: string, allowedPrefixes: string[]) {
@@ -29,6 +33,8 @@ export default function LoginForm({
   title,
   defaultCallback,
   allowedPrefixes,
+  forgotHref,
+  notice,
 }: Props) {
   const router = useRouter();
   const [callbackUrl] = useState(() =>
@@ -136,6 +142,12 @@ export default function LoginForm({
           {title}
         </h1>
 
+        {notice ? (
+          <p style={{ margin: "18px 0 0", fontSize: 14, lineHeight: 1.7, color: C.sub, borderLeft: `3px solid ${C.accent}`, paddingLeft: 12 }}>
+            {notice}
+          </p>
+        ) : null}
+
         <form onSubmit={onSubmit} style={{ marginTop: 32 }}>
           <div style={{ marginBottom: 22 }}>
             <span style={labelStyle}>Email</span>
@@ -195,6 +207,11 @@ export default function LoginForm({
             {loading ? "認証中…" : "サインイン →"}
           </button>
         </form>
+        {forgotHref ? (
+          <p style={{ margin: "18px 0 0", fontSize: 13 }}>
+            <a href={forgotHref} style={{ color: C.accent }}>パスワードをお忘れですか？</a>
+          </p>
+        ) : null}
       </div>
     </main>
   );

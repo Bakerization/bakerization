@@ -13,7 +13,8 @@ export default function MembersPanel({ currentUserId }: { currentUserId: string 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "user" });
+  const [form, setForm] = useState({ name: "", email: "", role: "user" });
+  const [resending, setResending] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [resetFor, setResetFor] = useState<{ id: string; password: string } | null>(null);
 
@@ -29,29 +30,43 @@ export default function MembersPanel({ currentUserId }: { currentUserId: string 
     void load();
   }, []);
 
-  async function create(e: React.FormEvent) {
+  async function invite(e: React.FormEvent) {
     e.preventDefault();
-    if (form.password.length < 10) {
-      setError("初期パスワードは10文字以上にしてください。");
-      return;
-    }
     setBusy(true);
     setError("");
     setNotice("");
-    const { error: err } = await authClient.admin.createUser({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      password: form.password,
-      role: form.role === "admin" ? "admin" : "user",
+    const res = await fetch("/api/research/members/invite", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: form.name.trim(), email: form.email.trim(), role: form.role }),
     });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; created?: boolean; email?: string };
     setBusy(false);
-    if (err) {
-      setError(err.message?.includes("exist") ? "このメールアドレスは登録済みです。" : "追加に失敗しました。");
+    if (!res.ok) {
+      setError(data.error ?? "招待に失敗しました。");
       return;
     }
-    setNotice(`${form.email.trim()} を追加しました。メールアドレスと初期パスワードを本人に渡してください。`);
-    setForm({ name: "", email: "", password: "", role: "user" });
+    setNotice(
+      data.created
+        ? `${data.email} に招待メールを送りました。届いたリンクからパスワードを設定するとログインできます。`
+        : `${data.email} は登録済みのため、招待メールを再送しました。`
+    );
+    setForm({ name: "", email: "", role: "user" });
     void load();
+  }
+
+  async function resend(m: Member) {
+    setResending(m.id);
+    setError("");
+    setNotice("");
+    const res = await fetch("/api/research/members/invite", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: m.email }),
+    });
+    setResending(null);
+    if (!res.ok) setError("招待メールの再送に失敗しました。");
+    else setNotice(`${m.email} に招待メールを再送しました（リンクは7日間有効）。`);
   }
 
   async function setRole(id: string, role: "admin" | "user") {
@@ -80,17 +95,17 @@ export default function MembersPanel({ currentUserId }: { currentUserId: string 
   return (
     <div style={{ display: "grid", gap: 24 }}>
       <Panel strong>
-        <Kicker style={{ marginBottom: 14 }}>▍ADD MEMBER</Kicker>
-        <form onSubmit={create}>
+        <Kicker style={{ marginBottom: 6 }}>▍INVITE MEMBER</Kicker>
+        <p style={{ margin: "0 0 18px", fontSize: 13, color: C.sub, lineHeight: 1.7 }}>
+          名前とメールアドレスを入れると招待メールが届きます。相手がリンクからパスワードを設定すれば、ログインと Claude（MCP）接続ができます。どのドメインのメールでも招待できます。
+        </p>
+        <form onSubmit={invite}>
           <div className="mob-1col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
             <Field label="名前" required>
               <input style={fieldStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required maxLength={80} />
             </Field>
             <Field label="メールアドレス" required>
               <input style={fieldStyle} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-            </Field>
-            <Field label="初期パスワード（10文字以上）" required>
-              <input style={fieldStyle} type="text" autoComplete="off" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={10} />
             </Field>
             <Field label="権限">
               <select style={fieldStyle} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
@@ -101,7 +116,7 @@ export default function MembersPanel({ currentUserId }: { currentUserId: string 
           </div>
           <InlineError onClose={() => setError("")}>{error}</InlineError>
           {notice ? <p style={{ fontSize: 13, color: C.sub, margin: "0 0 12px" }}>{notice}</p> : null}
-          <Button type="submit" variant="accent" busy={busy}>追加する →</Button>
+          <Button type="submit" variant="accent" busy={busy}>招待メールを送る →</Button>
         </form>
       </Panel>
 
@@ -137,7 +152,10 @@ export default function MembersPanel({ currentUserId }: { currentUserId: string 
                         <Button size="sm" variant="ghost" onClick={() => setResetFor(null)}>キャンセル</Button>
                       </>
                     ) : (
-                      <Button size="sm" onClick={() => setResetFor({ id: m.id, password: "" })}>パスワード再設定</Button>
+                      <>
+                        <Button size="sm" busy={resending === m.id} onClick={() => void resend(m)}>招待メールを再送</Button>
+                        <Button size="sm" onClick={() => setResetFor({ id: m.id, password: "" })}>パスワードを直接設定</Button>
+                      </>
                     )}
                     <Button size="sm" onClick={() => void setRole(m.id, m.role === "admin" ? "user" : "admin")}>
                       {m.role === "admin" ? "メンバーにする" : "管理者にする"}

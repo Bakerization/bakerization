@@ -190,6 +190,17 @@ export async function getMemberById(id: string): Promise<ResearchMember | null> 
   };
 }
 
+export async function getMemberByEmail(email: string): Promise<ResearchMember | null> {
+  if (!hasDatabaseUrl() || !email) return null;
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT id, name, email, role, banned FROM "user" WHERE lower(email) = lower(${email}) LIMIT 1
+  `) as Array<{ id: string; name: string; email: string; role: string | null; banned: boolean | null }>;
+  const row = rows[0];
+  if (!row) return null;
+  return { id: row.id, name: row.name, email: row.email, role: row.role === "admin" ? "admin" : "member" };
+}
+
 // ── Projects ───────────────────────────────────────────────────────────
 
 export async function listProjects(): Promise<ResearchProject[]> {

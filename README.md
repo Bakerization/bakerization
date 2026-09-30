@@ -53,7 +53,8 @@ Notes:
 1. 環境変数を設定する（`.env` / Vercel）: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`（本番は `https://www.bakerization.com`）, `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`。
 2. 認証テーブルを作る: `npx auth@latest migrate --config lib/auth.ts -y`
 3. 管理者を作る: `npm run seed:admin`
-4. `/admen/login` で管理者ログイン → `/research/members` でメンバーを追加する。
+4. `/admen/login` で管理者ログイン → `/research/members` で名前とメールを入力して招待メールを送る（受け取った人が自分でパスワードを設定）。
+   メールは Resend（`RESEND_API_KEY` / `CONTACT_FROM`）で送る。
    研究用テーブル（`research_projects` / `research_artifacts`）は初回アクセス時に自動作成される。
 
 ### Claude からの公開

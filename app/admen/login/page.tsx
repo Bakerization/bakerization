@@ -13,6 +13,7 @@ export default function AdmenLoginPage() {
       title="管理者認証"
       defaultCallback="/admen"
       allowedPrefixes={["/admen", "/blog"]}
+      forgotHref="/research/forgot"
     />
   );
 }

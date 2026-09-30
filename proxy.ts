@@ -3,7 +3,13 @@ import type { NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 // Paths under /research that must stay reachable without a session.
-const RESEARCH_PUBLIC = ["/research/login", "/research/consent"];
+const RESEARCH_PUBLIC = [
+  "/research/login",
+  "/research/consent",
+  "/research/invite",
+  "/research/reset-password",
+  "/research/forgot",
+];
 
 export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;

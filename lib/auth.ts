@@ -7,6 +7,8 @@ import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { PostgresDialect, type PostgresPool } from "kysely";
 import { Pool } from "@neondatabase/serverless";
+import { sendEmail } from "@/lib/email";
+import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 
 // ─────────────────────────────────────────────────────────────
 // Better Auth is the single auth system for the site:
@@ -27,6 +29,9 @@ function resolveAppUrl() {
 export const APP_URL = resolveAppUrl();
 export const MCP_RESOURCE = `${APP_URL}/api/mcp`;
 export const RESEARCH_SCOPE = "research";
+/** Invitation / password-reset links stay valid this long. */
+export const RESET_TOKEN_DAYS = 7;
+export const INVITE_REDIRECT = "/research/invite";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -56,9 +61,20 @@ export const auth = betterAuth({
   ),
   emailAndPassword: {
     enabled: true,
-    // Accounts are issued by an admin from /research/members.
+    // Accounts are created by an admin from /research/members (invitation email);
+    // the invitee sets their own password through the reset-password token flow.
     disableSignUp: true,
     minPasswordLength: 10,
+    resetPasswordTokenExpiresIn: 60 * 60 * 24 * RESET_TOKEN_DAYS,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      const isInvite = url.includes(encodeURIComponent(INVITE_REDIRECT)) || url.includes(INVITE_REDIRECT);
+      const message = isInvite
+        ? inviteEmail({ to: user.email, name: user.name, url, appUrl: APP_URL, days: RESET_TOKEN_DAYS })
+        : resetPasswordEmail({ to: user.email, name: user.name, url, days: RESET_TOKEN_DAYS });
+      const result = await sendEmail(message);
+      if (!result.ok) throw new Error(result.error);
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -70,6 +86,8 @@ export const auth = betterAuth({
     storage: "database",
     customRules: {
       "/sign-in/email": { window: 60, max: 5 },
+      "/request-password-reset": { window: 60, max: 3 },
+      "/reset-password": { window: 60, max: 5 },
     },
   },
   // The jwt plugin's /token endpoint is not needed (and confusing next to /oauth2/token).

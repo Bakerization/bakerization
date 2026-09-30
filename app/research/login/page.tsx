@@ -20,12 +20,20 @@ export default async function ResearchLoginPage({
     const cb = typeof params.callbackUrl === "string" && params.callbackUrl.startsWith("/research") ? params.callbackUrl : "/research";
     redirect(cb);
   }
+  const notice =
+    params.invite === "done"
+      ? "パスワードを設定しました。招待メールのアドレスでログインしてください。"
+      : params.reset === "done"
+        ? "パスワードを再設定しました。新しいパスワードでログインしてください。"
+        : undefined;
   return (
     <LoginForm
       kicker="▍RESEARCH — SIGN IN"
       title="メンバー認証"
       defaultCallback="/research"
       allowedPrefixes={["/research"]}
+      forgotHref="/research/forgot"
+      notice={notice}
     />
   );
 }
