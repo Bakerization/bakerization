@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { listPosts } from "@/lib/blog-store";
 import { C, FONTS } from "@/lib/theme";
 

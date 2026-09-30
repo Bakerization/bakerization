@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import BlogEditor from "@/components/blog/BlogEditor";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { getPost } from "@/lib/blog-store";
 
 type Params = {

@@ -10,7 +10,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
   const pathname = usePathname();
 
   // On the home page, TopPage renders its own integrated Nav — skip the global one.
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/research" || pathname.startsWith("/research/")) return null;
 
   const t = {
     home: "Home",

@@ -10,6 +10,7 @@ import Providers from "@/app/providers";
 import { getServerLocale } from "@/lib/i18n";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
+import HideOnResearch from "@/components/HideOnResearch";
 
 const fontDisplay = Space_Grotesk({
   subsets: ["latin"],
@@ -62,7 +63,9 @@ export default async function RootLayout({
         <Providers>
           <Navbar locale={locale} />
           {children}
-          <SiteFooter locale={locale} />
+          <HideOnResearch>
+            <SiteFooter locale={locale} />
+          </HideOnResearch>
         </Providers>
       </body>
     </html>

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import BlogEditor from "@/components/blog/BlogEditor";
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 
 export default async function NewBlogPage() {
   const session = await getAuthSession();

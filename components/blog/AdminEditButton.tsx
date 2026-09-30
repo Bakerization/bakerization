@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { Locale } from "@/lib/i18n";
 
 export default function AdminEditButton({
@@ -11,7 +11,7 @@ export default function AdminEditButton({
   slug: string;
   locale: Locale;
 }) {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   if (session?.user?.role !== "admin") {
     return null;
   }
