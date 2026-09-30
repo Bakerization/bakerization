@@ -1,28 +1,9 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   Theme tokens — single source of truth, switched via body class
+   Theme tokens — single source of truth
    ───────────────────────────────────────────────────────────── */
-:root,
-body.theme-dark {
-  --bg: #0e0700;
-  --paper: #f6e7c9;
-  --card: #1b0e02;
-  --ink: #f6e7c9;
-  --sub: #a88a5e;
-  --line: #3a2710;
-  --rule: #f6e7c9;
-  --accent: #e89a1f;
-  --slab: #1b0e02;
-  --on-slab: #f6e7c9;
-  --mk: rgba(232, 154, 31, 0.55);
-  --mk-end: rgba(232, 154, 31, 0.42);
-  --field-bg: #1b0e02;
-  --field-border: #3a2710;
-  --shadow: rgba(0, 0, 0, 0.4);
-}
-
-body.theme-light {
+:root {
   --bg: #f6e9cf;
   --paper: #fff5dc;
   --card: #ffffff;
@@ -215,6 +196,11 @@ body {
     font-size: clamp(44px, 13vw, 168px) !important;
     line-height: 0.95 !important;
     letter-spacing: -2px !important;
+  }
+  .mob-h1-hero {
+    font-size: clamp(40px, 11vw, 116px) !important;
+    line-height: 0.98 !important;
+    letter-spacing: -1px !important;
   }
   .mob-h2 {
     font-size: clamp(36px, 10vw, 96px) !important;

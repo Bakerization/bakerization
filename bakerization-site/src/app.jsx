@@ -59,6 +59,19 @@ function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const theme = React.useMemo(() => buildTheme(), []);
 
+  const [lang, setLang] = React.useState(() => {
+    try {
+      const saved = window.localStorage.getItem("bkz-lang");
+      if (saved === "ja" || saved === "en") return saved;
+    } catch (e) {}
+    return "ja";
+  });
+  React.useEffect(() => {
+    document.documentElement.lang = lang;
+    try { window.localStorage.setItem("bkz-lang", lang); } catch (e) {}
+  }, [lang]);
+  const langValue = React.useMemo(() => ({ lang, setLang }), [lang]);
+
   // Drive the highlighter color from the accent so it always matches.
   React.useEffect(() => {
     document.documentElement.style.setProperty("--mk-color",     "rgba(232,154,31,.62)");
@@ -67,9 +80,11 @@ function App() {
 
   return (
     <React.Fragment>
-      <ScaledStage className={tweaks.marker ? "marker-on" : ""}>
-        <TopPage theme={theme} />
-      </ScaledStage>
+      <LangContext.Provider value={langValue}>
+        <ScaledStage className={tweaks.marker ? "marker-on" : ""}>
+          <TopPage theme={theme} />
+        </ScaledStage>
+      </LangContext.Provider>
 
       <TweaksPanel title="Editorial">
         <TweakSection label="蛍光ペン · Marker">

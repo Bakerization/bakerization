@@ -38,6 +38,10 @@ function H2({ theme, children, size = 56, style = {} }) {
 function About({ theme }) {
   const { layout, palette, fonts } = theme;
   const c = COPY.about;
+  const { lang } = useLang();
+  const en = lang === "en";
+  const lead = en ? c.leadEn : c.lead;
+  const paragraphs = en ? c.paragraphsEn : c.paragraphs;
 
   // Shared sub-components
   const RefrainBig = ({ color, size = 124, weight = 700, align = "left", spacing = -3 }) => (
@@ -175,7 +179,7 @@ function About({ theme }) {
         {/* Header strip */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `1px solid ${palette.line}`, borderBottom: `1px solid ${palette.line}`, padding: "16px 0", marginBottom: 64 }}>
           <span style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: palette.accent }}>
-            ▍FEATURE.001 — {c.label.ja}
+            ▍FEATURE.001 — {en ? c.label.en : c.label.ja}
           </span>
           <span style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: palette.sub }}>
             What is Bakerization? / p. 02
@@ -191,42 +195,62 @@ function About({ theme }) {
             <h2 style={{
               margin: 0,
               fontFamily: fonts.display,
-              fontSize: 96,
+              fontSize: en ? 64 : 96,
               lineHeight: 1.08,
-              letterSpacing: -3,
+              letterSpacing: en ? -2 : -3,
               fontWeight: 700,
               color: palette.ink,
             }}>
-              22世紀には、
-              <br />
-              どんなパン屋さんが
-              <br />
-              <span style={{ color: palette.accent }}>あるでしょうか？</span>
+              {en ? (
+                <>
+                  What kind of
+                  <br />
+                  bakeries will exist
+                  <br />
+                  in the <span style={{ color: palette.accent }}>22nd&nbsp;century?</span>
+                </>
+              ) : (
+                <>
+                  22世紀には、
+                  <br />
+                  どんなパン屋さんが
+                  <br />
+                  <span style={{ color: palette.accent }}>あるでしょうか？</span>
+                </>
+              )}
             </h2>
             <Rule theme={theme} style={{ background: palette.accent, height: 3, width: 100, margin: "40px 0" }} />
             <p style={{ fontSize: 17, lineHeight: 1.95, color: palette.sub, margin: 0, maxWidth: 520 }}>
-              {c.lead}
+              {lead}
             </p>
           </div>
           <div>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{c.paragraphs[0]}</p>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>{c.paragraphs[1]}</p>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>{c.paragraphs[2]}</p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{paragraphs[0]}</p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>{paragraphs[1]}</p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>{paragraphs[2]}</p>
           </div>
         </div>
 
-        {/* Lower body — 2 columns, with closing folded in */}
+        {/* Lower body — 2 columns; closing sentences continue right after the last paragraph */}
         <div style={{ marginTop: 80, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64 }}>
           <div>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{c.paragraphs[3]}</p>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>
-              <span className="mk">宇宙の全てのパン好きのために</span>、<span className="mk">Bakerization</span>は今日も文化を紡ぎ続けます。
-            </p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{paragraphs[3]}</p>
           </div>
           <div>
-            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{c.paragraphs[4]}</p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: 0 }}>{paragraphs[4]}</p>
             <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>
-              <span className="mk">Bakerization</span>は日本のパン文化を世界に広げ、<span className="mk">22世紀のパン屋さん</span>を創造します。
+              {en ? (
+                <><span className="mk">For every bread lover in the universe</span>, <span className="mk">Bakerization</span> keeps weaving culture today.</>
+              ) : (
+                <><span className="mk">宇宙の全てのパン好きのために</span>、<span className="mk">Bakerization</span>は今日も文化を紡ぎ続けます。</>
+              )}
+            </p>
+            <p style={{ fontSize: 16, lineHeight: 2, color: palette.ink, margin: "24px 0 0" }}>
+              {en ? (
+                <><span className="mk">Bakerization</span> will carry Japan's bread culture to the world and create the <span className="mk">bakery of the 22nd century</span>.</>
+              ) : (
+                <><span className="mk">Bakerization</span>は日本のパン文化を世界に広げ、<span className="mk">22世紀のパン屋さん</span>を創造します。</>
+              )}
             </p>
           </div>
         </div>
@@ -399,6 +423,8 @@ function About({ theme }) {
 function Services({ theme }) {
   const { layout, palette, fonts } = theme;
   const c = COPY.services;
+  const { lang } = useLang();
+  const en = lang === "en";
 
   if (layout.services === "numbered-list") {
     return (
@@ -535,7 +561,7 @@ function Services({ theme }) {
         <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", marginBottom: 56 }}>
           <div>
             <div style={{ background: palette.slab, color: palette.onSlab, padding: "10px 14px", display: "inline-block", fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: 24 }}>
-              ▍{c.label.ja}
+              ▍{en ? c.label.en : c.label.ja}
             </div>
             <H2 theme={theme} size={72} style={{ fontWeight: 700, letterSpacing: -2 }}>Service.</H2>
           </div>
@@ -562,14 +588,14 @@ function Services({ theme }) {
                     {it.num}
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.3, marginBottom: 16 }}>
-                    {it.ja}
+                    {en ? it.en : it.ja}
                   </div>
                   <p style={{ fontSize: 14, lineHeight: 1.85, margin: 0, opacity: onAccent ? 0.92 : 0.78 }}>
-                    {it.body}
+                    {en ? it.bodyEn : it.body}
                   </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 32, fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase" }}>
-                  <span>{it.en}</span>
+                  <span>{en ? it.ja : it.en}</span>
                   <span>↗</span>
                 </div>
               </div>

@@ -23,7 +23,7 @@ export default async function BlogListPage() {
         }
       : {
           label: "ジャーナル",
-          heading: "現場から、最新の記録。",
+          heading: "",
           empty: "公開中の記事はまだありません。",
           dateLocale: "ja-JP",
         };
@@ -89,20 +89,22 @@ export default async function BlogListPage() {
             gap: 24,
           }}
         >
-          <h1
-            className="mob-h2"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 84,
-              lineHeight: 1.05,
-              letterSpacing: -3,
-              fontWeight: 700,
-              color: C.ink,
-              margin: 0,
-            }}
-          >
-            {t.heading}
-          </h1>
+          {t.heading && (
+            <h1
+              className="mob-h2"
+              style={{
+                fontFamily: FONTS.display,
+                fontSize: 84,
+                lineHeight: 1.05,
+                letterSpacing: -3,
+                fontWeight: 700,
+                color: C.ink,
+                margin: 0,
+              }}
+            >
+              {t.heading}
+            </h1>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
           </div>

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import ThemeToggle from "@/components/ThemeToggle";
 import { Locale } from "@/lib/i18n";
 import { C, FONTS } from "@/lib/theme";
 
@@ -19,6 +18,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
     services: "Services",
     journal: "Journal",
     about: "About",
+    message: "Message",
     contact: "Contact",
   };
 
@@ -133,6 +133,14 @@ export default function Navbar({ locale }: { locale: Locale }) {
           </li>
           <li>
             <Link
+              href="/message"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.message}
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/contact"
               style={{
                 padding: "8px 14px",
@@ -148,9 +156,6 @@ export default function Navbar({ locale }: { locale: Locale }) {
           </li>
           <li>
             <LanguageSwitcher locale={locale} />
-          </li>
-          <li style={{ display: "inline-flex", alignItems: "center" }}>
-            <ThemeToggle />
           </li>
         </ul>
       </nav>

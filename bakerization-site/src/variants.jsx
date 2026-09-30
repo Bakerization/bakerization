@@ -1,6 +1,15 @@
 // variants.jsx — Five editorial directions for the Bakerization top page.
 // Each <TopPage theme={theme}/> renders a full landing mockup at 1280px wide.
 
+// ─────────────────────────────────────────────────────────────
+// Language (JA / EN) — global toggle, wired through React context.
+// Components read `const { lang } = useLang()` and pick copy fields.
+// ─────────────────────────────────────────────────────────────
+const LangContext = React.createContext({ lang: "ja", setLang: () => {} });
+function useLang() {
+  return React.useContext(LangContext);
+}
+
 const THEMES = [
   {
     id: "v1-warm-serif",
@@ -250,7 +259,10 @@ const COPY = {
     refrainJa: "私たちは、未来を焼いている。",
     lead:
       "Bakerizationは、東大パン研究会と「パンラボ」池田浩明が出会い、始まった運動です。",
+    leadEn:
+      "Bakerization is a movement born when the University of Tokyo Bread Society met Hiroaki Ikeda of “Pan Labo.”",
     question: "22世紀には、どんなパン屋さんがあるでしょうか？",
+    questionEn: "What kind of bakeries will exist in the 22nd century?",
     paragraphs: [
       "技術革新や国際情勢の不安定化によって、サステナブルで優しい地球を守っていくことは、どんどん難しくなっています。",
       "Global Carbon Projectのデータでは、人間が今のままの経済活動を続けていくと、2030年ごろには地球に残された二酸化炭素の排出余地が限界を迎えてしまうといいます。",
@@ -258,14 +270,25 @@ const COPY = {
       "日本のパンは16世紀の出島への伝来以来、あんぱんやメロンパン、様々なお食事パンまで、独自の進化を遂げてきました。近年、日本のパンはついに芸術的な領域へと達し、その技術力はアジア各地のみならず、全世界に波及しています。",
       "しかし、いま、日本のパン文化は構造的な危機に直面しています。2019年から始まる労働法の改正、気候変動、国際情勢の不安定化による原価の高騰——。Bakerizationはそのような問題に正面から立ち向かい、日本の素晴らしいパン文化を守っていきたいと考えています。",
     ],
+    paragraphsEn: [
+      "Technological upheaval and a more unstable world are making it ever harder to protect a sustainable, gentle planet.",
+      "According to Global Carbon Project data, if we continue our economic activity as it is, the carbon budget left to the planet will reach its limit around 2030.",
+      "And that is not all. Within today's capitalist economy, many craft cultures are now being lost — lacquerware, ironware, museum pieces, and the cultures of pâtisserie and Japanese bread among them.",
+      "Since bread first arrived at Dejima in the 16th century, Japanese bread has evolved in its own way — from anpan and melon pan to countless savory loaves. In recent years it has finally reached an artistic realm, and its craftsmanship now ripples out across Asia and the whole world.",
+      "Yet today, Japanese bread culture faces a structural crisis: the labor-law reforms beginning in 2019, climate change, and costs soaring with global instability. Bakerization wants to meet these challenges head-on and protect Japan's wonderful bread culture.",
+    ],
     closing: [
       "宇宙の全てのパン好きのために、Bakerizationは今日も文化を紡ぎ続けます。",
       "Bakerizationは日本のパン文化を世界に広げ、22世紀のパン屋さんを創造します。",
     ],
+    closingEn: [
+      "For every bread lover in the universe, Bakerization keeps weaving culture today.",
+      "Bakerization will carry Japan's bread culture to the world and create the bakery of the 22nd century.",
+    ],
     facts: [
-      { kicker: "2030", label: "炭素排出余地の限界", source: "Source — Global Carbon Project" },
-      { kicker: "2019—", label: "労働法改正以降", source: "現場のひずみが顕在化" },
-      { kicker: "1600s", label: "出島へのパン伝来", source: "日本のパン、独自進化の起点" },
+      { kicker: "2030", label: "炭素排出余地の限界", labelEn: "Carbon budget limit", source: "Source — Global Carbon Project", sourceEn: "Source — Global Carbon Project" },
+      { kicker: "2019—", label: "労働法改正以降", labelEn: "Since labor-law reform", source: "現場のひずみが顕在化", sourceEn: "Strain on the floor made visible" },
+      { kicker: "1600s", label: "出島へのパン伝来", labelEn: "Bread arrives at Dejima", source: "日本のパン、独自進化の起点", sourceEn: "Where Japan's bread began to evolve" },
     ],
   },
   services: {
@@ -304,34 +327,39 @@ const COPY = {
   },
   blog: {
     label: { ja: "ジャーナル", en: "Journal" },
-    titleJa: "現場から、最新の記録。",
+    titleJa: "",
     titleEn: "Latest notes from the field.",
     posts: [
       {
         date: "2026.04.18",
         tag: "現場ノート",
+        tagEn: "Field Note",
         ja: "仕込みは「読む」もの。需要予測と発酵時間のあいだ。",
         en: "Forecasting bread by reading the day.",
       },
       {
         date: "2026.03.27",
         tag: "事例",
+        tagEn: "Case Study",
         ja: "下町の小さな店で、廃棄率を3割減らした半年の話。",
         en: "Cutting waste by 30% at a neighborhood bakery.",
       },
       {
         date: "2026.03.05",
         tag: "対談",
+        tagEn: "Dialogue",
         ja: "町のパン屋が地域インフラになるとき。",
         en: "When the corner bakery becomes infrastructure.",
       },
     ],
   },
   ikeda: {
-    label: { ja: "代表メッセージ", en: "From the Founder" },
+    label: { ja: "挨拶", en: "From the Founder" },
     name: "池田 弘明",
     nameEn: "Hiroaki Ikeda",
     role: "共同代表 COO / Co-founder & COO",
+    roleJa: "共同代表 · COO",
+    roleEn: "Co-founder & COO",
     quoteJa:
       "「焼く」という営みは、街の朝を支えてきました。私たちは、その手仕事の重さを軽くするのではなく、続けられる形に整えたい。データも仕組みも、結局は人のためにあります。",
     quoteEn:
@@ -418,7 +446,9 @@ function Nav({ theme }) {
         {items.map((x) => (
           <li key={x}>{x}</li>
         ))}
-        <li style={{ color: theme.palette.accent }}>JA / EN</li>
+        <li style={{ display: "flex", alignItems: "center" }}>
+          <LangToggle theme={theme} />
+        </li>
       </ul>
     </div>
   );
@@ -429,6 +459,11 @@ function Nav({ theme }) {
 // ─────────────────────────────────────────────────────────────
 function Hero({ theme }) {
   const { layout, palette, fonts } = theme;
+  const { lang } = useLang();
+  const en = lang === "en";
+  const heroSub = en ? COPY.heroSubEn : COPY.heroSubJa;
+  const ctaP = en ? COPY.ctaPrimary.en : COPY.ctaPrimary.ja;
+  const ctaS = en ? COPY.ctaSecondary.en : COPY.ctaSecondary.ja;
   const heroImg = (extra = {}) => (
     <img
       src="assets/top.jpeg"
@@ -509,11 +544,11 @@ function Hero({ theme }) {
             the Future.
           </h1>
           <div style={{ marginTop: 28, fontSize: 17, fontFamily: theme.fonts.body, maxWidth: 640, lineHeight: 1.85, opacity: 0.92 }}>
-            {COPY.heroSubJa}
+            {heroSub}
           </div>
           <div style={{ marginTop: 40, display: "flex", gap: 14 }}>
-            <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-            <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+            <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+            <CtaGhost theme={theme}>{ctaS}</CtaGhost>
           </div>
         </div>
         {/* bottom rule */}
@@ -574,11 +609,11 @@ function Hero({ theme }) {
               }}
             />
             <p style={{ marginTop: 28, fontSize: 16, lineHeight: 1.95, color: palette.sub, maxWidth: 460, margin: "28px 0 0" }}>
-              {COPY.heroSubJa}
+              {heroSub}
             </p>
             <div style={{ marginTop: 40, display: "flex", gap: 12, alignItems: "center" }}>
-              <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-              <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+              <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+              <CtaGhost theme={theme}>{ctaS}</CtaGhost>
             </div>
             {/* spec line */}
             <div style={{ marginTop: 56, display: "flex", gap: 32, fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: palette.sub }}>
@@ -634,11 +669,11 @@ function Hero({ theme }) {
             <div>
               <Kicker theme={theme}>Statement · 主旨</Kicker>
               <p style={{ margin: "16px 0 0", fontSize: 18, lineHeight: 2, color: palette.ink, fontFamily: fonts.body }}>
-                {COPY.heroSubJa}
+                {heroSub}
               </p>
               <div style={{ marginTop: 28, display: "flex", gap: 12 }}>
-                <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-                <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+                <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+                <CtaGhost theme={theme}>{ctaS}</CtaGhost>
               </div>
             </div>
           </div>
@@ -677,11 +712,11 @@ function Hero({ theme }) {
               We Bake<br />the&nbsp;Future.
             </h1>
             <div style={{ marginTop: 32, fontFamily: theme.fonts.body, fontSize: 17, lineHeight: 1.9, maxWidth: 520 }}>
-              {COPY.heroSubJa}
+              {heroSub}
             </div>
             <div style={{ marginTop: 40, display: "flex", gap: 12 }}>
-              <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-              <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+              <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+              <CtaGhost theme={theme}>{ctaS}</CtaGhost>
             </div>
           </div>
           {/* bottom band */}
@@ -756,8 +791,8 @@ function Hero({ theme }) {
             </p>
           </div>
           <div style={{ marginTop: 28, display: "flex", gap: 12 }}>
-            <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-            <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+            <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+            <CtaGhost theme={theme}>{ctaS}</CtaGhost>
           </div>
         </div>
         <div style={{ position: "relative" }}>
@@ -809,11 +844,11 @@ function Hero({ theme }) {
             </h1>
             <div style={{ marginTop: 32, width: 80, height: 2, background: palette.accent }} />
             <p style={{ marginTop: 26, fontSize: 17, lineHeight: 1.95, color: palette.sub, maxWidth: 460 }}>
-              {COPY.heroSubJa}
+              {heroSub}
             </p>
             <div style={{ marginTop: 36, display: "flex", gap: 12 }}>
-              <CtaPrimary theme={theme}>{COPY.ctaPrimary.ja}</CtaPrimary>
-              <CtaGhost theme={theme}>{COPY.ctaSecondary.ja}</CtaGhost>
+              <CtaPrimary theme={theme}>{ctaP}</CtaPrimary>
+              <CtaGhost theme={theme}>{ctaS}</CtaGhost>
             </div>
           </div>
 
@@ -829,7 +864,7 @@ function Hero({ theme }) {
           <div style={{ position: "absolute", inset: 0, background: layout.heroOverlay }} />
           {/* tape labels */}
           <div style={{ position: "absolute", left: 32, bottom: 32, color: palette.paper, fontFamily: fonts.mono, fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", opacity: 0.92 }}>
-            朝の店頭 · The morning counter
+            {en ? "The morning counter" : "朝の店頭 · The morning counter"}
           </div>
         </div>
       </div>
@@ -880,5 +915,45 @@ function CtaGhost({ theme, children }) {
   );
 }
 
+// JA / EN language switch — a real toggle backed by LangContext.
+function LangToggle({ theme, tone }) {
+  const { lang, setLang } = useLang();
+  const activeColor = tone === "onSlab" ? theme.palette.onSlab : theme.palette.accent;
+  const idleColor = theme.palette.sub;
+  const btn = (code, label) => {
+    const active = lang === code;
+    return (
+      <button
+        type="button"
+        onClick={() => setLang(code)}
+        aria-pressed={active}
+        title={code === "ja" ? "日本語" : "English"}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          fontFamily: theme.fonts.mono,
+          fontSize: 12,
+          letterSpacing: "0.18em",
+          fontWeight: active ? 700 : 400,
+          color: active ? activeColor : idleColor,
+          opacity: active ? 1 : 0.7,
+          transition: "color .2s ease, opacity .2s ease",
+        }}
+      >
+        {label}
+      </button>
+    );
+  };
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+      {btn("ja", "JA")}
+      <span style={{ color: idleColor, opacity: 0.5 }}>/</span>
+      {btn("en", "EN")}
+    </span>
+  );
+}
+
 // Export to window for the next file to extend.
-Object.assign(window, { THEMES, COPY, Nav, Hero, Rule, Kicker, CtaPrimary, CtaGhost });
+Object.assign(window, { THEMES, COPY, Nav, Hero, Rule, Kicker, CtaPrimary, CtaGhost, LangContext, useLang, LangToggle });

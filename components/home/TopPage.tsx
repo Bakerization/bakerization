@@ -2,9 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
-import ThemeToggle from "@/components/ThemeToggle";
-import InlineLanguageSwitcher from "@/components/InlineLanguageSwitcher";
 import { Locale } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 type BlogTeaser = {
   slug: string;
@@ -14,229 +13,180 @@ type BlogTeaser = {
   en: string;
 };
 
-type Props = { posts?: BlogTeaser[]; locale: Locale };
+type Props = { posts?: BlogTeaser[]; locale?: Locale };
 
-function copyFor(locale: Locale) {
-  const isEn = locale === "en";
-  return {
-    brand: "Bakerization",
-    issue: "ISSUE 01 — 2026",
-    heroTitle: "We Bake the Future.",
-    heroSub: isEn
-      ? "Bakerization was founded to address the structural challenges facing bakeries."
-      : "Bakerizationはパン屋の社会問題を解決するために生まれた団体です。",
-    heroCaption: isEn ? "The morning counter" : "朝の店頭 · The morning counter",
-    ctaPrimary: isEn ? "See who we are" : "団体情報を見る",
-    ctaSecondary: isEn ? "See what we do" : "活動を見る",
-    about: {
-      label: isEn ? "What is Bakerization?" : "Bakerizationとは何か？",
-      headline: isEn
-        ? ["What will bakeries", "look like in", "the 22nd century?"]
-        : ["22世紀には、", "どんなパン屋さんが", "あるでしょうか？"],
-      lead: isEn
-        ? "Bakerization began when the University of Tokyo Bread Research Society met Hiroaki Ikeda of Painlab."
-        : "Bakerizationは、東大パン研究会と「パンラボ」池田浩明が出会い、始まった運動です。",
-      paragraphs: isEn
-        ? [
-            "Technological upheaval and global instability are making it steadily harder to keep this planet sustainable and kind.",
-            "According to the Global Carbon Project, if we carry on with economic activity as it stands, the carbon budget left to the planet will run out around 2030.",
-            "And that is not all. Under modern capitalism, one craft culture after another is being lost — lacquerware, ironware, the objects we keep in museums, and with them the world of the pâtissier and the craft of Japanese bread.",
-            "Since bread first arrived at Dejima in the 16th century, Japan has taken it somewhere of its own: anpan, melonpan, and a whole family of breads made for the table. In recent years Japanese bread has reached the level of an art form, and its craft now travels well beyond Asia.",
-            "Yet Japanese bread culture now faces a structural crisis — labour law reforms rolling out from 2019, climate change, and raw material costs driven up by global instability. Bakerization means to meet these problems head on, and to protect a bread culture worth keeping.",
-          ]
-        : [
-            "技術革新や国際情勢の不安定化によって、サステナブルで優しい地球を守っていくことは、どんどん難しくなっています。",
-            "Global Carbon Projectのデータでは、人間が今のままの経済活動を続けていくと、2030年ごろには地球に残された二酸化炭素の排出余地が限界を迎えてしまうといいます。",
-            "それだけではありません。現代の資本主義経済のなかで、様々な職人文化が、いま失われようとしています。漆器、鉄器、博物館の展示品、さらにはパティシエの文化や日本のパン技術もその一つです。",
-            "日本のパンは16世紀の出島への伝来以来、あんぱんやメロンパン、様々なお食事パンまで、独自の進化を遂げてきました。近年、日本のパンはついに芸術的な領域へと達し、その技術力はアジア各地のみならず、全世界に波及しています。",
-            "しかし、いま、日本のパン文化は構造的な危機に直面しています。2019年から始まる労働法の改正、気候変動、国際情勢の不安定化による原価の高騰——。Bakerizationはそのような問題に正面から立ち向かい、日本の素晴らしいパン文化を守っていきたいと考えています。",
-          ],
-      marked1: isEn ? (
-        <>
-          <span className="mk">For every bread lover in the universe</span>,{" "}
-          <span className="mk">Bakerization</span> keeps weaving this culture,
-          today as ever.
-        </>
-      ) : (
-        <>
-          <span className="mk">宇宙の全てのパン好きのために</span>、
-          <span className="mk">Bakerization</span>
-          は今日も文化を紡ぎ続けます。
-        </>
-      ),
-      marked2: isEn ? (
-        <>
-          <span className="mk">Bakerization</span> carries Japanese bread
-          culture to the world, and builds{" "}
-          <span className="mk">the bakery of the 22nd century</span>.
-        </>
-      ) : (
-        <>
-          <span className="mk">Bakerization</span>
-          は日本のパン文化を世界に広げ、
-          <span className="mk">22世紀のパン屋さん</span>を創造します。
-        </>
-      ),
-    },
-    services: {
-      label: isEn ? "What we do" : "活動内容",
-      items: isEn
-        ? [
-            {
-              num: "01",
-              ja: "Store Operations Support",
-              en: "店舗オペレーション支援",
-              body:
-                "We design the workflow, and take on consulting and store development for bakeries.",
-            },
-            {
-              num: "02",
-              ja: "Data Visibility & Improvement",
-              en: "データの可視化",
-              body:
-                "We build engineering devices made for bread using AI and machine learning, and SaaS built for bakeries, so that every number behind bread becomes visible.",
-              note: "We are building a SaaS called kiji hub.",
-            },
-            {
-              num: "03",
-              ja: "Future of Bakery Culture",
-              en: "パン文化の未来づくり",
-              body:
-                "We plan and build a way of running a bakery that carries into the next generation, without losing what makes a place and its craftspeople worth visiting.",
-            },
-          ]
-        : [
-            {
-              num: "01",
-              ja: "店舗オペレーション支援",
-              en: "Store Operations Support",
-              body:
-                "フローを設計し、パン屋さんのコンサルティングや店舗開発を担当します。",
-            },
-            {
-              num: "02",
-              ja: "データの可視化",
-              en: "Data Visibility & Improvement",
-              body:
-                "AIや機械学習を用いたパン専用工学デバイスの開発、パン屋さんに特化したSaaSの開発をし、パンにまつわる数値を徹底的に可視化します。",
-              note: "kiji hubというSaaSを開発中です。",
-            },
-            {
-              num: "03",
-              ja: "パン文化の未来づくり",
-              en: "Future of Bakery Culture",
-              body:
-                "地域や職人の魅力を守りながら、次世代へつながるパン屋のあり方を企画・実装します。",
-            },
-          ],
-    },
-    product: {
-      label: isEn ? "Product" : "プロダクト",
-      titleEn: "Product.",
-      privacyLabel: isEn ? "Privacy Policy →" : "プライバシーポリシー →",
-      items: [
-        {
-          num: "01",
-          name: "kiji hub",
-          points: (isEn
-            ? [
-                "Measures mixing data and environmental data, and records them alongside the day's conditions",
-                <>
-                  Reproduces <strong>the optimal mix</strong> for that day
-                  automatically, through mixer control driven by machine
-                  learning and AI
-                </>,
-                "Lightens the load on the baker",
-              ]
-            : [
-                "ミキシングのデータと環境データを計測し、仕込みの条件とあわせて記録",
-                <>
-                  機械学習・AIを駆使したミキサーの自動制御によって、その日に合わせた
-                  <strong>最適なミキシング</strong>を自動で再現
-                </>,
-                "パン職人の負担を軽減",
-              ]) as ReactNode[],
-          href: "/app",
-          cta: isEn ? "See kiji hub" : "kiji hubを見る",
-          privacy: "/privacy",
-        },
-      ],
-    },
-    blog: {
-      label: isEn ? "Journal" : "ジャーナル",
-      title: isEn ? "The latest from the floor." : "現場から、最新の記録。",
-      viewAll: isEn ? "VIEW JOURNAL →" : "VIEW JOURNAL →",
-      posts: (isEn
-        ? [
-            {
-              slug: "",
-              date: "2026.04.18",
-              tag: "Field notes",
-              ja: "Forecasting bread by reading the day.",
-              en: "Where demand forecasting meets proving time.",
-            },
-            {
-              slug: "",
-              date: "2026.03.27",
-              tag: "Case study",
-              ja: "Cutting waste by 30% at a neighbourhood bakery.",
-              en: "Six months at a small shop downtown.",
-            },
-            {
-              slug: "",
-              date: "2026.03.05",
-              tag: "Conversation",
-              ja: "When the corner bakery becomes infrastructure.",
-              en: "On bread as a part of the neighbourhood.",
-            },
-          ]
-        : [
-            {
-              slug: "",
-              date: "2026.04.18",
-              tag: "現場ノート",
-              ja: "仕込みは「読む」もの。需要予測と発酵時間のあいだ。",
-              en: "Forecasting bread by reading the day.",
-            },
-            {
-              slug: "",
-              date: "2026.03.27",
-              tag: "事例",
-              ja: "下町の小さな店で、廃棄率を3割減らした半年の話。",
-              en: "Cutting waste by 30% at a neighborhood bakery.",
-            },
-            {
-              slug: "",
-              date: "2026.03.05",
-              tag: "対談",
-              ja: "町のパン屋が地域インフラになるとき。",
-              en: "When the corner bakery becomes infrastructure.",
-            },
-          ]) as BlogTeaser[],
-    },
-    ikeda: {
-      label: isEn ? "A word from our founder" : "代表メッセージ",
-      name: isEn ? "Hiroaki Ikeda" : "池田 浩明",
-      nameAlt: isEn ? "池田 浩明" : "Hiroaki Ikeda",
-      role: isEn ? "Co-founder & COO" : "共同代表 COO / Co-founder & COO",
-      quote: isEn
-        ? "A morning that smells of wheat — may it remain in the 22nd century too. Baking has carried mornings in our towns for generations. We don't want to lighten the craft; we want to give it a shape that can continue. Data and systems, in the end, exist for people."
-        : "小麦の香りがする朝を、22世紀にも楽しめるように。「焼く」という営みは、街の朝を支えてきました。私たちは、その手仕事の重さを軽くするのではなく、続けられる形に整えたい。データも仕組みも、結局は人のためにあります。",
-    },
-    contact: {
-      label: isEn ? "Contact" : "お問い合わせ",
-      title: isEn
-        ? "Let's build the future of bread."
-        : "パン屋の未来を、創造しよう",
-      body: isEn
-        ? "From the smallest shop to bakeries rooted in their neighbourhood, we shape our proposals around your floor. Start with a conversation."
-        : "小さなお店から地域に根ざしたベーカリーまで、現場に合わせた形で課題解決をご提案します。まずはお気軽にご相談ください。",
-      cta: isEn ? "Open the contact form →" : "お問い合わせフォームを開く →",
-    },
-  };
-}
+type ServiceItem = {
+  num: string;
+  slug: string;
+  ja: string;
+  en: string;
+  bodyJa: string;
+  bodyEn: string;
+  noteJa?: string;
+  noteEn?: string;
+};
 
-type Copy = ReturnType<typeof copyFor>;
+type ProductItem = {
+  num: string;
+  name: string;
+  pointsJa: ReactNode[];
+  pointsEn: ReactNode[];
+  href: string;
+  ctaJa: string;
+  ctaEn: string;
+  privacy: string;
+};
+
+const COPY = {
+  brand: "Bakerization",
+  issue: "ISSUE 01 — 2026",
+  heroTitle: "We Bake the Future.",
+  heroSubJa:
+    "Bakerizationはパン屋の社会問題を解決するために生まれた団体です。",
+  heroSubEn:
+    "Bakerization was founded to solve the social challenges facing the bakery industry.",
+  ctaPrimaryJa: "団体情報を見る",
+  ctaPrimaryEn: "About Us",
+  ctaSecondaryJa: "活動を見る",
+  ctaSecondaryEn: "Our Work",
+  heroCaptionJa: "朝の店頭 · The morning counter",
+  heroCaptionEn: "The morning counter",
+  about: {
+    labelJa: "Bakerizationとは何か？",
+    labelEn: "What is Bakerization?",
+    leadJa:
+      "Bakerizationは、東大パン研究会と「パンラボ」池田浩明が出会い、始まった運動です。",
+    leadEn:
+      "Bakerization is a movement that began when the University of Tokyo Bread Society met Hiroaki Ikeda of “Pan Labo.”",
+    paragraphsJa: [
+      "技術革新や国際情勢の不安定化によって、サステナブルで優しい地球を守っていくことは、どんどん難しくなっています。",
+      "Global Carbon Projectのデータでは、人間が今のままの経済活動を続けていくと、2030年ごろには地球に残された二酸化炭素の排出余地が限界を迎えてしまうといいます。",
+      "それだけではありません。現代の資本主義経済のなかで、様々な職人文化が、いま失われようとしています。漆器、鉄器、博物館の展示品、さらにはパティシエの文化や日本のパン技術もその一つです。",
+      "日本のパンは16世紀の出島への伝来以来、あんぱんやメロンパン、様々なお食事パンまで、独自の進化を遂げてきました。近年、日本のパンはついに芸術的な領域へと達し、その技術力はアジア各地のみならず、全世界に波及しています。",
+      "しかし、いま、日本のパン文化は構造的な危機に直面しています。2019年から始まる労働法の改正、気候変動、国際情勢の不安定化による原価の高騰——。Bakerizationはそのような問題に正面から立ち向かい、日本の素晴らしいパン文化を守っていきたいと考えています。",
+    ],
+    paragraphsEn: [
+      "Technological upheaval and a more unstable world are making it ever harder to protect a sustainable, gentle planet.",
+      "According to Global Carbon Project data, if we keep up our current economic activity, the carbon budget left to the planet will reach its limit around 2030.",
+      "And that is not all. Within today's capitalist economy, many craft cultures are now being lost — lacquerware, ironware, museum pieces, and the cultures of pâtisserie and Japanese bread among them.",
+      "Since bread first arrived at Dejima in the 16th century, Japanese bread has evolved in its own way — from anpan and melon pan to countless savory loaves. In recent years it has reached an artistic realm, and its craftsmanship now ripples out across Asia and the whole world.",
+      "Yet today, Japanese bread culture faces a structural crisis: the labor-law reforms beginning in 2019, climate change, and costs soaring with global instability. Bakerization wants to meet these challenges head-on and protect Japan's wonderful bread culture.",
+    ],
+  },
+  services: {
+    labelJa: "活動内容",
+    labelEn: "What We Do",
+    items: [
+      {
+        num: "01",
+        slug: "store-operations",
+        ja: "店舗オペレーション支援",
+        en: "Store Operations Support",
+        bodyJa:
+          "フローを設計し、パン屋さんのコンサルティングや店舗開発を担当します。",
+        bodyEn:
+          "We design operational flow and handle consulting and store development for bakeries.",
+      },
+      {
+        num: "02",
+        slug: "data-visibility",
+        ja: "データの可視化",
+        en: "Data Visibility & Improvement",
+        bodyJa:
+          "AIや機械学習を用いたパン専用工学デバイスの開発、パン屋さんに特化したSaaSの開発をし、パンにまつわる数値を徹底的に可視化します。",
+        bodyEn:
+          "We develop bread-specific engineering devices using AI and machine learning, and bakery-focused SaaS, to thoroughly visualize the numbers behind bread.",
+        noteJa: "kiji hubというSaaSを開発中です。",
+        noteEn: "We are building a SaaS called kiji hub.",
+      },
+      {
+        num: "03",
+        slug: "future-of-bakery-culture",
+        ja: "パン文化の未来づくり",
+        en: "Future of Bakery Culture",
+        bodyJa:
+          "地域や職人の魅力を守りながら、次世代へつながるパン屋のあり方を企画・実装します。",
+        bodyEn:
+          "While protecting the appeal of local communities and artisans, we plan and implement the kind of bakery that connects to the next generation.",
+      },
+    ] as ServiceItem[],
+  },
+  product: {
+    labelJa: "プロダクト",
+    labelEn: "Product",
+    titleEn: "Product.",
+    privacyLabelJa: "プライバシーポリシー →",
+    privacyLabelEn: "Privacy Policy →",
+    items: [
+      {
+        num: "01",
+        name: "kiji hub",
+        pointsJa: [
+          "ミキシングのデータと環境データを計測し、仕込みの条件とあわせて記録",
+          <>
+            機械学習・AIを駆使したミキサーの自動制御によって、その日に合わせた
+            <strong>最適なミキシング</strong>を自動で再現
+          </>,
+          "パン職人の負担を軽減",
+        ],
+        pointsEn: [
+          "Measures mixing data and environmental data, and records them alongside the day's conditions",
+          <>
+            Reproduces <strong>the optimal mix</strong> for that day automatically,
+            through mixer control driven by machine learning and AI
+          </>,
+          "Lightens the load on the baker",
+        ],
+        href: "/app",
+        ctaJa: "kiji hubを見る",
+        ctaEn: "See kiji hub",
+        privacy: "/privacy",
+      },
+    ] as ProductItem[],
+  },
+  blog: {
+    labelJa: "ジャーナル",
+    labelEn: "Journal",
+    viewAll: "VIEW JOURNAL →",
+    titleJa: "",
+    titleEn: "",
+    posts: [
+      {
+        date: "2026.04.18",
+        tagJa: "現場ノート",
+        tagEn: "Field Note",
+        ja: "仕込みは「読む」もの。需要予測と発酵時間のあいだ。",
+        en: "Forecasting bread by reading the day.",
+      },
+      {
+        date: "2026.03.27",
+        tagJa: "事例",
+        tagEn: "Case Study",
+        ja: "下町の小さな店で、廃棄率を3割減らした半年の話。",
+        en: "Cutting waste by 30% at a neighborhood bakery.",
+      },
+      {
+        date: "2026.03.05",
+        tagJa: "対談",
+        tagEn: "Dialogue",
+        ja: "町のパン屋が地域インフラになるとき。",
+        en: "When the corner bakery becomes infrastructure.",
+      },
+    ],
+  },
+  contact: {
+    labelJa: "お問い合わせ",
+    labelEn: "Contact",
+    titleJa: "",
+    titleEn: "",
+    bodyJa:
+      "小さなお店から大規模な食品会社まで、食品製造の最適化技術に関する質問や、売り上げを増やしたい、パン業界を盛り上げるイベントを開きたいなど、何でもご相談ください。",
+    bodyEn:
+      "From small shops to large food companies — whether you have questions about food-production optimization, want to grow your sales, or hope to host an event that energizes the bakery world, we'd love to hear from you.",
+    ctaJa: "お問い合わせフォームを開く →",
+    ctaEn: "Open the contact form →",
+  },
+};
 
 /* ─────────────────────────────────────────────────────────────
    Stage — fluid container capped at 1280px (no more zoom scaling)
@@ -260,10 +210,11 @@ function Rule({ style }: { style?: CSSProperties }) {
 /* ─────────────────────────────────────────────────────────────
    Nav
    ───────────────────────────────────────────────────────────── */
-function Nav({ c, locale }: { c: Copy; locale: Locale }) {
+function Nav({ locale }: { locale: Locale }) {
   const items: { label: string; href: string; drop?: string }[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
+    { label: "Message", href: "/message" },
     { label: "Services", href: "#services" },
     { label: "Product", href: "/app", drop: "kiji hub" },
     { label: "Journal", href: "/blog" },
@@ -294,7 +245,7 @@ function Nav({ c, locale }: { c: Copy; locale: Locale }) {
           textDecoration: "none",
         }}
       >
-        {c.brand}
+        {COPY.brand}
       </Link>
       <ul
         className="mob-flex-wrap"
@@ -343,11 +294,8 @@ function Nav({ c, locale }: { c: Copy; locale: Locale }) {
             )}
           </li>
         ))}
-        <li style={{ color: C.accent }}>
-          <InlineLanguageSwitcher locale={locale} separator=" / " />
-        </li>
-        <li style={{ display: "inline-flex", alignItems: "center" }}>
-          <ThemeToggle />
+        <li style={{ display: "flex", alignItems: "center" }}>
+          <LanguageSwitcher locale={locale} />
         </li>
       </ul>
     </div>
@@ -418,7 +366,8 @@ function CtaGhost({
 /* ─────────────────────────────────────────────────────────────
    Hero — poster-split
    ───────────────────────────────────────────────────────────── */
-function Hero({ c }: { c: Copy }) {
+function Hero({ locale }: { locale: Locale }) {
+  const en = locale === "en";
   return (
     <section
       className="mob-h-auto"
@@ -450,42 +399,15 @@ function Hero({ c }: { c: Copy }) {
             position: "relative",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            <span style={{ color: C.accent }}>■ BAKERIZATION</span>
-            <span>FEATURE.001</span>
-          </div>
-
           <div>
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 12,
-                letterSpacing: "0.32em",
-                textTransform: "uppercase",
-                color: C.sub,
-                marginBottom: 26,
-              }}
-            >
-              — A MANIFESTO FOR JAPANESE BREAD
-            </div>
             <h1
-              className="mob-h1"
+              className="mob-h1-hero"
               style={{
-                fontFamily: FONTS.display,
-                fontSize: 168,
-                lineHeight: 0.84,
-                letterSpacing: -6,
-                fontWeight: 700,
+                fontFamily: FONTS.round,
+                fontSize: 116,
+                lineHeight: 0.92,
+                letterSpacing: -1,
+                fontWeight: 600,
                 margin: 0,
                 color: C.ink,
                 textTransform: "uppercase",
@@ -511,28 +433,18 @@ function Hero({ c }: { c: Copy }) {
                 maxWidth: 460,
               }}
             >
-              {c.heroSub}
+              {en ? COPY.heroSubEn : COPY.heroSubJa}
             </p>
             <div style={{ marginTop: 36, display: "flex", gap: 12 }}>
-              <CtaPrimary href="/about">{c.ctaPrimary}</CtaPrimary>
-              <CtaGhost href="#services">{c.ctaSecondary}</CtaGhost>
+              <CtaPrimary href="/about">
+                {en ? COPY.ctaPrimaryEn : COPY.ctaPrimaryJa}
+              </CtaPrimary>
+              <CtaGhost href="#services">
+                {en ? COPY.ctaSecondaryEn : COPY.ctaSecondaryJa}
+              </CtaGhost>
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            <span>↓ KEEP READING</span>
-            <span>EST. 2025</span>
-          </div>
         </div>
 
         <div
@@ -573,7 +485,7 @@ function Hero({ c }: { c: Copy }) {
               opacity: 0.92,
             }}
           >
-            {c.heroCaption}
+            {en ? COPY.heroCaptionEn : COPY.heroCaptionJa}
           </div>
         </div>
       </div>
@@ -584,7 +496,11 @@ function Hero({ c }: { c: Copy }) {
 /* ─────────────────────────────────────────────────────────────
    About — feature-spread
    ───────────────────────────────────────────────────────────── */
-function About({ c }: { c: Copy["about"] }) {
+function About({ locale }: { locale: Locale }) {
+  const c = COPY.about;
+  const en = locale === "en";
+  const lead = en ? c.leadEn : c.leadJa;
+  const paragraphs = en ? c.paragraphsEn : c.paragraphsJa;
   return (
     <section
       id="about"
@@ -616,7 +532,7 @@ function About({ c }: { c: Copy["about"] }) {
             color: C.accent,
           }}
         >
-          ▍FEATURE.001 — {c.label}
+          ▍FEATURE.001 — {en ? c.labelEn : c.labelJa}
         </span>
         <span
           style={{
@@ -658,18 +574,31 @@ function About({ c }: { c: Copy["about"] }) {
             style={{
               margin: 0,
               fontFamily: FONTS.display,
-              fontSize: 96,
+              fontSize: en ? 64 : 96,
               lineHeight: 1.08,
-              letterSpacing: -3,
+              letterSpacing: en ? -2 : -3,
               fontWeight: 700,
               color: C.ink,
             }}
           >
-            {c.headline[0]}
-            <br />
-            {c.headline[1]}
-            <br />
-            <span style={{ color: C.accent }}>{c.headline[2]}</span>
+            {en ? (
+              <>
+                What kind of
+                <br />
+                bakeries will exist
+                <br />
+                in the{" "}
+                <span style={{ color: C.accent }}>22nd&nbsp;century?</span>
+              </>
+            ) : (
+              <>
+                22世紀には、
+                <br />
+                どんなパン屋さんが
+                <br />
+                <span style={{ color: C.accent }}>あるでしょうか？</span>
+              </>
+            )}
           </h2>
           <Rule
             style={{
@@ -688,13 +617,13 @@ function About({ c }: { c: Copy["about"] }) {
               maxWidth: 520,
             }}
           >
-            {c.lead}
+            {lead}
           </p>
         </div>
         <div>
-          <p style={pStyle()}>{c.paragraphs[0]}</p>
-          <p style={pStyle(true)}>{c.paragraphs[1]}</p>
-          <p style={pStyle(true)}>{c.paragraphs[2]}</p>
+          <p style={pStyle()}>{paragraphs[0]}</p>
+          <p style={pStyle(true)}>{paragraphs[1]}</p>
+          <p style={pStyle(true)}>{paragraphs[2]}</p>
         </div>
       </div>
 
@@ -708,12 +637,40 @@ function About({ c }: { c: Copy["about"] }) {
         }}
       >
         <div>
-          <p style={pStyle()}>{c.paragraphs[3]}</p>
-          <p style={pStyle(true)}>{c.marked1}</p>
+          <p style={pStyle()}>{paragraphs[3]}</p>
+          <p style={pStyle(true)}>
+            {en ? (
+              <>
+                <span className="mk">For every bread lover in the universe</span>
+                , <span className="mk">Bakerization</span> keeps weaving culture
+                today.
+              </>
+            ) : (
+              <>
+                <span className="mk">宇宙の全てのパン好きのために</span>、
+                <span className="mk">Bakerization</span>
+                は今日も文化を紡ぎ続けます。
+              </>
+            )}
+          </p>
         </div>
         <div>
-          <p style={pStyle()}>{c.paragraphs[4]}</p>
-          <p style={pStyle(true)}>{c.marked2}</p>
+          <p style={pStyle()}>{paragraphs[4]}</p>
+          <p style={pStyle(true)}>
+            {en ? (
+              <>
+                <span className="mk">Bakerization</span> will carry Japan's bread
+                culture to the world and create the{" "}
+                <span className="mk">bakery of the 22nd century</span>.
+              </>
+            ) : (
+              <>
+                <span className="mk">Bakerization</span>
+                は日本のパン文化を世界に広げ、
+                <span className="mk">22世紀のパン屋さん</span>を創造します。
+              </>
+            )}
+          </p>
         </div>
       </div>
     </section>
@@ -732,7 +689,9 @@ function pStyle(spaced = false): CSSProperties {
 /* ─────────────────────────────────────────────────────────────
    Services — color-block-cards
    ───────────────────────────────────────────────────────────── */
-function Services({ c }: { c: Copy["services"] }) {
+function Services({ locale }: { locale: Locale }) {
+  const c = COPY.services;
+  const en = locale === "en";
   return (
     <section
       id="services"
@@ -763,7 +722,7 @@ function Services({ c }: { c: Copy["services"] }) {
               marginBottom: 24,
             }}
           >
-            ▍{c.label}
+            ▍{en ? c.labelEn : c.labelJa}
           </div>
           <h2
             className="mob-h2"
@@ -802,21 +761,23 @@ function Services({ c }: { c: Copy["services"] }) {
       >
         {c.items.map((it, i) => {
           const onAccent = i === 1;
-          // 02「データの可視化」は kiji hub のページへの入口を兼ねる
-          const isProduct = onAccent;
-          const cardStyle: CSSProperties = {
-            background: onAccent ? C.accent : C.card,
-            color: onAccent ? C.paper : C.ink,
-            padding: 36,
-            minHeight: 320,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            border: onAccent ? "none" : `1.5px solid ${C.ink}`,
-            textDecoration: "none",
-          };
-          const body = (
-            <>
+          return (
+            <Link
+              key={it.num}
+              href={`/services/${it.slug}`}
+              className="mob-pad-card-lg"
+              style={{
+                background: onAccent ? C.accent : C.card,
+                color: onAccent ? C.paper : C.ink,
+                padding: 36,
+                minHeight: 320,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                border: onAccent ? "none" : `1.5px solid ${C.ink}`,
+                textDecoration: "none",
+              }}
+            >
               <div>
                 <div
                   className="mob-num"
@@ -839,7 +800,7 @@ function Services({ c }: { c: Copy["services"] }) {
                     marginBottom: 16,
                   }}
                 >
-                  {it.ja}
+                  {en ? it.en : it.ja}
                 </div>
                 <p
                   style={{
@@ -849,9 +810,9 @@ function Services({ c }: { c: Copy["services"] }) {
                     opacity: onAccent ? 0.92 : 0.78,
                   }}
                 >
-                  {it.body}
+                  {en ? it.bodyEn : it.bodyJa}
                 </p>
-                {"note" in it && it.note && (
+                {(en ? it.noteEn : it.noteJa) && (
                   <p
                     style={{
                       fontSize: 14,
@@ -860,7 +821,7 @@ function Services({ c }: { c: Copy["services"] }) {
                       fontWeight: 700,
                     }}
                   >
-                    {it.note}
+                    {en ? it.noteEn : it.noteJa}
                   </p>
                 )}
               </div>
@@ -876,24 +837,10 @@ function Services({ c }: { c: Copy["services"] }) {
                   textTransform: "uppercase",
                 }}
               >
-                <span>{it.en}</span>
+                <span>{en ? it.ja : it.en}</span>
                 <span>↗</span>
               </div>
-            </>
-          );
-          return isProduct ? (
-            <Link
-              key={it.num}
-              href="/app"
-              className="mob-pad-card-lg"
-              style={cardStyle}
-            >
-              {body}
             </Link>
-          ) : (
-            <div key={it.num} className="mob-pad-card-lg" style={cardStyle}>
-              {body}
-            </div>
           );
         })}
       </div>
@@ -903,9 +850,11 @@ function Services({ c }: { c: Copy["services"] }) {
 
 /* ─────────────────────────────────────────────────────────────
    Product — Service. と同じ組み。見出しは外に出し、
-   プロダクトが増えたら copyFor() の product.items に足すだけでよい。
+   プロダクトが増えたら COPY.product.items に足すだけでよい。
    ───────────────────────────────────────────────────────────── */
-function Product({ c }: { c: Copy["product"] }) {
+function Product({ locale }: { locale: Locale }) {
+  const c = COPY.product;
+  const en = locale === "en";
   const cols = Math.min(c.items.length, 3);
   return (
     <section
@@ -937,7 +886,7 @@ function Product({ c }: { c: Copy["product"] }) {
               marginBottom: 24,
             }}
           >
-            ▍{c.label}
+            ▍{en ? c.labelEn : c.labelJa}
           </div>
           <h2
             className="mob-h2"
@@ -1028,7 +977,7 @@ function Product({ c }: { c: Copy["product"] }) {
                   padding: 0,
                 }}
               >
-                {it.points.map((pt, i) => (
+                {(en ? it.pointsEn : it.pointsJa).map((pt, i) => (
                   <li
                     key={i}
                     style={{
@@ -1060,7 +1009,7 @@ function Product({ c }: { c: Copy["product"] }) {
                 flexWrap: "wrap",
               }}
             >
-              <CtaPrimary href={it.href}>{it.cta}</CtaPrimary>
+              <CtaPrimary href={it.href}>{en ? it.ctaEn : it.ctaJa}</CtaPrimary>
               <Link
                 href={it.privacy}
                 style={{
@@ -1072,7 +1021,7 @@ function Product({ c }: { c: Copy["product"] }) {
                   textDecoration: "none",
                 }}
               >
-                {c.privacyLabel}
+                {en ? c.privacyLabelEn : c.privacyLabelJa}
               </Link>
             </div>
           </div>
@@ -1085,8 +1034,31 @@ function Product({ c }: { c: Copy["product"] }) {
 /* ─────────────────────────────────────────────────────────────
    Blog — horizontal-strip
    ───────────────────────────────────────────────────────────── */
-function Blog({ posts, c }: { posts: BlogTeaser[]; c: Copy["blog"] }) {
-  const items = posts.length ? posts : c.posts;
+function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
+  const c = COPY.blog;
+  const en = locale === "en";
+
+  // Real posts arrive already localized (title in `ja`, excerpt in `en`).
+  // The built-in fallback keeps a JA/EN pairing, so swap by locale.
+  const items =
+    posts.length > 0
+      ? posts.map((p) => ({
+          key: p.slug || p.date,
+          href: p.slug ? `/blog/${p.slug}` : "/blog",
+          tag: p.tag,
+          date: p.date,
+          primary: p.ja,
+          secondary: p.en,
+        }))
+      : c.posts.map((p, i) => ({
+          key: String(i),
+          href: "/blog",
+          tag: en ? p.tagEn : p.tagJa,
+          date: p.date,
+          primary: en ? p.en : p.ja,
+          secondary: en ? p.ja : p.en,
+        }));
+
   return (
     <section
       className="mob-pad mob-pad-v-sm"
@@ -1116,7 +1088,7 @@ function Blog({ posts, c }: { posts: BlogTeaser[]; c: Copy["blog"] }) {
               marginBottom: 24,
             }}
           >
-            ▍{c.label}
+            ▍{en ? c.labelEn : c.labelJa}
           </div>
           <h2
             className="mob-h3"
@@ -1130,7 +1102,7 @@ function Blog({ posts, c }: { posts: BlogTeaser[]; c: Copy["blog"] }) {
               margin: 0,
             }}
           >
-            {c.title}
+            {en ? c.titleEn : c.titleJa}
           </h2>
         </div>
         <Link
@@ -1154,184 +1126,76 @@ function Blog({ posts, c }: { posts: BlogTeaser[]; c: Copy["blog"] }) {
           gap: 18,
         }}
       >
-        {items.map((p, i) => {
-          const href = p.slug ? `/blog/${p.slug}` : "/blog";
-          return (
-            <Link
-              key={p.slug || p.date}
-              href={href}
-              style={{
-                background: C.card,
-                border: `1.5px solid ${C.ink}`,
-                padding: i === 0 ? 32 : 28,
-                minHeight: i === 0 ? 380 : 320,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                textDecoration: "none",
-                color: "inherit",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontFamily: FONTS.mono,
-                    fontSize: 11,
-                    letterSpacing: "0.24em",
-                    color: C.accent,
-                    textTransform: "uppercase",
-                    marginBottom: 16,
-                  }}
-                >
-                  {p.tag} · {p.date}
-                </div>
-                <div
-                  style={{
-                    fontSize: i === 0 ? 28 : 22,
-                    fontWeight: 700,
-                    color: C.ink,
-                    lineHeight: 1.35,
-                  }}
-                >
-                  {p.ja}
-                </div>
-                <div
-                  style={{
-                    marginTop: 10,
-                    fontSize: 13,
-                    color: C.sub,
-                    lineHeight: 1.6,
-                    fontStyle: "italic",
-                  }}
-                >
-                  {p.en}
-                </div>
+        {items.map((p, i) => (
+          <Link
+            key={p.key}
+            href={p.href}
+            style={{
+              background: C.card,
+              border: `1.5px solid ${C.ink}`,
+              padding: i === 0 ? 32 : 28,
+              minHeight: i === 0 ? 380 : 320,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontFamily: FONTS.mono,
+                  fontSize: 11,
+                  letterSpacing: "0.24em",
+                  color: C.accent,
+                  textTransform: "uppercase",
+                  marginBottom: 16,
+                }}
+              >
+                {p.tag} · {p.date}
               </div>
               <div
                 style={{
-                  marginTop: 24,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderTop: `1px solid ${C.line}`,
-                  paddingTop: 14,
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
+                  fontSize: i === 0 ? 28 : 22,
+                  fontWeight: 700,
                   color: C.ink,
+                  lineHeight: 1.35,
                 }}
               >
-                <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
-                <span>→</span>
+                {p.primary}
               </div>
-            </Link>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Ikeda — framed-portrait
-   ───────────────────────────────────────────────────────────── */
-function Ikeda({ c }: { c: Copy["ikeda"] }) {
-  return (
-    <section
-      className="mob-pad mob-pad-v-sm"
-      style={{ padding: "120px 64px", background: C.bg }}
-    >
-      <div
-        className="mob-founder mob-pad-card-lg"
-        style={{
-          background: C.slab,
-          color: C.onSlab,
-          padding: 56,
-          display: "grid",
-          gridTemplateColumns: "0.9fr 1.6fr",
-          gap: 60,
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <div style={{ background: C.accent, padding: 12 }}>
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: C.sub,
+                  lineHeight: 1.6,
+                  fontStyle: "italic",
+                }}
+              >
+                {p.secondary}
+              </div>
+            </div>
             <div
               style={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "4/5",
-                overflow: "hidden",
+                marginTop: 24,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderTop: `1px solid ${C.line}`,
+                paddingTop: 14,
+                fontFamily: FONTS.mono,
+                fontSize: 11,
+                letterSpacing: "0.22em",
+                color: C.ink,
               }}
             >
-              <Image
-                src="/ikeda.webp"
-                alt={c.name}
-                fill
-                sizes="(max-width: 880px) 100vw, 360px"
-                style={{
-                  objectFit: "cover",
-                  filter: "saturate(1.1) contrast(1.05)",
-                }}
-              />
+              <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
+              <span>→</span>
             </div>
-          </div>
-          <div
-            style={{
-              marginTop: 18,
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              color: C.paper,
-              opacity: 0.7,
-              textTransform: "uppercase",
-            }}
-          >
-            Co-founder · COO
-          </div>
-        </div>
-        <div>
-          <div
-            style={{
-              display: "inline-block",
-              padding: "8px 12px",
-              background: C.accent,
-              color: C.paper,
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 28,
-            }}
-          >
-            ▍{c.label}
-          </div>
-          <p
-            className="mob-quote"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 30,
-              lineHeight: 1.6,
-              margin: 0,
-              fontWeight: 500,
-              color: C.paper,
-            }}
-          >
-            {c.quote}
-          </p>
-          <Rule
-            style={{
-              background: C.paper,
-              opacity: 0.4,
-              margin: "36px 0",
-              width: 60,
-              height: 2,
-            }}
-          />
-          <div style={{ fontSize: 26, fontWeight: 700 }}>{c.name}</div>
-          <div style={{ marginTop: 4, fontSize: 14, opacity: 0.7 }}>
-            {c.nameAlt} · {c.role}
-          </div>
-        </div>
+          </Link>
+        ))}
       </div>
     </section>
   );
@@ -1340,7 +1204,10 @@ function Ikeda({ c }: { c: Copy["ikeda"] }) {
 /* ─────────────────────────────────────────────────────────────
    Contact — block-button
    ───────────────────────────────────────────────────────────── */
-function Contact({ c }: { c: Copy["contact"] }) {
+function Contact({ locale }: { locale: Locale }) {
+  const c = COPY.contact;
+  const en = locale === "en";
+  const title = en ? c.titleEn : c.titleJa;
   return (
     <section
       id="contact"
@@ -1374,22 +1241,24 @@ function Contact({ c }: { c: Copy["contact"] }) {
               marginBottom: 28,
             }}
           >
-            ▍{c.label}
+            ▍{en ? c.labelEn : c.labelJa}
           </div>
-          <h2
-            className="mob-h2"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 72,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-              fontWeight: 700,
-              color: C.paper,
-              margin: 0,
-            }}
-          >
-            {c.title}
-          </h2>
+          {title && (
+            <h2
+              className="mob-h2"
+              style={{
+                fontFamily: FONTS.display,
+                fontSize: 72,
+                lineHeight: 1.08,
+                letterSpacing: -2,
+                fontWeight: 700,
+                color: C.paper,
+                margin: 0,
+              }}
+            >
+              {title}
+            </h2>
+          )}
           <p
             style={{
               marginTop: 24,
@@ -1399,7 +1268,7 @@ function Contact({ c }: { c: Copy["contact"] }) {
               maxWidth: 540,
             }}
           >
-            {c.body}
+            {en ? c.bodyEn : c.bodyJa}
           </p>
         </div>
         <div>
@@ -1450,7 +1319,7 @@ function Contact({ c }: { c: Copy["contact"] }) {
                 textDecoration: "none",
               }}
             >
-              {c.cta}
+              {en ? c.ctaEn : c.ctaJa}
             </Link>
           </div>
         </div>
@@ -1462,8 +1331,7 @@ function Contact({ c }: { c: Copy["contact"] }) {
 /* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
-export default function TopPage({ posts = [], locale }: Props) {
-  const c = copyFor(locale);
+export default function TopPage({ posts = [], locale = "ja" }: Props) {
   return (
     <Stage>
       <div
@@ -1477,14 +1345,13 @@ export default function TopPage({ posts = [], locale }: Props) {
           WebkitFontSmoothing: "antialiased",
         }}
       >
-        <Nav c={c} locale={locale} />
-        <Hero c={c} />
-        <About c={c.about} />
-        <Services c={c.services} />
-        <Product c={c.product} />
-        <Blog posts={posts} c={c.blog} />
-        <Ikeda c={c.ikeda} />
-        <Contact c={c.contact} />
+        <Nav locale={locale} />
+        <Hero locale={locale} />
+        <About locale={locale} />
+        <Services locale={locale} />
+        <Product locale={locale} />
+        <Blog posts={posts} locale={locale} />
+        <Contact locale={locale} />
       </div>
     </Stage>
   );

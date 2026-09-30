@@ -1,8 +1,7 @@
 /**
  * Theme tokens — single source of truth for inline styles.
- * The actual color values live in app/globals.css under :root / body.theme-*.
- * Use these as `style={{ background: C.bg }}` so the page reacts to the
- * <body className="theme-dark|theme-light"> switch without reload.
+ * The actual color values live in app/globals.css under :root.
+ * Use these as `style={{ background: C.bg }}`.
  */
 
 export const C = {
@@ -23,15 +22,8 @@ export const C = {
 export const FONTS = {
   display:
     'var(--font-display), var(--font-body), system-ui, sans-serif',
+  round:
+    'var(--font-round), var(--font-display), var(--font-body), system-ui, sans-serif',
   body: 'var(--font-body), system-ui, sans-serif',
   mono: 'var(--font-mono), ui-monospace, monospace',
 } as const;
-
-export type ThemeMode = "dark" | "light";
-
-export const THEME_COOKIE = "theme";
-export const DEFAULT_THEME: ThemeMode = "dark";
-
-export function normalizeTheme(value: string | null | undefined): ThemeMode {
-  return value === "light" ? "light" : "dark";
-}
