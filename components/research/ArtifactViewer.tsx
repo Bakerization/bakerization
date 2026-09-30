@@ -120,10 +120,12 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
           </div>
         ) : null}
       </div>
-      <div className="mob-pad" style={{ padding: "0 24px" }}>
-        <InlineError onClose={() => setError("")}>{error}</InlineError>
-      </div>
-      <div style={{ position: "relative", flex: 1, minHeight: 0, margin: "12px 24px 24px" }} className="mob-pad">
+      {error ? (
+        <div className="mob-pad" style={{ padding: "0 24px" }}>
+          <InlineError onClose={() => setError("")}>{error}</InlineError>
+        </div>
+      ) : null}
+      <div style={{ position: "relative", flex: 1, minHeight: 0, margin: 0, width: "100%" }}>
         {!loaded ? (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.28em", color: C.sub }}>
             読み込み中…
@@ -135,7 +137,7 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
           sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
           referrerPolicy="no-referrer"
           onLoad={() => setLoaded(true)}
-          style={{ position: "relative", width: "100%", height: "100%", border: `1.5px solid ${C.ink}`, background: "#fff", opacity: loaded ? 1 : 0, transition: "opacity .2s" }}
+          style={{ position: "relative", display: "block", width: "100%", height: "100%", border: 0, borderTop: `1px solid ${C.line}`, background: "#fff", opacity: loaded ? 1 : 0, transition: "opacity .2s" }}
         />
       </div>
     </div>
