@@ -28,8 +28,9 @@ export async function GET(request: Request, { params }: Params) {
 }
 
 /**
- * PATCH { title?, description?, html?, projectSlug? }
- * Any member may rename / describe / move; replacing html needs owner or admin.
+ * PATCH { title?, description?, html?, projectSlug?, visibility? }
+ * Any member may rename / describe / move; replacing html or changing
+ * visibility needs owner or admin.
  */
 export async function PATCH(request: Request, { params }: Params) {
   const { actor, response } = await requireActor(request);
@@ -43,10 +44,21 @@ export async function PATCH(request: Request, { params }: Params) {
     description?: unknown;
     html?: unknown;
     projectSlug?: unknown;
+    visibility?: unknown;
   }>(request);
   if (!body) return jsonError(400, "Body must be JSON");
 
-  const patch: { title?: string; description?: string; html?: string; projectId?: string } = {};
+  const patch: { title?: string; description?: string; html?: string; projectId?: string; visibility?: "members" | "public" } = {};
+
+  if (body.visibility !== undefined) {
+    if (body.visibility !== "public" && body.visibility !== "members") {
+      return jsonError(400, 'visibility must be "members" or "public"');
+    }
+    if (!canManage(actor, artifact.ownerId)) {
+      return jsonError(403, "Only the owner or an admin can change visibility");
+    }
+    patch.visibility = body.visibility;
+  }
 
   if (typeof body.title === "string") {
     const title = body.title.trim();

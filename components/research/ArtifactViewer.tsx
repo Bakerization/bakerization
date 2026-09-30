@@ -3,13 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { C, FONTS } from "@/lib/theme";
-import type { ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
-import { Button, ButtonLink, CopyButton, InlineError, SourceBadge, TwoStepDelete, fieldStyle } from "@/components/research/ui";
+import type { ArtifactVisibility, ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
+import { Button, ButtonLink, CopyButton, InlineError, SourceBadge, TwoStepDelete, VisibilityBadge, fieldStyle } from "@/components/research/ui";
 import { formatBytes, formatDate } from "@/lib/research-format";
 
-type Props = { artifact: ResearchArtifactMeta; project: ResearchProject; canDelete: boolean; viewerUrl: string };
+type Props = {
+  artifact: ResearchArtifactMeta;
+  /** null when viewed anonymously (public artifact, no session). */
+  project: ResearchProject | null;
+  /** owner or admin: may delete and change visibility */
+  canManage: boolean;
+  anonymous: boolean;
+  viewerUrl: string;
+};
 
-export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl }: Props) {
+export default function ArtifactViewer({ artifact, project, canManage, anonymous, viewerUrl }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState(artifact.title);
   const [description, setDescription] = useState(artifact.description);
@@ -19,7 +27,27 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState("");
+  const [visibility, setVisibility] = useState<ArtifactVisibility>(artifact.visibility);
+  const [visBusy, setVisBusy] = useState(false);
   const rawHref = `/research/raw/${artifact.id}`;
+  const canDelete = canManage;
+
+  async function changeVisibility(next: ArtifactVisibility) {
+    if (next === visibility) return;
+    setVisBusy(true);
+    setError("");
+    const res = await fetch(`/api/research/artifacts/${artifact.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ visibility: next }),
+    });
+    setVisBusy(false);
+    if (!res.ok) {
+      setError("公開範囲の変更に失敗しました。");
+      return;
+    }
+    setVisibility(next);
+  }
 
   async function save() {
     if (!draftTitle.trim()) return;
@@ -48,7 +76,7 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
       setError("削除に失敗しました。");
       return;
     }
-    router.push(`/research/p/${project.slug}`);
+    router.push(project ? `/research/p/${project.slug}` : "/research");
     router.refresh();
   }
 
@@ -67,7 +95,11 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
-          <ButtonLink href={`/research/p/${project.slug}`} size="sm">← {project.name}</ButtonLink>
+          {project ? (
+            <ButtonLink href={`/research/p/${project.slug}`} size="sm">← {project.name}</ButtonLink>
+          ) : (
+            <ButtonLink href="/" size="sm">← Bakerization</ButtonLink>
+          )}
           {editing ? (
             <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 240, flexWrap: "wrap" }}>
               <input
@@ -97,18 +129,32 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                 <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 18, letterSpacing: -0.4, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h1>
-                <SourceBadge source={artifact.source} />
+                {!anonymous ? <SourceBadge source={artifact.source} /> : null}
+                <VisibilityBadge visibility={visibility} />
               </div>
               <div style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {description ? `${description} · ` : ""}
-                {artifact.ownerName ?? "—"} · {formatDate(artifact.updatedAt)} · {formatBytes(artifact.sizeBytes)}
+                {anonymous ? "Bakerization Research" : (artifact.ownerName ?? "—")} · {formatDate(artifact.updatedAt)}
+                {anonymous ? "" : ` · ${formatBytes(artifact.sizeBytes)}`}
               </div>
             </div>
           )}
         </div>
         {!editing ? (
           <div className="mob-flex-wrap" style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <Button size="sm" onClick={() => setEditing(true)}>名前変更</Button>
+            {canManage ? (
+              <select
+                aria-label="公開範囲"
+                value={visibility}
+                disabled={visBusy}
+                onChange={(e) => void changeVisibility(e.target.value as ArtifactVisibility)}
+                style={{ ...fieldStyle, width: "auto", padding: "7px 10px", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", borderColor: visibility === "public" ? C.accent : C.fieldBorder }}
+              >
+                <option value="members">メンバーのみ</option>
+                <option value="public">誰でも（検索にも載る）</option>
+              </select>
+            ) : null}
+            {!anonymous ? <Button size="sm" onClick={() => setEditing(true)}>名前変更</Button> : null}
             <a href={rawHref} target="_blank" rel="noopener" style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, padding: "8px 12px" }}>
               HTMLを開く ↗
             </a>
@@ -117,6 +163,7 @@ export default function ArtifactViewer({ artifact, project, canDelete, viewerUrl
             </a>
             <CopyButton text={viewerUrl} label="URLをコピー" />
             {canDelete ? <TwoStepDelete busy={saving} onConfirm={remove} /> : null}
+            {anonymous ? <ButtonLink href={`/research/login?callbackUrl=${encodeURIComponent(`/research/a/${artifact.id}`)}`} size="sm" variant="ghost">メンバーログイン</ButtonLink> : null}
           </div>
         ) : null}
       </div>

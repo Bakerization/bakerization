@@ -111,6 +111,15 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
       setBusy(id, false);
       return ok;
     },
+    onSetVisibility: async (id, visibility) => {
+      setBusy(id, true);
+      const snapshot = items;
+      setItems((prev) => prev.map((a) => (a.id === id ? { ...a, visibility } : a)));
+      const ok = await api(`/api/research/artifacts/${id}`, { method: "PATCH", body: JSON.stringify({ visibility }) });
+      if (!ok) setItems(snapshot);
+      setBusy(id, false);
+      return ok;
+    },
     onDelete: async (id) => {
       setBusy(id, true);
       const snapshot = items;

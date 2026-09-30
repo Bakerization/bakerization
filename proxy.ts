@@ -24,8 +24,9 @@ export function proxy(req: NextRequest) {
   // (Real authorization happens in each page / route via Better Auth.)
   if (pathname === "/research" || pathname.startsWith("/research/")) {
     const isPublic = RESEARCH_PUBLIC.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-    const isRaw = pathname.startsWith("/research/raw/");
-    if (!isPublic && !isRaw && !getSessionCookie(req)) {
+    // Raw HTML and viewer pages check auth themselves (public artifacts need none).
+    const isSelfGated = pathname.startsWith("/research/raw/") || pathname.startsWith("/research/a/");
+    if (!isPublic && !isSelfGated && !getSessionCookie(req)) {
       const login = req.nextUrl.clone();
       login.pathname = "/research/login";
       login.search = `?callbackUrl=${encodeURIComponent(pathname + search)}`;

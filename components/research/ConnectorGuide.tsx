@@ -22,7 +22,7 @@ export default function ConnectorGuide({ appUrl }: { appUrl: string }) {
       <CopyBlock text={mcpUrl} label="MCP サーバー URL" />
       <p style={{ margin: "0 0 22px", fontSize: 13, color: C.sub, lineHeight: 1.7 }}>
         Cowork のプロジェクト指示やスキルに「HTML 成果物は単一ファイルで作り、<code>publish_artifact</code> で Research に公開して URL を報告する」と書いておくと、毎回頼まなくても自動で公開されます。
-        更新は <code>update_artifact</code>（同じ URL を維持）。150 KB を超えるページは下の REST か Web アップロードを使ってください。
+        更新は <code>update_artifact</code>（同じ URL を維持）。<code>visibility: &quot;public&quot;</code> を付けるとログイン不要で誰でも見られ、検索エンジンにも載ります。150 KB を超えるページは下の REST か Web アップロードを使ってください。
       </p>
 
       <h3 style={{ margin: "0 0 8px", fontFamily: FONTS.display, fontSize: 17, letterSpacing: -0.3 }}>B. Claude Code</h3>

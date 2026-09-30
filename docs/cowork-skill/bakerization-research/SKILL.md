@@ -28,6 +28,8 @@ Bakerization Research は社内メンバー限定の HTML アーティファク�
 1. `list_projects` でプロジェクトの slug を確認する。ユーザーが指定しなければ `inbox`。
    新しいテーマなら `create_project` で作ってよい（名前は日本語で可）。
 2. `publish_artifact` に **HTML 全文**・`title`・`project_slug`・短い `description` を渡す。
+   ユーザーが「公開して」「誰でも見られるように」「検索に載せて」と言ったら `visibility: "public"` を付ける
+   （ログイン不要で見られ、検索エンジンにも載る）。指定がなければメンバー限定（既定）。
 3. 返ってきた `url` をユーザーにそのまま報告する（例: 「公開しました → https://www.bakerization.com/research/a/xxxx」）。
 4. 修正依頼は同じ `id` で `update_artifact`（URL は変わらない）。新規で公開し直さない。
 

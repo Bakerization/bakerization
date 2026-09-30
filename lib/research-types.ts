@@ -1,4 +1,6 @@
 export type ArtifactSource = "web" | "api" | "mcp";
+/** members: login required (default). public: anyone with the link, no login. */
+export type ArtifactVisibility = "members" | "public";
 
 export type ResearchProject = {
   id: string;
@@ -25,6 +27,7 @@ export type ResearchArtifactMeta = {
   sha256: string;
   position: number;
   source: ArtifactSource;
+  visibility: ArtifactVisibility;
   createdAt: string;
   updatedAt: string;
 };

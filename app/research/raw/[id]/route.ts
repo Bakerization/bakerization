@@ -1,3 +1,4 @@
+import { APP_URL } from "@/lib/auth";
 import { getActor } from "@/lib/research-auth";
 import { getArtifactHtml } from "@/lib/research-store";
 
@@ -14,15 +15,20 @@ const NO_STORE = { "cache-control": "private, no-store" };
  * member's cookies or call same-origin APIs with credentials.
  */
 export async function GET(request: Request, { params }: Params) {
-  const actor = await getActor(request);
-  if (!actor) {
-    return new Response("Unauthorized", { status: 401, headers: NO_STORE });
-  }
-
   const { id } = await params;
   const artifact = await getArtifactHtml(id);
   if (!artifact) {
     return new Response("Not found", { status: 404, headers: NO_STORE });
+  }
+
+  // Public artifacts (visibility = "public") are viewable by anyone with the link
+  // and may be indexed; the canonical page is the viewer.
+  const isPublic = artifact.visibility === "public";
+  if (!isPublic) {
+    const actor = await getActor(request);
+    if (!actor) {
+      return new Response("Unauthorized", { status: 401, headers: NO_STORE });
+    }
   }
 
   const etag = `"${artifact.sha256}"`;
@@ -36,8 +42,12 @@ export async function GET(request: Request, { params }: Params) {
     "x-content-type-options": "nosniff",
     "referrer-policy": "no-referrer",
     "cross-origin-resource-policy": "same-origin",
-    "x-robots-tag": "noindex, nofollow",
+    "x-robots-tag": isPublic ? "index, follow" : "noindex, nofollow",
   };
+  if (isPublic) {
+    headers.link = `<${APP_URL}/research/a/${artifact.id}>; rel="canonical"`;
+    headers["cache-control"] = "public, max-age=300, stale-while-revalidate=600";
+  }
 
   const url = new URL(request.url);
   if (url.searchParams.get("download") === "1") {

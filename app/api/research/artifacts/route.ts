@@ -33,6 +33,7 @@ type Incoming = {
   title: unknown;
   description: unknown;
   projectSlug: string;
+  visibility: unknown;
 };
 
 async function parseIncoming(request: Request): Promise<Incoming | NextResponse> {
@@ -54,6 +55,7 @@ async function parseIncoming(request: Request): Promise<Incoming | NextResponse>
       title: typeof title === "string" && title.trim() ? title : file instanceof File ? undefined : title,
       description: form.get("description"),
       projectSlug: String(form.get("projectSlug") ?? form.get("project") ?? ""),
+      visibility: form.get("visibility"),
     };
   }
   let body: Record<string, unknown>;
@@ -67,13 +69,14 @@ async function parseIncoming(request: Request): Promise<Incoming | NextResponse>
     title: body.title,
     description: body.description,
     projectSlug: String(body.projectSlug ?? body.project ?? ""),
+    visibility: body.visibility,
   };
 }
 
 /**
  * POST — create an artifact.
- *   JSON:      { html, title?, description?, projectSlug? }
- *   multipart: file=@page.html (or html=...), title?, description?, projectSlug?
+ *   JSON:      { html, title?, description?, projectSlug?, visibility?: "members" | "public" }
+ *   multipart: file=@page.html (or html=...), title?, description?, projectSlug?, visibility?
  */
 export async function POST(request: Request) {
   const { actor, response } = await requireActor(request);
@@ -99,6 +102,7 @@ export async function POST(request: Request) {
     sizeBytes: validation.sizeBytes,
     sha256: validation.sha256,
     source: actor.via === "apikey" ? "api" : "web",
+    visibility: incoming.visibility === "public" ? "public" : "members",
   });
 
   return NextResponse.json({ artifact, url: artifactUrl(artifact.id) }, { status: 201 });

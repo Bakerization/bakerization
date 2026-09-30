@@ -51,10 +51,15 @@ function publicArtifact(a: ResearchArtifactMeta) {
     project_slug: a.projectSlug,
     size_bytes: a.sizeBytes,
     source: a.source,
+    visibility: a.visibility,
     created_by: a.ownerName,
     updated_at: a.updatedAt,
   };
 }
+
+const visibilityField = z
+  .enum(["members", "public"])
+  .describe('"members" (default): only signed-in members can open it. "public": anyone with the link can open it without logging in.');
 
 const projectSlugField = z
   .string()
@@ -145,10 +150,11 @@ function buildServer(userId: string | undefined) {
         html: z.string().min(1).max(MAX_HTML_BYTES).describe("The complete HTML document"),
         project_slug: projectSlugField.optional(),
         description: z.string().max(MAX_DESCRIPTION_LENGTH).optional().describe("One or two sentences on what the page is"),
+        visibility: visibilityField.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
-    async ({ title, html, project_slug, description }) => {
+    async ({ title, html, project_slug, description, visibility }) => {
       const member = await requireMember();
       const validation = validateArtifactHtml(html);
       if (!validation.ok) return text(`Invalid html: ${validation.error}`, true);
@@ -163,6 +169,7 @@ function buildServer(userId: string | undefined) {
         sizeBytes: validation.sizeBytes,
         sha256: validation.sha256,
         source: "mcp",
+        visibility: visibility ?? "members",
       });
       return text({ ...publicArtifact(artifact), message: `Published. Share this URL with the user: ${artifactUrl(artifact.id)}` });
     }
@@ -173,21 +180,28 @@ function buildServer(userId: string | undefined) {
     {
       title: "Update an existing artifact",
       description:
-        "Replace the title, description and/or html of an artifact you published earlier (same id and URL are kept). Only the artifact's creator or an admin can replace its html.",
+        "Replace the title, description, html and/or visibility of an artifact you published earlier (same id and URL are kept). Only the artifact's creator or an admin can replace its html or change visibility.",
       inputSchema: z.object({
         id: z.string().min(1).max(64).describe("Artifact id from publish_artifact / list_artifacts"),
         title: z.string().min(1).max(MAX_TITLE_LENGTH).optional(),
         description: z.string().max(MAX_DESCRIPTION_LENGTH).optional(),
         html: z.string().min(1).max(MAX_HTML_BYTES).optional().describe("The complete new HTML document"),
         project_slug: projectSlugField.optional().describe("Move the artifact to another project"),
+        visibility: visibilityField.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },
-    async ({ id, title, description, html, project_slug }) => {
+    async ({ id, title, description, html, project_slug, visibility }) => {
       const member = await requireMember();
       const current = await getArtifactMeta(id);
       if (!current) return text(`Artifact "${id}" not found.`, true);
-      const patch: { title?: string; description?: string; html?: string; projectId?: string } = {};
+      const patch: { title?: string; description?: string; html?: string; projectId?: string; visibility?: "members" | "public" } = {};
+      if (visibility) {
+        if (member.role !== "admin" && current.ownerId !== member.id) {
+          return text("Only the artifact's creator or an admin can change its visibility.", true);
+        }
+        patch.visibility = visibility;
+      }
       if (title) patch.title = title.trim();
       if (description !== undefined) patch.description = normalizeDescription(description);
       if (html !== undefined) {

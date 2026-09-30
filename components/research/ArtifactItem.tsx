@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
-import { Button, InlineError, SourceBadge, TwoStepDelete, fieldStyle } from "@/components/research/ui";
+import { Button, InlineError, SourceBadge, TwoStepDelete, VisibilityBadge, fieldStyle } from "@/components/research/ui";
 import { formatBytes, formatDate } from "@/lib/research-format";
 import ArtifactThumb from "@/components/research/ArtifactThumb";
 import type { HandleProps } from "@/components/research/SortableItem";
@@ -13,6 +13,7 @@ export type ItemActions = {
   onRename: (id: string, title: string, description: string) => Promise<boolean>;
   onMove: (id: string, projectSlug: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  onSetVisibility: (id: string, visibility: "members" | "public") => Promise<boolean>;
 };
 
 type Props = {
@@ -76,6 +77,7 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
   const meta = (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", alignItems: "center", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", color: C.sub }}>
       <SourceBadge source={artifact.source} />
+      <VisibilityBadge visibility={artifact.visibility} />
       <span>{artifact.ownerName ?? "—"}</span>
       <span>{formatDate(artifact.updatedAt)}</span>
       <span>{formatBytes(artifact.sizeBytes)}</span>
@@ -151,6 +153,20 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
         ) : (
           <Button size="sm" onClick={() => setMoving(true)} disabled={busy}>移動</Button>
         )
+      ) : null}
+      {canDelete ? (
+        <Button
+          size="sm"
+          disabled={busy}
+          onClick={async () => {
+            setError("");
+            const next = artifact.visibility === "public" ? "members" : "public";
+            const ok = await actions.onSetVisibility(artifact.id, next);
+            if (!ok) setError("公開範囲の変更に失敗しました。");
+          }}
+        >
+          {artifact.visibility === "public" ? "メンバー限定に戻す" : "誰でも公開にする"}
+        </Button>
       ) : null}
       {canDelete ? (
         <TwoStepDelete

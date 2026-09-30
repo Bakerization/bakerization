@@ -4,6 +4,7 @@ import { toSlug } from "@/lib/slug";
 import { sha256Hex } from "@/lib/research-html";
 import type {
   ArtifactSource,
+  ArtifactVisibility,
   ResearchArtifactMeta,
   ResearchMember,
   ResearchProject,
@@ -70,6 +71,10 @@ async function ensureResearchTables() {
         ON research_artifacts (project_id, position)
       `;
       await sql`
+        ALTER TABLE research_artifacts
+        ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'members'
+      `;
+      await sql`
         INSERT INTO research_projects (id, slug, name, description, is_default)
         VALUES (${newId()}, ${DEFAULT_PROJECT_SLUG}, 'Inbox', 'プロジェクト未指定のアーティファクトが入ります。', TRUE)
         ON CONFLICT (slug) DO NOTHING
@@ -118,6 +123,7 @@ type ArtifactRow = {
   sha256: string;
   position: number;
   source: ArtifactSource;
+  visibility: string | null;
   created_at: string | Date;
   updated_at: string | Date;
 };
@@ -150,6 +156,7 @@ function mapArtifact(row: ArtifactRow): ResearchArtifactMeta {
     sha256: row.sha256,
     position: Number(row.position),
     source: row.source,
+    visibility: row.visibility === "public" ? "public" : "members",
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
   };
@@ -165,7 +172,7 @@ const PROJECT_SELECT = `
 const ARTIFACT_SELECT = `
   SELECT a.id, a.project_id, p.slug AS project_slug, a.owner_id,
          u.name AS owner_name, u.email AS owner_email,
-         a.title, a.description, a.size_bytes, a.sha256, a.position, a.source,
+         a.title, a.description, a.size_bytes, a.sha256, a.position, a.source, a.visibility,
          a.created_at, a.updated_at
   FROM research_artifacts a
   JOIN research_projects p ON p.id = a.project_id
@@ -321,6 +328,17 @@ export async function listArtifacts(projectId: string): Promise<ResearchArtifact
   return rows.map(mapArtifact);
 }
 
+/** Public (no-login) artifacts, for the sitemap. */
+export async function listPublicArtifacts(): Promise<ResearchArtifactMeta[]> {
+  if (!hasDatabaseUrl()) return [];
+  await ensureResearchTables();
+  const sql = getSql();
+  const rows = (await sql.query(
+    `${ARTIFACT_SELECT} WHERE a.visibility = 'public' ORDER BY a.updated_at DESC LIMIT 5000`
+  )) as ArtifactRow[];
+  return rows.map(mapArtifact);
+}
+
 export async function getArtifactMeta(id: string): Promise<ResearchArtifactMeta | null> {
   if (!hasDatabaseUrl() || !id) return null;
   await ensureResearchTables();
@@ -331,14 +349,14 @@ export async function getArtifactMeta(id: string): Promise<ResearchArtifactMeta 
 
 export async function getArtifactHtml(
   id: string
-): Promise<{ id: string; html: string; sha256: string; ownerId: string | null; projectId: string; title: string } | null> {
+): Promise<{ id: string; html: string; sha256: string; ownerId: string | null; projectId: string; title: string; visibility: ArtifactVisibility } | null> {
   if (!hasDatabaseUrl() || !id) return null;
   await ensureResearchTables();
   const sql = getSql();
   const rows = (await sql`
-    SELECT id, html, sha256, owner_id, project_id, title
+    SELECT id, html, sha256, owner_id, project_id, title, visibility
     FROM research_artifacts WHERE id = ${id} LIMIT 1
-  `) as Array<{ id: string; html: string; sha256: string; owner_id: string | null; project_id: string; title: string }>;
+  `) as Array<{ id: string; html: string; sha256: string; owner_id: string | null; project_id: string; title: string; visibility: string | null }>;
   const row = rows[0];
   if (!row) return null;
   return {
@@ -348,6 +366,7 @@ export async function getArtifactHtml(
     ownerId: row.owner_id,
     projectId: row.project_id,
     title: row.title,
+    visibility: row.visibility === "public" ? "public" : "members",
   };
 }
 
@@ -360,6 +379,7 @@ export async function createArtifact(input: {
   sizeBytes: number;
   sha256: string;
   source: ArtifactSource;
+  visibility?: ArtifactVisibility;
 }): Promise<ResearchArtifactMeta> {
   await ensureResearchTables();
   const sql = getSql();
@@ -367,10 +387,10 @@ export async function createArtifact(input: {
   await sql.transaction([
     sql`
       INSERT INTO research_artifacts
-        (id, project_id, owner_id, title, description, html, size_bytes, sha256, position, source)
+        (id, project_id, owner_id, title, description, html, size_bytes, sha256, position, source, visibility)
       SELECT ${id}, ${input.projectId}, ${input.ownerId}, ${input.title}, ${input.description},
              ${input.html}, ${input.sizeBytes}, ${input.sha256},
-             COALESCE(MAX(position) + 1, 0), ${input.source}
+             COALESCE(MAX(position) + 1, 0), ${input.source}, ${input.visibility ?? "members"}
       FROM research_artifacts WHERE project_id = ${input.projectId}
     `,
     sql`UPDATE research_projects SET updated_at = NOW() WHERE id = ${input.projectId}`,
@@ -382,13 +402,14 @@ export async function createArtifact(input: {
 
 export async function updateArtifact(
   id: string,
-  patch: { title?: string; description?: string; html?: string; projectId?: string }
+  patch: { title?: string; description?: string; html?: string; projectId?: string; visibility?: ArtifactVisibility }
 ): Promise<ResearchArtifactMeta | null> {
   const current = await getArtifactMeta(id);
   if (!current) return null;
   const sql = getSql();
   const title = patch.title?.trim() || current.title;
   const description = patch.description !== undefined ? patch.description : current.description;
+  const visibility = patch.visibility ?? current.visibility;
   const moving = Boolean(patch.projectId && patch.projectId !== current.projectId);
   const targetProject = patch.projectId ?? current.projectId;
 
@@ -397,7 +418,7 @@ export async function updateArtifact(
     const sizeBytes = Buffer.byteLength(patch.html, "utf8");
     queries.push(sql`
       UPDATE research_artifacts
-      SET title = ${title}, description = ${description},
+      SET title = ${title}, description = ${description}, visibility = ${visibility},
           html = ${patch.html}, size_bytes = ${sizeBytes}, sha256 = ${sha256Hex(patch.html)},
           updated_at = NOW()
       WHERE id = ${id}
@@ -405,7 +426,7 @@ export async function updateArtifact(
   } else {
     queries.push(sql`
       UPDATE research_artifacts
-      SET title = ${title}, description = ${description}, updated_at = NOW()
+      SET title = ${title}, description = ${description}, visibility = ${visibility}, updated_at = NOW()
       WHERE id = ${id}
     `);
   }

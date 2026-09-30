@@ -297,6 +297,27 @@ export function CopyBlock({ text, label }: { text: string; label?: string }) {
   );
 }
 
+export function VisibilityBadge({ visibility }: { visibility: "members" | "public" }) {
+  const isPublic = visibility === "public";
+  return (
+    <span
+      title={isPublic ? "誰でも閲覧可（ログイン不要・検索対象）" : "メンバーのみ閲覧可"}
+      style={{
+        display: "inline-block",
+        fontFamily: FONTS.mono,
+        fontSize: 10,
+        letterSpacing: "0.18em",
+        padding: "3px 7px",
+        background: isPublic ? C.accent : "transparent",
+        border: `1px solid ${isPublic ? C.accent : C.line}`,
+        color: isPublic ? C.bg : C.sub,
+      }}
+    >
+      {isPublic ? "PUBLIC" : "MEMBERS"}
+    </span>
+  );
+}
+
 export function SourceBadge({ source }: { source: "mcp" | "api" | "web" }) {
   const label = source === "mcp" ? "MCP" : source === "api" ? "API" : "WEB";
   return (
