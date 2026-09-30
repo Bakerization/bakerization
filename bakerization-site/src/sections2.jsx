@@ -37,6 +37,8 @@ function PhotoBlock({ theme, src, ratio = "4/3", caption, treatment }) {
 function Blog({ theme }) {
   const { layout, palette, fonts } = theme;
   const c = COPY.blog;
+  const { lang } = useLang();
+  const en = lang === "en";
 
   if (layout.blog === "stacked-large") {
     return (
@@ -161,13 +163,13 @@ function Blog({ theme }) {
 
   if (layout.blog === "horizontal-strip") {
     return (
-      <section style={{ padding: "120px 64px", background: palette.paper }}>
+      <section style={{ padding: "120px 64px", background: palette.bg }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", marginBottom: 48 }}>
           <div>
             <div style={{ background: palette.slab, color: palette.onSlab, padding: "10px 14px", display: "inline-block", fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: 24 }}>
-              ▍{c.label.ja}
+              ▍{en ? c.label.en : c.label.ja}
             </div>
-            <H2 theme={theme} size={64} style={{ fontWeight: 700, letterSpacing: -2 }}>{c.titleJa}</H2>
+            <H2 theme={theme} size={64} style={{ fontWeight: 700, letterSpacing: -2 }}>{en ? c.titleEn : c.titleJa}</H2>
           </div>
           <span style={{ fontFamily: fonts.mono, fontSize: 12, color: palette.accent, letterSpacing: "0.2em" }}>
             VIEW JOURNAL →
@@ -185,13 +187,13 @@ function Blog({ theme }) {
             }}>
               <div>
                 <div style={{ fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", color: palette.accent, textTransform: "uppercase", marginBottom: 16 }}>
-                  {p.tag} · {p.date}
+                  {en ? (p.tagEn || p.tag) : p.tag} · {p.date}
                 </div>
                 <div style={{ fontSize: i === 0 ? 28 : 22, fontWeight: 700, color: palette.ink, lineHeight: 1.35 }}>
-                  {p.ja}
+                  {en ? p.en : p.ja}
                 </div>
                 <div style={{ marginTop: 10, fontSize: 13, color: palette.sub, lineHeight: 1.6, fontStyle: "italic" }}>
-                  {p.en}
+                  {en ? p.ja : p.en}
                 </div>
               </div>
               <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: `1px solid ${palette.line}`, paddingTop: 14, fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.22em", color: palette.ink }}>
@@ -247,6 +249,8 @@ function Blog({ theme }) {
 function Ikeda({ theme }) {
   const { layout, palette, fonts } = theme;
   const c = COPY.ikeda;
+  const { lang } = useLang();
+  const en = lang === "en";
 
   const portraitTreatments = {
     "portrait-left-quote": "duotoneWarm",
@@ -378,17 +382,17 @@ function Ikeda({ theme }) {
           </div>
           <div>
             <div style={{ display: "inline-block", padding: "8px 12px", background: palette.accent, color: palette.paper, fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: 28 }}>
-              ▍{c.label.ja}
+              ▍{en ? c.label.en : c.label.ja}
             </div>
             <p style={{ fontFamily: theme.fonts.display, fontSize: 36, lineHeight: 1.55, margin: 0, fontWeight: 500, color: palette.paper }}>
-              {c.quoteJa}
+              {en ? c.quoteEn : c.quoteJa}
             </p>
             <Rule theme={theme} style={{ background: palette.paper, opacity: 0.4, margin: "36px 0", width: 60, height: 2 }} />
             <div style={{ fontSize: 26, fontWeight: 700 }}>
-              {c.name}
+              {en ? c.nameEn : c.name}
             </div>
             <div style={{ marginTop: 4, fontSize: 14, opacity: 0.7 }}>
-              {c.nameEn} · {c.role}
+              {en ? `${c.name} · ${c.roleEn}` : `${c.nameEn} · ${c.roleJa}`}
             </div>
           </div>
         </div>
@@ -443,6 +447,8 @@ function Ikeda({ theme }) {
 function Contact({ theme }) {
   const { layout, palette, fonts } = theme;
   const c = COPY.contact;
+  const { lang } = useLang();
+  const en = lang === "en";
 
   if (layout.contact === "centered-rule") {
     return (
@@ -539,13 +545,13 @@ function Contact({ theme }) {
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 60, alignItems: "center" }}>
           <div>
             <div style={{ background: palette.slab, color: palette.onSlab, padding: "10px 14px", display: "inline-block", fontFamily: fonts.mono, fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: 28 }}>
-              ▍{c.label.ja}
+              ▍{en ? c.label.en : c.label.ja}
             </div>
             <H2 theme={theme} size={72} style={{ color: palette.paper, fontWeight: 700, letterSpacing: -2 }}>
-              {c.titleJa}
+              {en ? c.titleEn : c.titleJa}
             </H2>
             <p style={{ marginTop: 24, fontSize: 17, lineHeight: 1.95, opacity: 0.92, maxWidth: 540 }}>
-              {c.body}
+              {en ? c.bodyEn : c.body}
             </p>
           </div>
           <div>
@@ -557,7 +563,7 @@ function Contact({ theme }) {
                 width: "100%", padding: "20px 24px", background: palette.onSlab, color: palette.slab,
                 border: "none", fontFamily: fonts.body, fontSize: 15, fontWeight: 700, letterSpacing: 0.5, cursor: "pointer",
               }}>
-                お問い合わせフォームを開く →
+                {en ? "Open the contact form →" : "お問い合わせフォームを開く →"}
               </button>
             </div>
           </div>
@@ -626,7 +632,7 @@ function Footer({ theme }) {
         Bakerization
       </span>
       <span style={{ opacity: 0.65 }}>© 2026 Bakerization · We Bake the Future · ALL RIGHTS RESERVED</span>
-      <span style={{ opacity: 0.85 }}>JA · EN</span>
+      <LangToggle theme={theme} tone="onSlab" />
     </footer>
   );
 }

@@ -39,5 +39,5 @@ export default async function Home() {
     teasers = [];
   }
 
-  return <TopPage posts={teasers} />;
+  return <TopPage posts={teasers} locale={locale} />;
 }

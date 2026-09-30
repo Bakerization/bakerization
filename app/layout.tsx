@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import {
   Space_Grotesk,
   Zen_Kaku_Gothic_Antique,
   JetBrains_Mono,
+  Quicksand,
 } from "next/font/google";
 import "./globals.css";
 import Providers from "@/app/providers";
 import { getServerLocale } from "@/lib/i18n";
-import { THEME_COOKIE, normalizeTheme } from "@/lib/theme";
 import Navbar from "@/components/Navbar";
 
 const fontDisplay = Space_Grotesk({
@@ -33,6 +32,13 @@ const fontMono = JetBrains_Mono({
   display: "swap",
 });
 
+const fontRound = Quicksand({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-round",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Bakerization — We Bake the Future",
   description:
@@ -45,16 +51,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getServerLocale();
-  const cookieStore = await cookies();
-  const theme = normalizeTheme(cookieStore.get(THEME_COOKIE)?.value);
 
   return (
     <html
       lang={locale}
-      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`}
+      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable} ${fontRound.variable}`}
     >
-      <body className={`antialiased theme-${theme}`}>
-        <Providers theme={theme}>
+      <body className="antialiased">
+        <Providers>
           <Navbar locale={locale} />
           {children}
         </Providers>

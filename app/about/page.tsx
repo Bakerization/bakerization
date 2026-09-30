@@ -13,8 +13,8 @@ type Credential = string;
 type SocialLink = { label: string; href: string };
 
 type Founder = {
-  imageSrc: string;
-  imageAlt: string;
+  imageSrc?: string;
+  imageAlt?: string;
   kicker: string;
   name: string;
   nameAlt: string;
@@ -38,10 +38,6 @@ export default async function AboutPage() {
         headlineBot: "THAT LASTS.",
         deck:
           "Bakerization is built by two co-founders bridging the bread industry and modern systems — preserving Japan's bread culture for the 22nd century.",
-        opEdLabel: "Op-ed · Founder's words",
-        opEdTitle: "A morning that smells of wheat, into the next century.",
-        quote:
-          "A morning that smells of wheat — may it remain in the 22nd century too. Baking has carried mornings in our towns for generations. We don't want to lighten the craft — we want to give it a shape that can continue. Data and systems, in the end, exist for people.",
         statementLabel: "Statement",
         statement:
           "Bakerization was founded to address structural social challenges faced by bakeries. We believe food culture, craftsmanship, and business ethics can coexist through practical systems and long-term responsibility.",
@@ -63,10 +59,6 @@ export default async function AboutPage() {
         headlineBot: "続く形を。",
         deck:
           "Bakerizationは、パン業界の現場と現代のテクノロジー / 仕組みをつなぐ二人の共同代表によって運営されています。22世紀にも日本のパン文化を残すための活動です。",
-        opEdLabel: "Op-ed · 寄稿",
-        opEdTitle: "小麦の香りがする朝を、22世紀にも。",
-        quote:
-          "小麦の香りがする朝を、22世紀にも楽しめるように。「焼く」という営みは、街の朝を支えてきました。私たちは、その手仕事の重さを軽くするのではなく、続けられる形に整えたい。データも仕組みも、結局は人のためにあります。",
         statementLabel: "ステートメント",
         statement:
           "Bakerizationは、パン屋が抱える構造的な社会課題を解決するために生まれました。食文化・職人性・経営倫理が共存できる仕組みを、現場と長期視点の両方から実装していきます。",
@@ -82,8 +74,6 @@ export default async function AboutPage() {
 
   const hatanaka: Founder = isEn
     ? {
-        imageSrc: "/kenji.webp",
-        imageAlt: "Kenji Hatanaka",
         kicker: "Representative Director · CEO",
         name: "Kenji Hatanaka",
         nameAlt: "畑中 健司",
@@ -94,8 +84,6 @@ export default async function AboutPage() {
         ],
       }
     : {
-        imageSrc: "/kenji.webp",
-        imageAlt: "畑中 健司",
         kicker: "代表取締役 · CEO",
         name: "畑中 健司",
         nameAlt: "Kenji Hatanaka",
@@ -257,70 +245,6 @@ export default async function AboutPage() {
           {t.deck}
         </p>
 
-        {/* Op-ed slab — shared founders' quote */}
-        <section
-          className="mob-pad-card-lg"
-          style={{
-            marginTop: 80,
-            background: C.slab,
-            color: C.onSlab,
-            padding: 56,
-          }}
-        >
-          <div
-            style={{
-              display: "inline-block",
-              padding: "8px 12px",
-              background: C.accent,
-              color: C.bg,
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 28,
-            }}
-          >
-            {t.opEdLabel}
-          </div>
-          <h2
-            className="mob-h3"
-            style={{
-              margin: 0,
-              fontFamily: FONTS.display,
-              fontSize: 52,
-              lineHeight: 1.15,
-              letterSpacing: -1.5,
-              fontWeight: 700,
-              color: C.onSlab,
-            }}
-          >
-            {t.opEdTitle}
-          </h2>
-          <div
-            style={{
-              margin: "32px 0",
-              width: 60,
-              height: 2,
-              background: C.onSlab,
-              opacity: 0.4,
-            }}
-          />
-          <p
-            className="mob-quote"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 24,
-              lineHeight: 1.7,
-              margin: 0,
-              fontWeight: 500,
-              color: C.onSlab,
-              maxWidth: 880,
-            }}
-          >
-            {t.quote}
-          </p>
-        </section>
-
         {/* Founder cards */}
         <FounderCard founder={hatanaka} t={t} primary />
         <FounderCard founder={ikeda} t={t} />
@@ -463,28 +387,30 @@ function FounderCard({
       }}
     >
       <div>
-        <div style={{ background: C.accent, padding: 12 }}>
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              aspectRatio: "4/5",
-              overflow: "hidden",
-            }}
-          >
-            <Image
-              src={founder.imageSrc}
-              alt={founder.imageAlt}
-              fill
-              sizes="(max-width: 880px) 100vw, 420px"
-              priority={primary}
+        {founder.imageSrc && (
+          <div style={{ background: C.accent, padding: 12 }}>
+            <div
               style={{
-                objectFit: "cover",
-                filter: "saturate(1.05) contrast(1.05)",
+                position: "relative",
+                width: "100%",
+                aspectRatio: "4/5",
+                overflow: "hidden",
               }}
-            />
+            >
+              <Image
+                src={founder.imageSrc}
+                alt={founder.imageAlt ?? ""}
+                fill
+                sizes="(max-width: 880px) 100vw, 420px"
+                priority={primary}
+                style={{
+                  objectFit: "cover",
+                  filter: "saturate(1.05) contrast(1.05)",
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div
           style={{
             marginTop: 16,
