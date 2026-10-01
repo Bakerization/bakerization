@@ -25,6 +25,7 @@ export default function ResearchHeader({ user }: Props) {
 
   return (
     <header
+      className="rs-header"
       style={{
         position: "fixed",
         top: 0,

@@ -20,7 +20,7 @@ export default async function ResearchLayout({ children }: { children: React.Rea
   return (
     <CrumbProvider>
       <ResearchHeader user={user} />
-      <main style={{ paddingTop: 56, minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: FONTS.body }}>
+      <main className="rs-main" style={{ paddingTop: 56, minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: FONTS.body }}>
         {children}
       </main>
     </CrumbProvider>

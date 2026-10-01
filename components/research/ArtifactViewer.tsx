@@ -29,6 +29,8 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
   const [error, setError] = useState("");
   const [visibility, setVisibility] = useState<ArtifactVisibility>(artifact.visibility);
   const [visBusy, setVisBusy] = useState(false);
+  /** mobile only: the toolbar folds to one row; this reveals meta + actions */
+  const [open, setOpen] = useState(false);
   const rawHref = `/research/raw/${artifact.id}`;
   const canDelete = canManage;
 
@@ -81,9 +83,10 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 56px)" }}>
+    <div className="rs-viewer" style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 56px)" }}>
       <div
-        className="mob-pad mob-flex-wrap"
+        className="mob-pad mob-flex-wrap rs-vbar"
+        data-open={open ? "true" : undefined}
         style={{
           display: "flex",
           alignItems: "center",
@@ -94,11 +97,15 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
           background: C.bg,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
+        <div className="rs-vbar-main" style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
           {project ? (
-            <ButtonLink href={`/research/p/${project.slug}`} size="sm">← {project.name}</ButtonLink>
+            <ButtonLink href={`/research/p/${project.slug}`} size="sm" aria-label={`${project.name} に戻る`} style={{ flexShrink: 0 }}>
+              ←<span className="mob-hide"> {project.name}</span>
+            </ButtonLink>
           ) : (
-            <ButtonLink href="/" size="sm">← Bakerization</ButtonLink>
+            <ButtonLink href="/" size="sm" aria-label="Bakerization トップへ" style={{ flexShrink: 0 }}>
+              ←<span className="mob-hide"> Bakerization</span>
+            </ButtonLink>
           )}
           {editing ? (
             <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 240, flexWrap: "wrap" }}>
@@ -129,19 +136,33 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                 <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 18, letterSpacing: -0.4, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h1>
-                {!anonymous ? <SourceBadge source={artifact.source} /> : null}
-                <VisibilityBadge visibility={visibility} />
+                <span className="rs-vbar-extra" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                  {!anonymous ? <SourceBadge source={artifact.source} /> : null}
+                  <VisibilityBadge visibility={visibility} />
+                </span>
               </div>
-              <div style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div className="rs-vbar-extra" style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {description ? `${description} · ` : ""}
                 {anonymous ? "Bakerization Research" : (artifact.ownerName ?? "—")} · {formatDate(artifact.updatedAt)}
                 {anonymous ? "" : ` · ${formatBytes(artifact.sizeBytes)}`}
               </div>
             </div>
           )}
+          {!editing ? (
+            <Button
+              size="sm"
+              className="mob-only"
+              aria-expanded={open}
+              aria-label="詳細と操作"
+              onClick={() => setOpen((o) => !o)}
+              style={{ marginLeft: "auto", flexShrink: 0 }}
+            >
+              {open ? "✕" : "⋯"}
+            </Button>
+          ) : null}
         </div>
         {!editing ? (
-          <div className="mob-flex-wrap" style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div className="mob-flex-wrap rs-vbar-extra rs-vbar-actions" style={{ display: "flex", gap: 6, alignItems: "center" }}>
             {canManage ? (
               <select
                 aria-label="公開範囲"

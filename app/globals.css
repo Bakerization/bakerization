@@ -296,7 +296,7 @@ body {
 
 /* ── /research helpers ─────────────────────────────────────── */
 .mob-only {
-  display: none;
+  display: none !important;
 }
 @media (max-width: 880px) {
   .mob-only {
@@ -310,5 +310,34 @@ body {
     grid-column: 2 / -1 !important;
     justify-content: flex-start !important;
     flex-wrap: wrap !important;
+  }
+}
+
+/* Artifact viewer — スマホではツールバーを1行に畳み、⋯ で詳細と操作を開く */
+@media (max-width: 880px) {
+  .rs-vbar-main {
+    flex-basis: 100% !important;
+  }
+  .rs-vbar-actions {
+    flex-basis: 100% !important;
+  }
+  .rs-vbar:not([data-open="true"]) .rs-vbar-extra {
+    display: none !important;
+  }
+}
+/* ビューアのページだけサイトヘッダーを隠し、iframe を画面の高さいっぱいにする */
+@supports selector(body:has(.rs-viewer)) {
+  @media (max-width: 880px) {
+    body:has(.rs-viewer) .rs-header {
+      display: none !important;
+    }
+    body:has(.rs-viewer) .rs-main {
+      padding-top: 0 !important;
+      min-height: 0 !important;
+    }
+    .rs-viewer {
+      height: 100vh !important;
+      height: 100dvh !important;
+    }
   }
 }
