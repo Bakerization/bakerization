@@ -6,7 +6,6 @@ import { getServerLocale } from "@/lib/i18n";
 import { getResearchCopy } from "@/lib/research-copy";
 import { getArtifactMeta, getProjectById, toPublicArtifact } from "@/lib/research-store";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
-import { SetCrumbs } from "@/components/research/crumbs";
 import ArtifactViewer from "@/components/research/ArtifactViewer";
 import JsonLd from "@/components/JsonLd";
 
@@ -38,14 +37,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ArtifactPage({ params }: Params) {
   const { id } = await params;
-  const [session, artifact, locale] = await Promise.all([getAuthSession(), loadArtifact(id), getServerLocale()]);
+  const [session, artifact] = await Promise.all([getAuthSession(), loadArtifact(id)]);
   if (!artifact) notFound();
 
   const isPublic = artifact.visibility === "public";
   // Outsiders get the same 404 as for a missing id: no hint of a login.
   if (!session && !isPublic) notFound();
 
-  const t = getResearchCopy(locale);
   const projectRow = await getProjectById(artifact.projectId);
   const project = projectRow ? { slug: projectRow.slug, name: projectRow.name } : null;
   const viewerUrl = absoluteUrl(`/research/a/${artifact.id}`);
@@ -82,13 +80,6 @@ export default async function ArtifactPage({ params }: Params) {
           ]}
         />
       ) : null}
-      <SetCrumbs
-        items={
-          project
-            ? [{ label: t.header.projects, href: "/research" }, { label: project.name, href: `/research/p/${project.slug}` }, { label: artifact.title }]
-            : [{ label: t.header.projects, href: "/research" }, { label: artifact.title }]
-        }
-      />
       <ArtifactViewer
         artifact={session ? artifact : toPublicArtifact(artifact)}
         project={project}

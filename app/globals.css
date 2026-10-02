@@ -313,31 +313,61 @@ body {
   }
 }
 
-/* Artifact viewer — スマホではツールバーを1行に畳み、⋯ で詳細と操作を開く */
+/* Artifact viewer — ヘッダーもツールバーも出さず iframe を画面いっぱいに。
+   操作とプロパティは右下の ⋯ ボタンのパネル（カーソルを当てたときだけ表示）。 */
+.rs-viewer {
+  height: 100vh !important;
+  height: 100dvh !important;
+}
+body:has(.rs-viewer) .rs-main {
+  padding-top: 0 !important;
+  min-height: 0 !important;
+}
+.rs-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 70;
+}
+.rs-fab-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+}
+.rs-fab-menu[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s;
+}
+.rs-fab-panel {
+  width: min(360px, calc(100vw - 40px));
+  max-height: calc(100vh - 110px);
+  max-height: calc(100dvh - 110px);
+}
+.rs-fab-btn {
+  opacity: 0.88;
+  transition: opacity 0.15s ease;
+}
+.rs-fab:hover .rs-fab-btn,
+.rs-fab-btn[aria-expanded="true"] {
+  opacity: 1;
+}
 @media (max-width: 880px) {
-  .rs-vbar-main {
-    flex-basis: 100% !important;
+  .rs-fab {
+    right: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
   }
-  .rs-vbar-actions {
-    flex-basis: 100% !important;
-  }
-  .rs-vbar:not([data-open="true"]) .rs-vbar-extra {
-    display: none !important;
+  .rs-fab-panel {
+    width: calc(100vw - 28px);
   }
 }
-/* ビューアのページだけサイトヘッダーを隠し、iframe を画面の高さいっぱいにする */
-@supports selector(body:has(.rs-viewer)) {
-  @media (max-width: 880px) {
-    body:has(.rs-viewer) .rs-header {
-      display: none !important;
-    }
-    body:has(.rs-viewer) .rs-main {
-      padding-top: 0 !important;
-      min-height: 0 !important;
-    }
-    .rs-viewer {
-      height: 100vh !important;
-      height: 100dvh !important;
-    }
+@media (prefers-reduced-motion: reduce) {
+  .rs-fab-menu,
+  .rs-fab-menu[data-open="true"] {
+    transform: none;
+    transition: none;
   }
 }

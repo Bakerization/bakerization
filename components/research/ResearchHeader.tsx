@@ -40,6 +40,9 @@ export default function ResearchHeader({ user, locale }: Props) {
 
   const signOutStyle: React.CSSProperties = { ...navLink, background: "transparent", border: `1px solid ${C.line}`, padding: "6px 10px", cursor: "pointer" };
 
+  // The artifact viewer is full-viewport; its ⋯ panel carries the brand link and language switch.
+  if (pathname.startsWith("/research/a/")) return null;
+
   return (
     <header
       className="rs-header"
