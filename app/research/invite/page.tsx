@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import SetPasswordForm from "@/components/research/SetPasswordForm";
+import { getServerLocale } from "@/lib/i18n";
+import { getResearchCopy } from "@/lib/research-copy";
 
-export const metadata: Metadata = {
-  title: "パスワードを設定 | Bakerization Research",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: getResearchCopy(await getServerLocale()).meta.invite, robots: { index: false, follow: false } };
+}
 
 export default async function InvitePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;

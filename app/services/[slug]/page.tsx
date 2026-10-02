@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
 import { SERVICES, getService, getServiceCopy } from "@/lib/services";
 
@@ -12,16 +14,13 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const { slug } = await params;
   const service = getService(slug);
-  if (!service) return { title: "Service | Bakerization" };
+  if (!service) return { title: "Service" };
   const locale = await getServerLocale();
   const copy = getServiceCopy(service, locale);
-  return {
-    title: `${copy.title} | Bakerization`,
-    description: copy.deck,
-  };
+  return pageMetadata({ path: `/services/${service.slug}`, locale, title: copy.title, description: copy.deck });
 }
 
 export default async function ServiceDetailPage({

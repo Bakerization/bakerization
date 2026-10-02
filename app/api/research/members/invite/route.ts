@@ -25,12 +25,12 @@ export async function POST(request: Request) {
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const name = typeof body?.name === "string" ? body.name.trim().slice(0, 80) : "";
   const role = body?.role === "admin" ? "admin" : "user";
-  if (!isValidEmail(email)) return jsonError(400, "有効なメールアドレスを入力してください。");
+  if (!isValidEmail(email)) return jsonError(400, "有効なメールアドレスを入力してください。", { code: "invalid_email" });
 
   let created = false;
   const existing = await getMemberByEmail(email);
   if (!existing) {
-    if (!name) return jsonError(400, "名前を入力してください。");
+    if (!name) return jsonError(400, "名前を入力してください。", { code: "name_required" });
     await auth.api.createUser({
       body: { email, name, role, password: randomBytes(24).toString("base64url") },
       headers: request.headers,
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[invite] failed to send invitation", error);
-    return jsonError(502, "招待メールの送信に失敗しました。RESEND の設定を確認してください。", { created });
+    return jsonError(502, "招待メールの送信に失敗しました。RESEND の設定を確認してください。", { created, code: "send_failed" });
   }
 
   return NextResponse.json({ ok: true, created, email });

@@ -328,15 +328,55 @@ export async function listArtifacts(projectId: string): Promise<ResearchArtifact
   return rows.map(mapArtifact);
 }
 
-/** Public (no-login) artifacts, for the sitemap. */
-export async function listPublicArtifacts(): Promise<ResearchArtifactMeta[]> {
+/**
+ * Public (no-login) artifacts: newest first site-wide (sitemap, public index),
+ * or in board order within one project.
+ */
+export async function listPublicArtifacts(opts: { projectId?: string; limit?: number } = {}): Promise<ResearchArtifactMeta[]> {
+  if (!hasDatabaseUrl()) return [];
+  await ensureResearchTables();
+  const sql = getSql();
+  const limit = Math.min(Math.max(Math.trunc(opts.limit ?? 5000), 1), 5000);
+  const rows = (opts.projectId
+    ? await sql.query(
+        `${ARTIFACT_SELECT} WHERE a.visibility = 'public' AND a.project_id = $1
+         ORDER BY a.position ASC, a.created_at ASC LIMIT ${limit}`,
+        [opts.projectId]
+      )
+    : await sql.query(`${ARTIFACT_SELECT} WHERE a.visibility = 'public' ORDER BY a.updated_at DESC LIMIT ${limit}`)) as ArtifactRow[];
+  return rows.map(mapArtifact);
+}
+
+// Projects as outsiders see them: only those with at least one public artifact,
+// counting public artifacts only, "updated" = newest public artifact.
+const PUBLIC_PROJECT_SELECT = `
+  SELECT p.id, p.slug, p.name, p.description, NULL AS owner_id, p.is_default,
+         p.created_at, MAX(a.updated_at) AS updated_at, COUNT(a.id) AS artifact_count
+  FROM research_projects p
+  JOIN research_artifacts a ON a.project_id = p.id AND a.visibility = 'public'
+`;
+
+export async function listPublicProjects(): Promise<ResearchProject[]> {
   if (!hasDatabaseUrl()) return [];
   await ensureResearchTables();
   const sql = getSql();
   const rows = (await sql.query(
-    `${ARTIFACT_SELECT} WHERE a.visibility = 'public' ORDER BY a.updated_at DESC LIMIT 5000`
-  )) as ArtifactRow[];
-  return rows.map(mapArtifact);
+    `${PUBLIC_PROJECT_SELECT} GROUP BY p.id ORDER BY MAX(a.updated_at) DESC`
+  )) as ProjectRow[];
+  return rows.map(mapProject);
+}
+
+export async function getPublicProjectBySlug(slug: string): Promise<ResearchProject | null> {
+  if (!hasDatabaseUrl() || !slug) return null;
+  await ensureResearchTables();
+  const sql = getSql();
+  const rows = (await sql.query(`${PUBLIC_PROJECT_SELECT} WHERE p.slug = $1 GROUP BY p.id LIMIT 1`, [slug])) as ProjectRow[];
+  return rows[0] ? mapProject(rows[0]) : null;
+}
+
+/** Strip who uploaded it before an artifact goes to an anonymous visitor's browser. */
+export function toPublicArtifact(artifact: ResearchArtifactMeta): ResearchArtifactMeta {
+  return { ...artifact, ownerId: null, ownerName: null, ownerEmail: null };
 }
 
 export async function getArtifactMeta(id: string): Promise<ResearchArtifactMeta | null> {

@@ -1,14 +1,24 @@
 import Link from "next/link";
 import { listPosts } from "@/lib/blog-store";
 import { getLocalizedPost } from "@/lib/blog-localize";
+import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { C, FONTS } from "@/lib/theme";
 
-export const metadata = {
-  title: "Journal | Bakerization",
-  description: "Bakerizationの活動や知見を紹介するジャーナルです。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return pageMetadata({
+    path: "/blog",
+    locale,
+    title: "Journal",
+    description:
+      locale === "en"
+        ? "Bakerization's journal: notes on our activities and what we learn in the field."
+        : "Bakerizationの活動や知見を紹介するジャーナルです。",
+  });
+}
 
 export default async function BlogListPage() {
   const locale = await getServerLocale();

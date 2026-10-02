@@ -218,6 +218,7 @@ function Nav({ locale }: { locale: Locale }) {
     { label: "Services", href: "#services" },
     { label: "Product", href: "/app", drop: "kiji hub" },
     { label: "Journal", href: "/blog" },
+    { label: "Research", href: "/research" },
     { label: "Contact", href: "#contact" },
   ];
   return (

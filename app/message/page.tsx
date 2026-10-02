@@ -1,12 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
 
-export const metadata = {
-  title: "代表メッセージ | Bakerization",
-  description: "Bakerizationの共同代表。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return pageMetadata({
+    path: "/message",
+    locale,
+    title: locale === "en" ? "Message from the representatives" : "代表メッセージ",
+    description:
+      locale === "en"
+        ? "A message from Bakerization's co-representatives on why we work to protect Japan's bread culture."
+        : "Bakerizationの共同代表からのメッセージ。日本のパン文化を守るために、私たちが取り組む理由。",
+  });
+}
 
 type Rep = {
   imageSrc?: string;

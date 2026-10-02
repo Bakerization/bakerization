@@ -25,9 +25,10 @@ export async function GET(request: Request, { params }: Params) {
   // and may be indexed; the canonical page is the viewer.
   const isPublic = artifact.visibility === "public";
   if (!isPublic) {
+    // Outsiders get the same 404 as for a missing id (no hint that it exists).
     const actor = await getActor(request);
     if (!actor) {
-      return new Response("Unauthorized", { status: 401, headers: NO_STORE });
+      return new Response("Not found", { status: 404, headers: NO_STORE });
     }
   }
 

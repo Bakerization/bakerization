@@ -17,6 +17,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
     product: "Product",
     services: "Services",
     journal: "Journal",
+    research: "Research",
     about: "About",
     message: "Message",
     contact: "Contact",
@@ -129,6 +130,14 @@ export default function Navbar({ locale }: { locale: Locale }) {
               style={{ color: "inherit", textDecoration: "none" }}
             >
               {t.journal}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/research"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.research}
             </Link>
           </li>
           <li>

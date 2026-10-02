@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { C, FONTS } from "@/lib/theme";
-import type { ArtifactVisibility, ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
+import type { ArtifactVisibility, ResearchArtifactMeta } from "@/lib/research-types";
 import { Button, ButtonLink, CopyButton, InlineError, SourceBadge, TwoStepDelete, VisibilityBadge, fieldStyle } from "@/components/research/ui";
-import { formatBytes, formatDate } from "@/lib/research-format";
+import { formatBytes } from "@/lib/research-format";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 type Props = {
   artifact: ResearchArtifactMeta;
-  /** null when viewed anonymously (public artifact, no session). */
-  project: ResearchProject | null;
+  /** Where "←" leads; null only if the project couldn't be loaded. */
+  project: { slug: string; name: string } | null;
   /** owner or admin: may delete and change visibility */
   canManage: boolean;
   anonymous: boolean;
@@ -19,6 +21,8 @@ type Props = {
 
 export default function ArtifactViewer({ artifact, project, canManage, anonymous, viewerUrl }: Props) {
   const router = useRouter();
+  const { t: copy, formatDate, locale } = useResearchI18n();
+  const t = copy.viewer;
   const [title, setTitle] = useState(artifact.title);
   const [description, setDescription] = useState(artifact.description);
   const [draftTitle, setDraftTitle] = useState(artifact.title);
@@ -45,7 +49,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
     });
     setVisBusy(false);
     if (!res.ok) {
-      setError("公開範囲の変更に失敗しました。");
+      setError(copy.visibility.changeFailed);
       return;
     }
     setVisibility(next);
@@ -62,7 +66,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
     });
     setSaving(false);
     if (!res.ok) {
-      setError("保存に失敗しました。");
+      setError(t.saveFailed);
       return;
     }
     setTitle(draftTitle.trim());
@@ -75,7 +79,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
     const res = await fetch(`/api/research/artifacts/${artifact.id}`, { method: "DELETE" });
     if (!res.ok) {
       setSaving(false);
-      setError("削除に失敗しました。");
+      setError(t.deleteFailed);
       return;
     }
     router.push(project ? `/research/p/${project.slug}` : "/research");
@@ -99,12 +103,12 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
       >
         <div className="rs-vbar-main" style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
           {project ? (
-            <ButtonLink href={`/research/p/${project.slug}`} size="sm" aria-label={`${project.name} に戻る`} style={{ flexShrink: 0 }}>
+            <ButtonLink href={`/research/p/${project.slug}`} size="sm" aria-label={t.backTo(project.name)} style={{ flexShrink: 0 }}>
               ←<span className="mob-hide"> {project.name}</span>
             </ButtonLink>
           ) : (
-            <ButtonLink href="/" size="sm" aria-label="Bakerization トップへ" style={{ flexShrink: 0 }}>
-              ←<span className="mob-hide"> Bakerization</span>
+            <ButtonLink href="/research" size="sm" aria-label={t.backHome} style={{ flexShrink: 0 }}>
+              ←<span className="mob-hide"> Research</span>
             </ButtonLink>
           )}
           {editing ? (
@@ -119,18 +123,18 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
                   if (e.key === "Enter") { e.preventDefault(); void save(); }
                   if (e.key === "Escape") { setEditing(false); setDraftTitle(title); setDraftDescription(description); }
                 }}
-                aria-label="タイトル"
+                aria-label={copy.common.title}
               />
               <input
                 style={{ ...fieldStyle, padding: "8px 10px", flex: 2, minWidth: 200 }}
                 value={draftDescription}
                 onChange={(e) => setDraftDescription(e.target.value)}
                 maxLength={2000}
-                placeholder="説明を追加…"
-                aria-label="説明"
+                placeholder={t.descriptionPlaceholder}
+                aria-label={copy.common.description}
               />
-              <Button size="sm" variant="accent" busy={saving} onClick={() => void save()}>保存</Button>
-              <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setDraftTitle(title); setDraftDescription(description); }}>キャンセル</Button>
+              <Button size="sm" variant="accent" busy={saving} onClick={() => void save()}>{copy.common.save}</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setDraftTitle(title); setDraftDescription(description); }}>{copy.common.cancel}</Button>
             </div>
           ) : (
             <div style={{ minWidth: 0 }}>
@@ -138,7 +142,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
                 <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 18, letterSpacing: -0.4, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h1>
                 <span className="rs-vbar-extra" style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
                   {!anonymous ? <SourceBadge source={artifact.source} /> : null}
-                  <VisibilityBadge visibility={visibility} />
+                  {!anonymous ? <VisibilityBadge visibility={visibility} /> : null}
                 </span>
               </div>
               <div className="rs-vbar-extra" style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -153,7 +157,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
               size="sm"
               className="mob-only"
               aria-expanded={open}
-              aria-label="詳細と操作"
+              aria-label={t.details}
               onClick={() => setOpen((o) => !o)}
               style={{ marginLeft: "auto", flexShrink: 0 }}
             >
@@ -165,26 +169,29 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
           <div className="mob-flex-wrap rs-vbar-extra rs-vbar-actions" style={{ display: "flex", gap: 6, alignItems: "center" }}>
             {canManage ? (
               <select
-                aria-label="公開範囲"
+                aria-label={copy.visibility.label}
                 value={visibility}
                 disabled={visBusy}
                 onChange={(e) => void changeVisibility(e.target.value as ArtifactVisibility)}
                 style={{ ...fieldStyle, width: "auto", padding: "7px 10px", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.12em", borderColor: visibility === "public" ? C.accent : C.fieldBorder }}
               >
-                <option value="members">メンバーのみ</option>
-                <option value="public">誰でも（検索にも載る）</option>
+                <option value="members">{copy.visibility.membersOption}</option>
+                <option value="public">{copy.visibility.publicOption}</option>
               </select>
             ) : null}
-            {!anonymous ? <Button size="sm" onClick={() => setEditing(true)}>名前変更</Button> : null}
+            {!anonymous ? <Button size="sm" onClick={() => setEditing(true)}>{t.rename}</Button> : null}
             <a href={rawHref} target="_blank" rel="noopener" style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, padding: "8px 12px" }}>
-              HTMLを開く ↗
+              {t.openHtml}
             </a>
             <a href={`${rawHref}?download=1`} style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, padding: "8px 12px" }}>
-              ダウンロード
+              {t.download}
             </a>
-            <CopyButton text={viewerUrl} label="URLをコピー" />
+            <CopyButton text={viewerUrl} label={t.copyUrl} />
             {canDelete ? <TwoStepDelete busy={saving} onConfirm={remove} /> : null}
-            {anonymous ? <ButtonLink href={`/research/login?callbackUrl=${encodeURIComponent(`/research/a/${artifact.id}`)}`} size="sm" variant="ghost">メンバーログイン</ButtonLink> : null}
+            {/* Phones hide the site header on this page, so the switcher lives in the ⋯ panel. */}
+            <span className="mob-only">
+              <LanguageSwitcher locale={locale} />
+            </span>
           </div>
         ) : null}
       </div>
@@ -196,7 +203,7 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
       <div style={{ position: "relative", flex: 1, minHeight: 0, margin: 0, width: "100%" }}>
         {!loaded ? (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.28em", color: C.sub }}>
-            読み込み中…
+            {copy.common.loading}
           </div>
         ) : null}
         <iframe

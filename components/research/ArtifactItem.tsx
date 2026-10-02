@@ -5,7 +5,8 @@ import { useState } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
 import { Button, InlineError, SourceBadge, TwoStepDelete, VisibilityBadge, fieldStyle } from "@/components/research/ui";
-import { formatBytes, formatDate } from "@/lib/research-format";
+import { formatBytes } from "@/lib/research-format";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 import ArtifactThumb from "@/components/research/ArtifactThumb";
 import type { HandleProps } from "@/components/research/SortableItem";
 
@@ -28,11 +29,12 @@ type Props = {
 };
 
 function DragHandle({ handle }: { handle: HandleProps }) {
+  const { t } = useResearchI18n();
   return (
     <button
       ref={handle.ref}
       type="button"
-      aria-label="並び替え（ドラッグ、または Space → 矢印キー → Space）"
+      aria-label={t.item.dragHandle}
       {...handle.attributes}
       {...handle.listeners}
       style={{
@@ -58,6 +60,8 @@ function DragHandle({ handle }: { handle: HandleProps }) {
 }
 
 export default function ArtifactItem({ artifact, projects, currentProjectId, canDelete, busy, handle, actions, layout }: Props) {
+  const { t: copy, formatDate } = useResearchI18n();
+  const t = copy.item;
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(artifact.title);
   const [description, setDescription] = useState(artifact.description);
@@ -71,7 +75,7 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
     setError("");
     const ok = await actions.onRename(artifact.id, title.trim(), description.trim());
     if (ok) setEditing(false);
-    else setError("更新に失敗しました。");
+    else setError(t.updateFailed);
   }
 
   const meta = (
@@ -99,14 +103,14 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
       />
       <textarea
         style={{ ...fieldStyle, padding: "8px 10px", minHeight: 56, resize: "vertical" }}
-        placeholder="説明（任意）"
+        placeholder={copy.common.descriptionOptional}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         maxLength={2000}
       />
       <div style={{ display: "flex", gap: 6 }}>
-        <Button size="sm" variant="accent" busy={busy} onClick={() => void saveRename()}>保存</Button>
-        <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setTitle(artifact.title); setDescription(artifact.description); }}>キャンセル</Button>
+        <Button size="sm" variant="accent" busy={busy} onClick={() => void saveRename()}>{copy.common.save}</Button>
+        <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setTitle(artifact.title); setDescription(artifact.description); }}>{copy.common.cancel}</Button>
       </div>
     </div>
   ) : (
@@ -125,9 +129,9 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
   const actionsBlock = (
     <div className="mob-rs-actions" style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", justifyContent: layout === "row" ? "flex-end" : "flex-start" }}>
       <Link href={viewerHref} style={{ fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.ink, textDecoration: "none", border: `1px solid ${C.line}`, padding: "8px 12px" }}>
-        開く
+        {t.open}
       </Link>
-      {!editing ? <Button size="sm" onClick={() => setEditing(true)} disabled={busy}>名前変更</Button> : null}
+      {!editing ? <Button size="sm" onClick={() => setEditing(true)} disabled={busy}>{t.rename}</Button> : null}
       {others.length > 0 ? (
         moving ? (
           <select
@@ -140,18 +144,18 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
               if (!slug) return;
               setError("");
               const ok = await actions.onMove(artifact.id, slug);
-              if (!ok) setError("移動に失敗しました。");
+              if (!ok) setError(t.moveFailed);
               setMoving(false);
             }}
             style={{ ...fieldStyle, width: "auto", padding: "7px 10px", fontFamily: FONTS.mono, fontSize: 11 }}
           >
-            <option value="">移動先を選択…</option>
+            <option value="">{t.moveTo}</option>
             {others.map((p) => (
               <option key={p.id} value={p.slug}>{p.name}</option>
             ))}
           </select>
         ) : (
-          <Button size="sm" onClick={() => setMoving(true)} disabled={busy}>移動</Button>
+          <Button size="sm" onClick={() => setMoving(true)} disabled={busy}>{t.move}</Button>
         )
       ) : null}
       {canDelete ? (
@@ -162,10 +166,10 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
             setError("");
             const next = artifact.visibility === "public" ? "members" : "public";
             const ok = await actions.onSetVisibility(artifact.id, next);
-            if (!ok) setError("公開範囲の変更に失敗しました。");
+            if (!ok) setError(copy.visibility.changeFailed);
           }}
         >
-          {artifact.visibility === "public" ? "メンバー限定に戻す" : "誰でも公開にする"}
+          {artifact.visibility === "public" ? copy.visibility.makeMembers : copy.visibility.makePublic}
         </Button>
       ) : null}
       {canDelete ? (
@@ -174,7 +178,7 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
           onConfirm={async () => {
             setError("");
             const ok = await actions.onDelete(artifact.id);
-            if (!ok) setError("削除に失敗しました。");
+            if (!ok) setError(t.deleteFailed);
           }}
         />
       ) : null}

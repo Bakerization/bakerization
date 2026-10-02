@@ -143,7 +143,7 @@ function buildServer(userId: string | undefined) {
       description:
         "Publish a self-contained HTML page (the full document, including <!doctype html>) to Bakerization Research so every member can open it. " +
         "Pass the COMPLETE html string; inline all CSS/JS (CDN <script>/<link> tags to cdnjs/jsdelivr/unpkg/Google Fonts are fine). " +
-        `Max ${Math.round(MAX_HTML_BYTES / 1024)} KB; for pages over ~150 KB prefer the web upload on the site. ` +
+        `Max ${Math.round(MAX_HTML_BYTES / 1024)} KB; for pages over ~200 KB prefer the web upload on the site. ` +
         "Returns the artifact id and the URL to report back to the user. Use update_artifact to revise an existing artifact instead of publishing a duplicate.",
       inputSchema: z.object({
         title: z.string().min(1).max(MAX_TITLE_LENGTH).describe("Human-readable title shown in the gallery"),

@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthSession } from "@/lib/auth-server";
 import ConsentForm from "@/components/research/ConsentForm";
+import { getServerLocale } from "@/lib/i18n";
+import { getResearchCopy } from "@/lib/research-copy";
 
-export const metadata: Metadata = {
-  title: "接続の許可 | Bakerization Research",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: getResearchCopy(await getServerLocale()).meta.consent, robots: { index: false, follow: false } };
+}
 
 function hostOf(value: string | undefined) {
   if (!value) return "";

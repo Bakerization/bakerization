@@ -1,7 +1,12 @@
+import type { Locale } from "@/lib/locale";
+
 // Plain helpers usable from both server and client components.
-export function formatDate(iso: string) {
+// The time zone is fixed so server and client render the same string.
+export function formatDate(iso: string, locale: Locale = "ja") {
   try {
-    return new Date(iso).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" });
+    return locale === "en"
+      ? new Date(iso).toLocaleDateString("en-US", { timeZone: "Asia/Tokyo", year: "numeric", month: "short", day: "numeric" })
+      : new Date(iso).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" });
   } catch {
     return iso.slice(0, 10);
   }

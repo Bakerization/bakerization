@@ -13,7 +13,7 @@ Open [http://localhost:3000](http://localhost:3000).
 Use `.env.example` as the source of truth.  
 For Vercel, register the same keys in Project Settings -> Environment Variables.
 
-Required for production:
+Required for production (`ADMIN_EMAIL` / `ADMIN_PASSWORD` are read only by the local scripts `seed:admin` / `rotate:admin`, not at runtime):
 
 ```env
 ADMIN_EMAIL=
@@ -46,13 +46,15 @@ Notes:
 
 ## Research（メンバー限定の HTML アーティファクト置き場）
 
-`/research` は Better Auth でログインしたメンバーだけが見られる、Claude 製 HTML の管理画面です。
+`/research` は Claude 製 HTML の公開ギャラリー兼メンバー用の管理画面です。
+ログインしていない人には公開（`visibility: "public"`）のアーティファクトと、それを含むプロジェクトだけが見えます（ログイン導線は出さず、メンバー限定の URL は 404）。
+メンバーは `/research/login` を直接開いてログインします。
 
 ### 初回セットアップ
 
-1. 環境変数を設定する（`.env` / Vercel）: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`（本番は `https://www.bakerization.com`）, `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`。
+1. 環境変数を設定する（`.env` / Vercel）: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`（本番は `https://www.bakerization.com`）, `DATABASE_URL`。ローカルの `.env` には `ADMIN_EMAIL`, `ADMIN_PASSWORD` も（スクリプト専用）。
 2. 認証テーブルを作る: `npx auth@latest migrate --config lib/auth.ts -y`
-3. 管理者を作る: `npm run seed:admin`
+3. 管理者を作る: `npm run seed:admin`（パスワードの入れ替えは `npm run rotate:admin`: ランダム 32 文字に変更し、全セッションを失効、`.env` を更新）
 4. `/admen/login` で管理者ログイン → `/research/members` で名前とメールを入力して招待メールを送る（受け取った人が自分でパスワードを設定）。
    メールは Resend（`RESEND_API_KEY` / `CONTACT_FROM`）で送る。
    研究用テーブル（`research_projects` / `research_artifacts`）は初回アクセス時に自動作成される。

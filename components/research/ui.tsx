@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 // Shared primitives for /research, styled from the site's C / FONTS tokens.
 
@@ -159,11 +160,12 @@ export function ButtonLink({
 }
 
 export function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: ReactNode }) {
+  const { t } = useResearchI18n();
   return (
     <label style={{ display: "block", marginBottom: 18 }}>
       <span style={labelStyle}>
         ▎{label}
-        {required ? <span style={{ color: C.accent, marginLeft: 8 }}>必須</span> : null}
+        {required ? <span style={{ color: C.accent, marginLeft: 8 }}>{t.common.required}</span> : null}
       </span>
       {children}
       {hint ? <span style={{ display: "block", marginTop: 6, fontSize: 12, color: C.sub }}>{hint}</span> : null}
@@ -172,6 +174,7 @@ export function Field({ label, hint, required, children }: { label: string; hint
 }
 
 export function InlineError({ children, onClose }: { children: ReactNode; onClose?: () => void }) {
+  const { t } = useResearchI18n();
   if (!children) return null;
   return (
     <p
@@ -190,7 +193,7 @@ export function InlineError({ children, onClose }: { children: ReactNode; onClos
       <span>▲ {children}</span>
       {onClose ? (
         <button type="button" onClick={onClose} style={{ ...buttonStyle("ghost", "sm"), padding: "2px 6px" }}>
-          閉じる
+          {t.common.close}
         </button>
       ) : null}
     </p>
@@ -199,8 +202,8 @@ export function InlineError({ children, onClose }: { children: ReactNode; onClos
 
 /** Two-step delete: first click arms, second confirms, auto-disarms after 4 s. No confirm() dialogs. */
 export function TwoStepDelete({
-  label = "削除",
-  confirmLabel = "本当に削除する",
+  label,
+  confirmLabel,
   onConfirm,
   busy,
   size = "sm",
@@ -211,6 +214,7 @@ export function TwoStepDelete({
   busy?: boolean;
   size?: Size;
 }) {
+  const { t } = useResearchI18n();
   const [armed, setArmed] = useState(false);
   const timer = useRef<number | null>(null);
   useEffect(() => () => { if (timer.current) window.clearTimeout(timer.current); }, []);
@@ -225,7 +229,7 @@ export function TwoStepDelete({
           timer.current = window.setTimeout(() => setArmed(false), 4000);
         }}
       >
-        {label}
+        {label ?? t.common.delete}
       </Button>
     );
   }
@@ -241,16 +245,17 @@ export function TwoStepDelete({
           setArmed(false);
         }}
       >
-        {confirmLabel}
+        {confirmLabel ?? t.common.confirmDelete}
       </Button>
       <Button variant="ghost" size={size} onClick={() => setArmed(false)}>
-        キャンセル
+        {t.common.cancel}
       </Button>
     </span>
   );
 }
 
-export function CopyButton({ text, label = "コピー", size = "sm" }: { text: string; label?: string; size?: Size }) {
+export function CopyButton({ text, label, size = "sm" }: { text: string; label?: string; size?: Size }) {
+  const { t } = useResearchI18n();
   const [done, setDone] = useState(false);
   return (
     <Button
@@ -265,7 +270,7 @@ export function CopyButton({ text, label = "コピー", size = "sm" }: { text: s
         }
       }}
     >
-      {done ? "コピーしました" : label}
+      {done ? t.common.copied : (label ?? t.common.copy)}
     </Button>
   );
 }
@@ -298,10 +303,11 @@ export function CopyBlock({ text, label }: { text: string; label?: string }) {
 }
 
 export function VisibilityBadge({ visibility }: { visibility: "members" | "public" }) {
+  const { t } = useResearchI18n();
   const isPublic = visibility === "public";
   return (
     <span
-      title={isPublic ? "誰でも閲覧可（ログイン不要・検索対象）" : "メンバーのみ閲覧可"}
+      title={isPublic ? t.visibility.publicTitle : t.visibility.membersTitle}
       style={{
         display: "inline-block",
         fontFamily: FONTS.mono,

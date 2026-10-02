@@ -25,6 +25,7 @@ import { useStoredView } from "@/components/research/useStoredView";
 import SortableItem from "@/components/research/SortableItem";
 import ArtifactItem, { type ItemActions } from "@/components/research/ArtifactItem";
 import UploadPanel from "@/components/research/UploadPanel";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 type Props = {
   project: ResearchProject;
@@ -40,6 +41,8 @@ async function api(path: string, init: RequestInit) {
 
 export default function ProjectBoard({ project, projects, initialArtifacts, viewer }: Props) {
   const router = useRouter();
+  const { t: copy } = useResearchI18n();
+  const t = copy.board;
   const [items, setItems] = useState<ResearchArtifactMeta[]>(initialArtifacts);
   const savedOrder = useRef<string[]>(initialArtifacts.map((a) => a.id));
   const [view, setView] = useStoredView();
@@ -87,7 +90,7 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
       savedOrder.current = orderedIds;
     } else {
       restoreSavedOrder();
-      setError("並び替えの保存に失敗しました。元の順序に戻しました。");
+      setError(t.reorderFailed);
     }
   }
 
@@ -136,14 +139,14 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
     setProjectBusy(true);
     const ok = await api(`/api/research/projects/${project.slug}`, { method: "PATCH", body: JSON.stringify({ name: name.trim(), description: description.trim() }) });
     setProjectBusy(false);
-    if (!ok) setError("プロジェクトの更新に失敗しました。");
+    if (!ok) setError(t.updateFailed);
     else { setSettingsOpen(false); router.refresh(); }
   }
 
   async function deleteProject() {
     setProjectBusy(true);
     const ok = await api(`/api/research/projects/${project.slug}`, { method: "DELETE" });
-    if (!ok) { setProjectBusy(false); setError("プロジェクトの削除に失敗しました。"); return; }
+    if (!ok) { setProjectBusy(false); setError(t.deleteFailed); return; }
     router.push("/research");
     router.refresh();
   }
@@ -171,12 +174,12 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
           {project.description ? <p style={{ margin: "8px 0 0", color: C.sub, fontSize: 14, lineHeight: 1.7, maxWidth: 720 }}>{project.description}</p> : null}
         </div>
         <div className="mob-flex-wrap" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div role="group" aria-label="表示切替" style={{ display: "inline-flex" }}>
-            <button type="button" style={toggleStyle(view === "table")} onClick={() => setView("table")} aria-pressed={view === "table"}>リスト</button>
-            <button type="button" style={{ ...toggleStyle(view === "grid"), marginLeft: -1 }} onClick={() => setView("grid")} aria-pressed={view === "grid"}>グリッド</button>
+          <div role="group" aria-label={t.viewToggle} style={{ display: "inline-flex" }}>
+            <button type="button" style={toggleStyle(view === "table")} onClick={() => setView("table")} aria-pressed={view === "table"}>{t.list}</button>
+            <button type="button" style={{ ...toggleStyle(view === "grid"), marginLeft: -1 }} onClick={() => setView("grid")} aria-pressed={view === "grid"}>{t.grid}</button>
           </div>
-          {canManageProject ? <Button size="sm" onClick={() => setSettingsOpen((v) => !v)}>プロジェクト設定</Button> : null}
-          <Button variant="accent" onClick={() => setUploadOpen((v) => !v)}>＋ アップロード</Button>
+          {canManageProject ? <Button size="sm" onClick={() => setSettingsOpen((v) => !v)}>{t.projectSettings}</Button> : null}
+          <Button variant="accent" onClick={() => setUploadOpen((v) => !v)}>{t.upload}</Button>
         </div>
       </div>
 
@@ -184,15 +187,15 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
         <Panel strong style={{ marginBottom: 24, maxWidth: 640 }}>
           <Kicker style={{ marginBottom: 14 }}>▍PROJECT SETTINGS</Kicker>
           <div style={{ display: "grid", gap: 12 }}>
-            <input style={fieldStyle} value={name} onChange={(e) => setName(e.target.value)} maxLength={120} aria-label="プロジェクト名" />
-            <textarea style={{ ...fieldStyle, minHeight: 72, resize: "vertical" }} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} aria-label="説明" />
+            <input style={fieldStyle} value={name} onChange={(e) => setName(e.target.value)} maxLength={120} aria-label={t.name} />
+            <textarea style={{ ...fieldStyle, minHeight: 72, resize: "vertical" }} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} aria-label={copy.common.description} />
             <div className="mob-flex-wrap" style={{ display: "flex", gap: 8, justifyContent: "space-between" }}>
               <div style={{ display: "flex", gap: 8 }}>
-                <Button variant="accent" busy={projectBusy} onClick={() => void saveProject()}>保存</Button>
-                <Button variant="ghost" onClick={() => setSettingsOpen(false)}>閉じる</Button>
+                <Button variant="accent" busy={projectBusy} onClick={() => void saveProject()}>{copy.common.save}</Button>
+                <Button variant="ghost" onClick={() => setSettingsOpen(false)}>{copy.common.close}</Button>
               </div>
               {!project.isDefault ? (
-                <TwoStepDelete label="プロジェクトを削除" confirmLabel="本当に削除する（中身は Inbox へ）" size="md" busy={projectBusy} onConfirm={deleteProject} />
+                <TwoStepDelete label={t.deleteProject} confirmLabel={t.confirmDeleteProject} size="md" busy={projectBusy} onConfirm={deleteProject} />
               ) : null}
             </div>
           </div>
@@ -215,12 +218,12 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
 
       {items.length === 0 ? (
         <p style={{ border: `1px solid ${C.line}`, padding: 24, color: C.sub, fontSize: 14, lineHeight: 1.8 }}>
-          アーティファクトはまだありません。「アップロード」、または Claude（MCP コネクタ）/ API から追加してください。
+          {t.empty}
         </p>
       ) : (
         <>
           <p style={{ ...monoSmall, margin: "0 0 12px" }}>
-            ⋮⋮ をドラッグして並び替え（キーボード: ハンドルにフォーカス → Space → 矢印 → Space）
+            {t.dragHint}
           </p>
           <DndContext id="research-artifacts" sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext items={ids} strategy={view === "table" ? verticalListSortingStrategy : rectSortingStrategy}>
@@ -228,9 +231,9 @@ export default function ProjectBoard({ project, projects, initialArtifacts, view
                 <div style={{ display: "grid", gap: 10 }}>
                   <div className="mob-hide" style={{ display: "grid", gridTemplateColumns: "28px 160px minmax(0, 1fr) auto", gap: 16, padding: "0 12px", ...monoSmall }}>
                     <span />
-                    <span>プレビュー</span>
-                    <span>タイトル · ソース · 作成者 · 更新日</span>
-                    <span style={{ textAlign: "right" }}>操作</span>
+                    <span>{t.colPreview}</span>
+                    <span>{t.colMeta}</span>
+                    <span style={{ textAlign: "right" }}>{t.colActions}</span>
                   </div>
                   {items.map((a) => (
                     <SortableItem key={a.id} id={a.id}>

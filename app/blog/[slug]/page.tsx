@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthSession } from "@/lib/auth-server";
@@ -6,13 +8,36 @@ import { enrichHtmlWithToc } from "@/lib/content-utils";
 import AdminEditButton from "@/components/blog/AdminEditButton";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getServerLocale } from "@/lib/i18n";
-import { getLocalizedPost } from "@/lib/blog-localize";
+import { getLocalizedPost, hasEnglishVersion } from "@/lib/blog-localize";
+import { absoluteUrl, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import { BlogPost } from "@/lib/blog-types";
 import { C, FONTS } from "@/lib/theme";
 
 type Params = {
   params: Promise<{ slug: string }>;
 };
+
+const loadPost = cache(async (slug: string) => getPost(slug));
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const [post, locale] = await Promise.all([loadPost(slug), getServerLocale()]);
+  if (!post || !post.published) return { title: "Journal", robots: { index: false, follow: false } };
+  const available = hasEnglishVersion(post) ? (["ja", "en"] as const) : (["ja"] as const);
+  const localized = getLocalizedPost(post, available.length > 1 ? locale : "ja");
+  return pageMetadata({
+    path: `/blog/${post.slug}`,
+    locale,
+    available,
+    title: localized.title,
+    description: localized.excerpt || undefined,
+    type: "article",
+    images: post.heroImageUrl ? [post.heroImageUrl] : undefined,
+    publishedTime: post.createdAt,
+    modifiedTime: post.updatedAt,
+  });
+}
 
 function tokenize(text: string) {
   return text
@@ -42,7 +67,7 @@ export default async function BlogDetailPage({ params }: Params) {
   const isAdmin = session?.user?.role === "admin";
 
   const { slug } = await params;
-  const post = await getPost(slug);
+  const post = await loadPost(slug);
 
   if (!post || (!post.published && !isAdmin)) {
     notFound();
@@ -92,7 +117,25 @@ export default async function BlogDetailPage({ params }: Params) {
           section: "ジャーナル · 記事",
         };
 
+  const postUrl = absoluteUrl(`/blog/${post.slug}`);
   return (
+    <>
+    <JsonLd
+      data={{
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: localized.title,
+        description: localized.excerpt || undefined,
+        image: post.heroImageUrl ? [post.heroImageUrl] : [absoluteUrl("/opengraph-image")],
+        datePublished: post.createdAt,
+        dateModified: post.updatedAt,
+        url: postUrl,
+        mainEntityOfPage: postUrl,
+        inLanguage: locale === "en" && hasEnglishVersion(post) ? "en" : "ja",
+        author: { "@type": "Organization", name: "Bakerization", url: absoluteUrl("/") },
+        publisher: { "@type": "Organization", name: "Bakerization", url: absoluteUrl("/") },
+      }}
+    />
     <main
       style={{
         minHeight: "100vh",
@@ -493,5 +536,6 @@ export default async function BlogDetailPage({ params }: Params) {
         </div>
       </div>
     </main>
+    </>
   );
 }

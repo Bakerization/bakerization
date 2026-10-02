@@ -8,6 +8,8 @@ import {
 import "./globals.css";
 import Providers from "@/app/providers";
 import { getServerLocale } from "@/lib/i18n";
+import { SITE_URL } from "@/lib/site";
+import { OG_LOCALE, SITE_NAME } from "@/lib/seo";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
 import HideOnResearch from "@/components/HideOnResearch";
@@ -41,11 +43,31 @@ const fontRound = Quicksand({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Bakerization — We Bake the Future",
-  description:
-    "Bakerizationはパン屋の社会課題を解決するために生まれた団体です。",
-};
+// Site-wide defaults. No `alternates` here: every page would inherit the root
+// canonical. Pages set canonical / hreflang / OG through lib/seo.ts pageMetadata().
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const description =
+    locale === "en"
+      ? "Bakerization was founded to solve the social challenges facing the bakery industry — protecting Japan's bread culture through research, technology and community."
+      : "Bakerizationはパン屋の社会課題を解決するために生まれた団体です。調査・テクノロジー・コミュニティで日本のパン文化を守ります。";
+  const verification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: "Bakerization — We Bake the Future", template: `%s | ${SITE_NAME}` },
+    description,
+    applicationName: SITE_NAME,
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[locale],
+      images: ["/opengraph-image"],
+    },
+    twitter: { card: "summary_large_image" },
+    formatDetection: { telephone: false, email: false, address: false },
+    ...(verification ? { verification: { google: verification } } : {}),
+  };
+}
 
 export default async function RootLayout({
   children,

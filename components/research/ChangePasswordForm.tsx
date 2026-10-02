@@ -4,8 +4,10 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { C } from "@/lib/theme";
 import { Button, Field, InlineError, Kicker, Panel, fieldStyle } from "@/components/research/ui";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 export default function ChangePasswordForm() {
+  const t = useResearchI18n().t.changePassword;
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [busy, setBusy] = useState(false);
@@ -15,7 +17,7 @@ export default function ChangePasswordForm() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (next.length < 10) {
-      setError("新しいパスワードは10文字以上にしてください。");
+      setError(t.tooShort);
       return;
     }
     setBusy(true);
@@ -24,7 +26,7 @@ export default function ChangePasswordForm() {
     const { error: err } = await authClient.changePassword({ currentPassword: current, newPassword: next, revokeOtherSessions: true });
     setBusy(false);
     if (err) {
-      setError("変更に失敗しました。現在のパスワードを確認してください。");
+      setError(t.failed);
       return;
     }
     setCurrent("");
@@ -35,17 +37,17 @@ export default function ChangePasswordForm() {
   return (
     <Panel>
       <Kicker style={{ marginBottom: 6 }}>▍PASSWORD</Kicker>
-      <p style={{ margin: "0 0 18px", fontSize: 13, color: C.sub, lineHeight: 1.7 }}>初期パスワードから変更してください。</p>
+      <p style={{ margin: "0 0 18px", fontSize: 13, color: C.sub, lineHeight: 1.7 }}>{t.lead}</p>
       <form onSubmit={submit} style={{ maxWidth: 420 }}>
-        <Field label="現在のパスワード" required>
+        <Field label={t.current} required>
           <input style={fieldStyle} type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} required />
         </Field>
-        <Field label="新しいパスワード（10文字以上）" required>
+        <Field label={t.next} required>
           <input style={fieldStyle} type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} minLength={10} required />
         </Field>
         <InlineError onClose={() => setError("")}>{error}</InlineError>
-        {done ? <p style={{ fontSize: 13, color: C.sub, margin: "0 0 12px" }}>パスワードを変更しました。</p> : null}
-        <Button type="submit" variant="accent" busy={busy}>変更する →</Button>
+        {done ? <p style={{ fontSize: 13, color: C.sub, margin: "0 0 12px" }}>{t.done}</p> : null}
+        <Button type="submit" variant="accent" busy={busy}>{t.submit}</Button>
       </form>
     </Panel>
   );

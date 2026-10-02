@@ -8,6 +8,7 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { PostgresDialect, type PostgresPool } from "kysely";
 import { Pool } from "@neondatabase/serverless";
 import { sendEmail } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 
 // ─────────────────────────────────────────────────────────────
@@ -19,14 +20,7 @@ import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 // Keep this module free of `next/headers` so the CLI / scripts can load it.
 // ─────────────────────────────────────────────────────────────
 
-function resolveAppUrl() {
-  const explicit = process.env.BETTER_AUTH_URL?.trim();
-  if (explicit) return explicit.replace(/\/+$/, "");
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
-}
-
-export const APP_URL = resolveAppUrl();
+export const APP_URL = SITE_URL;
 export const MCP_RESOURCE = `${APP_URL}/api/mcp`;
 export const RESEARCH_SCOPE = "research";
 /** Invitation / password-reset links stay valid this long. */

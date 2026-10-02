@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { C, FONTS } from "@/lib/theme";
 import { APP, COMPANY, COMPANY_ADDRESS } from "@/lib/company";
+import type { Metadata } from "next";
 import { getServerLocale, Locale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 
-export async function generateMetadata() {
+export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
-  return locale === "en"
-    ? {
-        title: `About ${APP.name} | Bakerization`,
-        description: `What ${APP.name}, a mixing recorder for bakeries by Bakerization, does — its features, how you sign in, and what information it collects.`,
-      }
-    : {
-        title: `${APP.name} について | Bakerization`,
-        description: `Bakerizationが提供するミキシング記録アプリ ${APP.name} の機能、ログイン方法、取得する情報の概要。`,
-      };
+  return pageMetadata({
+    path: "/app",
+    locale,
+    title: locale === "en" ? `About ${APP.name}` : `${APP.name} について`,
+    description:
+      locale === "en"
+        ? `What ${APP.name}, a mixing recorder for bakeries by Bakerization, does — its features, how you sign in, and what information it collects.`
+        : `Bakerizationが提供するミキシング記録アプリ ${APP.name} の機能、ログイン方法、取得する情報の概要。`,
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────

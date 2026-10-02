@@ -1,12 +1,15 @@
-import { cookies } from "next/headers";
+import { cache } from "react";
+import { cookies, headers } from "next/headers";
+import { LANG_COOKIE, LANG_HEADER, normalizeLocale, parseLocaleParam, type Locale } from "@/lib/locale";
 
-export type Locale = "ja" | "en";
+export * from "@/lib/locale";
 
-export function normalizeLocale(value: string | null | undefined): Locale {
-  return value === "en" ? "en" : "ja";
-}
-
-export async function getServerLocale(): Promise<Locale> {
-  const cookieStore = await cookies();
-  return normalizeLocale(cookieStore.get("lang")?.value);
-}
+/**
+ * Locale for the current request: `?lang=` (forwarded by proxy.ts as a header)
+ * → `lang` cookie → ja. Deduped per request.
+ */
+export const getServerLocale = cache(async (): Promise<Locale> => {
+  const fromUrl = parseLocaleParam((await headers()).get(LANG_HEADER));
+  if (fromUrl) return fromUrl;
+  return normalizeLocale((await cookies()).get(LANG_COOKIE)?.value);
+});

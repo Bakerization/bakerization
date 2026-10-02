@@ -1,13 +1,22 @@
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
+import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
 
-export const metadata = {
-  title: "Contact | Bakerization",
-  description:
-    "Bakerization へのお問い合わせ。パン屋の現場・自治体・メディアからのご相談を受け付けています。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return pageMetadata({
+    path: "/contact",
+    locale,
+    title: "Contact",
+    description:
+      locale === "en"
+        ? "Contact Bakerization. We welcome inquiries from bakeries, local governments and the media."
+        : "Bakerization へのお問い合わせ。パン屋の現場・自治体・メディアからのご相談を受け付けています。",
+  });
+}
 
 export default async function ContactPage() {
   const locale = await getServerLocale();

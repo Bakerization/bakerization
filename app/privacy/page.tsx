@@ -1,12 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { C, FONTS } from "@/lib/theme";
+import { pageMetadata } from "@/lib/seo";
 import { APP, COMPANY, COMPANY_ADDRESS } from "@/lib/company";
 
-export const metadata = {
-  title: "プライバシーポリシー | Bakerization",
+// Japanese only (no English translation yet): canonical, no hreflang.
+export const metadata: Metadata = pageMetadata({
+  path: "/privacy",
+  locale: "ja",
+  available: ["ja"],
+  title: "プライバシーポリシー",
   description:
     "Bakerizationが提供するミキシング記録アプリ kiji hub および kiji hub log において取得する情報、利用目的、保存先、第三者提供、保管期間、削除の方法について定めたプライバシーポリシー。",
-};
+});
 
 /* ─────────────────────────────────────────────────────────────
    本文データ

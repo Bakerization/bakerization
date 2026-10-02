@@ -1,13 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
 
-export const metadata = {
-  title: "団体情報 | Bakerization",
-  description:
-    "Bakerizationの共同代表プロフィール、ステートメント、行動原則。",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return pageMetadata({
+    path: "/about",
+    locale,
+    title: locale === "en" ? "About" : "団体情報",
+    description:
+      locale === "en"
+        ? "About Bakerization: profiles of our co-representatives, our statement and the principles we act on."
+        : "Bakerizationの共同代表プロフィール、ステートメント、行動原則。",
+  });
+}
 
 type Credential = string;
 type SocialLink = { label: string; href: string };

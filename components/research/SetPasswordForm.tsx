@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { C, FONTS } from "@/lib/theme";
 import { Button, Field, InlineError, Kicker, fieldStyle } from "@/components/research/ui";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 type Props = { mode: "invite" | "reset"; token: string; invalid: boolean };
 
 export default function SetPasswordForm({ mode, token, invalid }: Props) {
   const router = useRouter();
+  const t = useResearchI18n().t.setPassword;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,14 +21,14 @@ export default function SetPasswordForm({ mode, token, invalid }: Props) {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (password.length < 10) return setError("パスワードは10文字以上にしてください。");
-    if (password !== confirm) return setError("確認用のパスワードが一致しません。");
+    if (password.length < 10) return setError(t.tooShort);
+    if (password !== confirm) return setError(t.mismatch);
     setBusy(true);
     setError("");
     const { error: err } = await authClient.resetPassword({ newPassword: password, token });
     if (err) {
       setBusy(false);
-      setError("設定に失敗しました。リンクの有効期限が切れている可能性があります。");
+      setError(t.failed);
       return;
     }
     router.push(`/research/login?${isInvite ? "invite" : "reset"}=done`);
@@ -37,15 +39,17 @@ export default function SetPasswordForm({ mode, token, invalid }: Props) {
       <div className="mob-pad-card-lg" style={{ width: "100%", maxWidth: 460, background: C.card, border: `1.5px solid ${C.line}`, padding: 40 }}>
         <Kicker style={{ marginBottom: 14 }}>{isInvite ? "▍RESEARCH — WELCOME" : "▍RESEARCH — RESET PASSWORD"}</Kicker>
         <h1 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 32, letterSpacing: -0.8, fontWeight: 700 }}>
-          {isInvite ? "パスワードを設定" : "パスワードを再設定"}
+          {isInvite ? t.titleInvite : t.titleReset}
         </h1>
         {invalid || !token ? (
           <div style={{ marginTop: 20, fontSize: 14, lineHeight: 1.8, color: C.sub }}>
-            <p style={{ margin: 0 }}>リンクが無効か、有効期限が切れています。</p>
+            <p style={{ margin: 0 }}>{t.invalid}</p>
             <p style={{ margin: "10px 0 0" }}>
-              {isInvite ? "管理者に招待メールの再送を依頼してください。" : (
+              {isInvite ? t.askAdmin : (
                 <>
-                  <Link href="/research/forgot" style={{ color: C.accent }}>こちら</Link>から再設定メールを送り直せます。
+                  {t.resendBefore}
+                  <Link href="/research/forgot" style={{ color: C.accent }}>{t.resendLink}</Link>
+                  {t.resendAfter}
                 </>
               )}
             </p>
@@ -54,18 +58,18 @@ export default function SetPasswordForm({ mode, token, invalid }: Props) {
           <form onSubmit={onSubmit} style={{ marginTop: 28 }}>
             {isInvite ? (
               <p style={{ margin: "0 0 20px", fontSize: 14, lineHeight: 1.8, color: C.sub }}>
-                Bakerization Research へようこそ。ログイン用のパスワードを決めてください。設定後、招待メールのアドレスでログインできます。
+                {t.welcome}
               </p>
             ) : null}
-            <Field label="新しいパスワード（10文字以上）" required>
+            <Field label={t.next} required>
               <input style={fieldStyle} type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={10} required autoFocus />
             </Field>
-            <Field label="もう一度入力" required>
+            <Field label={t.confirm} required>
               <input style={fieldStyle} type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={10} required />
             </Field>
             <InlineError onClose={() => setError("")}>{error}</InlineError>
             <Button type="submit" variant="accent" busy={busy} style={{ width: "100%", justifyContent: "center" }}>
-              {busy ? "設定中…" : isInvite ? "設定してはじめる →" : "再設定する →"}
+              {busy ? t.setting : isInvite ? t.submitInvite : t.submitReset}
             </Button>
           </form>
         )}

@@ -20,7 +20,7 @@ Bakerization Research は社内メンバー限定の HTML アーティファク�
    cdnjs / jsdelivr / unpkg / Google Fonts の `<script>` `<link>` だけ可。
 2. `<title>` を必ず入れる（ギャラリーのタイトルになる）。
 3. 画像は data URI か外部 URL。ローカルファイル参照は動かない。
-4. 目安 150 KB 以内。超える場合はユーザーに「サイトの Web アップロードを使ってください」と伝える。
+4. 目安 200 KB 以内。超える場合はユーザーに「サイトの Web アップロードを使ってください」と伝える。
 5. `localStorage` / `document.cookie` は使えない（サンドボックス表示）。使う場合は try/catch。
 
 ## 公開手順

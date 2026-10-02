@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { CSSProperties } from "react";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
+import { useLocaleSwitch } from "@/components/useLocaleSwitch";
 
 /**
  * 見た目を変えずに押せるようにするための言語切替。
@@ -21,13 +21,7 @@ export default function InlineLanguageSwitcher({
   locale: Locale;
   separator?: string;
 }) {
-  const router = useRouter();
-
-  function change(next: Locale) {
-    if (next === locale) return;
-    document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
-    router.refresh();
-  }
+  const { switchTo: change } = useLocaleSwitch(locale);
 
   const btn: CSSProperties = {
     font: "inherit",

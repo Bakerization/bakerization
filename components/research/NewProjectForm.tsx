@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Field, InlineError, Panel, fieldStyle } from "@/components/research/ui";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 export default function NewProjectForm() {
   const router = useRouter();
+  const { t: copy } = useResearchI18n();
+  const t = copy.newProject;
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -15,7 +18,7 @@ export default function NewProjectForm() {
   if (!open) {
     return (
       <Button variant="accent" onClick={() => setOpen(true)}>
-        ＋ 新規プロジェクト
+        {t.open}
       </Button>
     );
   }
@@ -36,7 +39,7 @@ export default function NewProjectForm() {
       router.push(`/research/p/${project.slug}`);
       router.refresh();
     } catch {
-      setError("作成に失敗しました。");
+      setError(t.failed);
       setBusy(false);
     }
   }
@@ -44,19 +47,19 @@ export default function NewProjectForm() {
   return (
     <Panel strong style={{ maxWidth: 560 }}>
       <form onSubmit={submit}>
-        <Field label="プロジェクト名" required>
+        <Field label={t.name} required>
           <input style={fieldStyle} value={name} onChange={(e) => setName(e.target.value)} maxLength={120} autoFocus required />
         </Field>
-        <Field label="説明（任意）">
+        <Field label={copy.common.descriptionOptional}>
           <textarea style={{ ...fieldStyle, minHeight: 80, resize: "vertical" }} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} />
         </Field>
         <InlineError>{error}</InlineError>
         <div style={{ display: "flex", gap: 10 }}>
           <Button type="submit" variant="accent" busy={busy}>
-            {busy ? "作成中…" : "作成する →"}
+            {busy ? t.creating : t.create}
           </Button>
           <Button variant="ghost" onClick={() => setOpen(false)} disabled={busy}>
-            キャンセル
+            {copy.common.cancel}
           </Button>
         </div>
       </form>

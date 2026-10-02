@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { ResearchArtifactMeta } from "@/lib/research-types";
 import { Button, Field, InlineError, Panel, fieldStyle } from "@/components/research/ui";
+import { useResearchI18n } from "@/components/research/ResearchI18n";
 
 const MAX_CLIENT_BYTES = 5 * 1024 * 1024;
 
@@ -25,6 +26,8 @@ function titleFromHtml(html: string, fileName: string) {
 }
 
 export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props) {
+  const { t: copy } = useResearchI18n();
+  const t = copy.upload;
   const fileInput = useRef<HTMLInputElement>(null);
   const [html, setHtml] = useState("");
   const [fileName, setFileName] = useState("");
@@ -46,11 +49,11 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
     setError("");
     const lower = file.name.toLowerCase();
     if (!(lower.endsWith(".html") || lower.endsWith(".htm") || file.type === "text/html")) {
-      setError(".html ファイルのみ対応しています。");
+      setError(t.onlyHtml);
       return;
     }
     if (file.size > MAX_CLIENT_BYTES) {
-      setError("ファイルが大きすぎます（上限 5MB）。");
+      setError(t.tooLarge("5MB"));
       return;
     }
     applyHtml(await file.text(), file.name);
@@ -59,7 +62,7 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!html.trim()) {
-      setError("HTMLが空です。");
+      setError(t.empty);
       return;
     }
     setBusy(true);
@@ -78,7 +81,7 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
       onUploaded(artifact);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      setError(msg.includes("exceeds") ? "ファイルが大きすぎます（上限 2MB）。" : "アップロードに失敗しました。");
+      setError(msg.includes("exceeds") ? t.tooLarge("2MB") : t.failed);
       setBusy(false);
     }
   }
@@ -87,8 +90,8 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
     <Panel strong style={{ marginBottom: 24 }}>
       <form onSubmit={submit}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 20, letterSpacing: -0.4 }}>HTMLをアップロード</h2>
-          <Button size="sm" variant="ghost" onClick={onClose} disabled={busy}>閉じる ✕</Button>
+          <h2 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 20, letterSpacing: -0.4 }}>{t.title}</h2>
+          <Button size="sm" variant="ghost" onClick={onClose} disabled={busy}>{copy.common.closeX}</Button>
         </div>
 
         <div
@@ -112,7 +115,7 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
             color: C.sub,
           }}
         >
-          {fileName ? `選択中: ${fileName}` : "ファイルを選択、またはここにドロップ（.html）"}
+          {fileName ? t.selected(fileName) : t.drop}
           <input
             ref={fileInput}
             type="file"
@@ -122,7 +125,7 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
           />
         </div>
 
-        <Field label="またはHTMLを貼り付け">
+        <Field label={t.paste}>
           <textarea
             style={{ ...fieldStyle, minHeight: 120, resize: "vertical", fontFamily: FONTS.mono, fontSize: 12 }}
             value={html}
@@ -133,18 +136,18 @@ export default function UploadPanel({ projectSlug, onUploaded, onClose }: Props)
         </Field>
 
         <div className="mob-1col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <Field label="タイトル" required>
+          <Field label={copy.common.title} required>
             <input style={fieldStyle} value={title} onChange={(e) => { setTitle(e.target.value); setTitleTouched(true); }} maxLength={200} required />
           </Field>
-          <Field label="説明（任意）">
+          <Field label={copy.common.descriptionOptional}>
             <input style={fieldStyle} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} />
           </Field>
         </div>
 
         <InlineError onClose={() => setError("")}>{error}</InlineError>
         <div style={{ display: "flex", gap: 10 }}>
-          <Button type="submit" variant="accent" busy={busy}>{busy ? "アップロード中…" : "アップロード →"}</Button>
-          <Button variant="ghost" onClick={onClose} disabled={busy}>キャンセル</Button>
+          <Button type="submit" variant="accent" busy={busy}>{busy ? t.uploading : t.submit}</Button>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>{copy.common.cancel}</Button>
         </div>
       </form>
     </Panel>

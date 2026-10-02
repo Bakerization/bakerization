@@ -66,6 +66,12 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
             {APP.name}
           </Link>
           <Link
+            href="/research"
+            style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
+          >
+            Research
+          </Link>
+          <Link
             href="/privacy"
             style={{ color: C.onSlab, opacity: 0.85, textDecoration: "none" }}
           >

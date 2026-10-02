@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth, type AuthSession } from "@/lib/auth";
 
 export type { AuthSession };
@@ -29,19 +29,20 @@ export async function requireAdmin(currentPath: string): Promise<AuthSession> {
   return session as AuthSession;
 }
 
-/** Research members gate (/research/*). */
-export async function requireMember(currentPath: string): Promise<AuthSession> {
+/**
+ * Research members gate (/research/settings, /research/members).
+ * Without a session the page simply doesn't exist (404): outsiders are never
+ * pointed at a login screen. Members sign in at /research/login directly.
+ */
+export async function requireMember(): Promise<AuthSession> {
   const session = await getAuthSession();
-  if (!session) {
-    const cb = encodeURIComponent(safeCallback(currentPath, "/research"));
-    redirect(`/research/login?callbackUrl=${cb}`);
-  }
-  return session as AuthSession;
+  if (!session) notFound();
+  return session;
 }
 
 /** Research admin gate (/research/members). */
-export async function requireResearchAdmin(currentPath: string): Promise<AuthSession> {
-  const session = await requireMember(currentPath);
+export async function requireResearchAdmin(): Promise<AuthSession> {
+  const session = await requireMember();
   if (!isAdmin(session)) {
     redirect("/research");
   }

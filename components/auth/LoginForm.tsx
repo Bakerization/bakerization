@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { C, FONTS } from "@/lib/theme";
+import type { Locale } from "@/lib/locale";
+import { getResearchCopy } from "@/lib/research-copy";
 
 type Props = {
   kicker: string;
@@ -16,6 +18,8 @@ type Props = {
   forgotHref?: string;
   /** Optional one-line notice above the form (e.g. after setting a password). */
   notice?: string;
+  /** UI language of the form itself (/admen stays Japanese). */
+  locale?: Locale;
 };
 
 function readCallback(defaultCallback: string, allowedPrefixes: string[]) {
@@ -35,7 +39,9 @@ export default function LoginForm({
   allowedPrefixes,
   forgotHref,
   notice,
+  locale = "ja",
 }: Props) {
+  const t = getResearchCopy(locale).login;
   const router = useRouter();
   const [callbackUrl] = useState(() =>
     readCallback(defaultCallback, allowedPrefixes)
@@ -59,7 +65,7 @@ export default function LoginForm({
     if (signInError) {
       setLoading(false);
       // Same message regardless of cause (wrong credentials / rate limited).
-      setError("認証に失敗しました。");
+      setError(t.failed);
       return;
     }
 
@@ -204,12 +210,12 @@ export default function LoginForm({
               opacity: loading ? 0.6 : 1,
             }}
           >
-            {loading ? "認証中…" : "サインイン →"}
+            {loading ? t.submitting : t.submit}
           </button>
         </form>
         {forgotHref ? (
           <p style={{ margin: "18px 0 0", fontSize: 13 }}>
-            <a href={forgotHref} style={{ color: C.accent }}>パスワードをお忘れですか？</a>
+            <a href={forgotHref} style={{ color: C.accent }}>{t.forgot}</a>
           </p>
         ) : null}
       </div>
