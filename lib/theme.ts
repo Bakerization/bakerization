@@ -22,8 +22,6 @@ export const C = {
 export const FONTS = {
   display:
     'var(--font-display), var(--font-body), system-ui, sans-serif',
-  round:
-    'var(--font-round), var(--font-display), var(--font-body), system-ui, sans-serif',
   body: 'var(--font-body), system-ui, sans-serif',
   mono: 'var(--font-mono), ui-monospace, monospace',
 } as const;

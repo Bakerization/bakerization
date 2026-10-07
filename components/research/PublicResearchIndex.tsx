@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/locale";
 import type { ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
 import { getResearchCopy } from "@/lib/research-copy";
 import { formatDate } from "@/lib/research-format";
-import { Kicker, PageFrame, SectionRule } from "@/components/research/ui";
+import { Kicker, PageFrame, SectionRule } from "@/components/research/ui-static";
 import ProjectCard from "@/components/research/ProjectCard";
 import PublicArtifactCard from "@/components/research/PublicArtifactCard";
 
@@ -46,10 +46,11 @@ export default function PublicResearchIndex({ locale, projects, artifacts }: Pro
               <span id="rs-latest">▍{t.latest}</span>
             </Kicker>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(320px, 100%), 1fr))", gap: 18 }}>
-              {artifacts.map((a) => (
+              {artifacts.map((a, i) => (
                 <PublicArtifactCard
                   key={a.id}
                   artifact={a}
+                  index={i}
                   meta={[projectName.get(a.projectId), formatDate(a.updatedAt, locale)].filter(Boolean).join(" · ")}
                 />
               ))}

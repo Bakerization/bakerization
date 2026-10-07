@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
-import { randomBytes } from "node:crypto";
 import { toSlug } from "@/lib/slug";
 import { sha256Hex } from "@/lib/research-html";
+import { DEFAULT_PROJECT_SLUG, ensureResearchTables, newId } from "@/lib/research-schema";
 import type {
   ArtifactSource,
   ArtifactVisibility,
@@ -12,11 +12,12 @@ import type {
 
 // ─────────────────────────────────────────────────────────────
 // Research store: projects + HTML artifacts in Neon Postgres.
-// Same lazy CREATE TABLE pattern as lib/blog-store.ts. HTML lives in a text
-// column (≤ 2 MB); list queries never select it.
+// Schema lives in lib/research-schema.ts and is only ensured on create
+// paths (and by `npm run ensure:tables`); reads never run DDL. HTML lives
+// in a text column (≤ 2 MB); list queries never select it.
 // ─────────────────────────────────────────────────────────────
 
-export const DEFAULT_PROJECT_SLUG = "inbox";
+export { DEFAULT_PROJECT_SLUG, newId };
 
 function hasDatabaseUrl() {
   return Boolean(process.env.DATABASE_URL);
@@ -28,68 +29,16 @@ function getSql() {
   return neon(url);
 }
 
-let ensurePromise: Promise<void> | null = null;
-
-async function ensureResearchTables() {
-  if (!ensurePromise) {
-    const sql = getSql();
-    ensurePromise = (async () => {
-      await sql`
-        CREATE TABLE IF NOT EXISTS research_projects (
-          id TEXT PRIMARY KEY,
-          slug TEXT UNIQUE NOT NULL,
-          name TEXT NOT NULL,
-          description TEXT NOT NULL DEFAULT '',
-          owner_id TEXT REFERENCES "user"(id) ON DELETE SET NULL,
-          is_default BOOLEAN NOT NULL DEFAULT FALSE,
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-      `;
-      await sql`
-        CREATE UNIQUE INDEX IF NOT EXISTS research_projects_one_default
-        ON research_projects (is_default) WHERE is_default
-      `;
-      await sql`
-        CREATE TABLE IF NOT EXISTS research_artifacts (
-          id TEXT PRIMARY KEY,
-          project_id TEXT NOT NULL REFERENCES research_projects(id) ON DELETE RESTRICT,
-          owner_id TEXT REFERENCES "user"(id) ON DELETE SET NULL,
-          title TEXT NOT NULL,
-          description TEXT NOT NULL DEFAULT '',
-          html TEXT NOT NULL,
-          size_bytes INTEGER NOT NULL,
-          sha256 TEXT NOT NULL,
-          position INTEGER NOT NULL DEFAULT 0,
-          source TEXT NOT NULL DEFAULT 'web',
-          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-      `;
-      await sql`
-        CREATE INDEX IF NOT EXISTS research_artifacts_project_pos
-        ON research_artifacts (project_id, position)
-      `;
-      await sql`
-        ALTER TABLE research_artifacts
-        ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'members'
-      `;
-      await sql`
-        INSERT INTO research_projects (id, slug, name, description, is_default)
-        VALUES (${newId()}, ${DEFAULT_PROJECT_SLUG}, 'Inbox', 'プロジェクト未指定のアーティファクトが入ります。', TRUE)
-        ON CONFLICT (slug) DO NOTHING
-      `;
-    })().catch((error) => {
-      ensurePromise = null;
-      throw error;
-    });
-  }
-  await ensurePromise;
-}
-
-export function newId() {
-  // 14 URL-safe chars, plenty of entropy for an internal tool.
-  return randomBytes(10).toString("base64url");
+/**
+ * Reads on a brand-new database (tables not created yet) return `fallback`
+ * instead of throwing: the gallery shows its empty state until the first
+ * write (or `npm run ensure:tables`) creates the schema.
+ */
+function withTables<T>(fallback: T, fn: () => Promise<T>): Promise<T> {
+  return fn().catch((error: unknown) => {
+    if ((error as { code?: string } | null)?.code === "42P01") return fallback;
+    throw error;
+  });
 }
 
 function iso(value: unknown) {
@@ -114,6 +63,7 @@ type ArtifactRow = {
   id: string;
   project_id: string;
   project_slug: string;
+  project_name: string;
   owner_id: string | null;
   owner_name: string | null;
   owner_email: string | null;
@@ -147,6 +97,7 @@ function mapArtifact(row: ArtifactRow): ResearchArtifactMeta {
     id: row.id,
     projectId: row.project_id,
     projectSlug: row.project_slug,
+    projectName: row.project_name,
     ownerId: row.owner_id,
     ownerName: row.owner_name,
     ownerEmail: row.owner_email,
@@ -170,7 +121,7 @@ const PROJECT_SELECT = `
 `;
 
 const ARTIFACT_SELECT = `
-  SELECT a.id, a.project_id, p.slug AS project_slug, a.owner_id,
+  SELECT a.id, a.project_id, p.slug AS project_slug, p.name AS project_name, a.owner_id,
          u.name AS owner_name, u.email AS owner_email,
          a.title, a.description, a.size_bytes, a.sha256, a.position, a.source, a.visibility,
          a.created_at, a.updated_at
@@ -212,32 +163,37 @@ export async function getMemberByEmail(email: string): Promise<ResearchMember | 
 
 export async function listProjects(): Promise<ResearchProject[]> {
   if (!hasDatabaseUrl()) return [];
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(
-    `${PROJECT_SELECT} ORDER BY p.is_default DESC, p.updated_at DESC`
-  )) as ProjectRow[];
-  return rows.map(mapProject);
+  return withTables([], async () => {
+    const rows = (await getSql().query(
+      `${PROJECT_SELECT} ORDER BY p.is_default DESC, p.updated_at DESC`
+    )) as ProjectRow[];
+    return rows.map(mapProject);
+  });
 }
 
 export async function getProjectBySlug(slug: string): Promise<ResearchProject | null> {
   if (!hasDatabaseUrl() || !slug) return null;
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(`${PROJECT_SELECT} WHERE p.slug = $1 LIMIT 1`, [slug])) as ProjectRow[];
-  return rows[0] ? mapProject(rows[0]) : null;
+  return withTables(null, async () => {
+    const rows = (await getSql().query(`${PROJECT_SELECT} WHERE p.slug = $1 LIMIT 1`, [slug])) as ProjectRow[];
+    return rows[0] ? mapProject(rows[0]) : null;
+  });
 }
 
 export async function getProjectById(id: string): Promise<ResearchProject | null> {
   if (!hasDatabaseUrl() || !id) return null;
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(`${PROJECT_SELECT} WHERE p.id = $1 LIMIT 1`, [id])) as ProjectRow[];
-  return rows[0] ? mapProject(rows[0]) : null;
+  return withTables(null, async () => {
+    const rows = (await getSql().query(`${PROJECT_SELECT} WHERE p.id = $1 LIMIT 1`, [id])) as ProjectRow[];
+    return rows[0] ? mapProject(rows[0]) : null;
+  });
 }
 
 export async function getDefaultProject(): Promise<ResearchProject> {
-  const project = await getProjectBySlug(DEFAULT_PROJECT_SLUG);
+  let project = await getProjectBySlug(DEFAULT_PROJECT_SLUG);
+  if (!project) {
+    // Fresh database: the schema bootstrap seeds the inbox project.
+    await ensureResearchTables();
+    project = await getProjectBySlug(DEFAULT_PROJECT_SLUG);
+  }
   if (!project) throw new Error("Default research project is missing.");
   return project;
 }
@@ -319,13 +275,13 @@ export async function deleteProject(id: string): Promise<boolean> {
 
 export async function listArtifacts(projectId: string): Promise<ResearchArtifactMeta[]> {
   if (!hasDatabaseUrl()) return [];
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(
-    `${ARTIFACT_SELECT} WHERE a.project_id = $1 ORDER BY a.position ASC, a.created_at ASC`,
-    [projectId]
-  )) as ArtifactRow[];
-  return rows.map(mapArtifact);
+  return withTables([], async () => {
+    const rows = (await getSql().query(
+      `${ARTIFACT_SELECT} WHERE a.project_id = $1 ORDER BY a.position ASC, a.created_at ASC`,
+      [projectId]
+    )) as ArtifactRow[];
+    return rows.map(mapArtifact);
+  });
 }
 
 /**
@@ -334,17 +290,18 @@ export async function listArtifacts(projectId: string): Promise<ResearchArtifact
  */
 export async function listPublicArtifacts(opts: { projectId?: string; limit?: number } = {}): Promise<ResearchArtifactMeta[]> {
   if (!hasDatabaseUrl()) return [];
-  await ensureResearchTables();
-  const sql = getSql();
   const limit = Math.min(Math.max(Math.trunc(opts.limit ?? 5000), 1), 5000);
-  const rows = (opts.projectId
-    ? await sql.query(
-        `${ARTIFACT_SELECT} WHERE a.visibility = 'public' AND a.project_id = $1
-         ORDER BY a.position ASC, a.created_at ASC LIMIT ${limit}`,
-        [opts.projectId]
-      )
-    : await sql.query(`${ARTIFACT_SELECT} WHERE a.visibility = 'public' ORDER BY a.updated_at DESC LIMIT ${limit}`)) as ArtifactRow[];
-  return rows.map(mapArtifact);
+  return withTables([], async () => {
+    const sql = getSql();
+    const rows = (opts.projectId
+      ? await sql.query(
+          `${ARTIFACT_SELECT} WHERE a.visibility = 'public' AND a.project_id = $1
+           ORDER BY a.position ASC, a.created_at ASC LIMIT ${limit}`,
+          [opts.projectId]
+        )
+      : await sql.query(`${ARTIFACT_SELECT} WHERE a.visibility = 'public' ORDER BY a.updated_at DESC LIMIT ${limit}`)) as ArtifactRow[];
+    return rows.map(mapArtifact);
+  });
 }
 
 // Projects as outsiders see them: only those with at least one public artifact,
@@ -358,20 +315,20 @@ const PUBLIC_PROJECT_SELECT = `
 
 export async function listPublicProjects(): Promise<ResearchProject[]> {
   if (!hasDatabaseUrl()) return [];
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(
-    `${PUBLIC_PROJECT_SELECT} GROUP BY p.id ORDER BY MAX(a.updated_at) DESC`
-  )) as ProjectRow[];
-  return rows.map(mapProject);
+  return withTables([], async () => {
+    const rows = (await getSql().query(
+      `${PUBLIC_PROJECT_SELECT} GROUP BY p.id ORDER BY MAX(a.updated_at) DESC`
+    )) as ProjectRow[];
+    return rows.map(mapProject);
+  });
 }
 
 export async function getPublicProjectBySlug(slug: string): Promise<ResearchProject | null> {
   if (!hasDatabaseUrl() || !slug) return null;
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(`${PUBLIC_PROJECT_SELECT} WHERE p.slug = $1 GROUP BY p.id LIMIT 1`, [slug])) as ProjectRow[];
-  return rows[0] ? mapProject(rows[0]) : null;
+  return withTables(null, async () => {
+    const rows = (await getSql().query(`${PUBLIC_PROJECT_SELECT} WHERE p.slug = $1 GROUP BY p.id LIMIT 1`, [slug])) as ProjectRow[];
+    return rows[0] ? mapProject(rows[0]) : null;
+  });
 }
 
 /** Strip who uploaded it before an artifact goes to an anonymous visitor's browser. */
@@ -381,33 +338,21 @@ export function toPublicArtifact(artifact: ResearchArtifactMeta): ResearchArtifa
 
 export async function getArtifactMeta(id: string): Promise<ResearchArtifactMeta | null> {
   if (!hasDatabaseUrl() || !id) return null;
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql.query(`${ARTIFACT_SELECT} WHERE a.id = $1 LIMIT 1`, [id])) as ArtifactRow[];
-  return rows[0] ? mapArtifact(rows[0]) : null;
+  return withTables(null, async () => {
+    const rows = (await getSql().query(`${ARTIFACT_SELECT} WHERE a.id = $1 LIMIT 1`, [id])) as ArtifactRow[];
+    return rows[0] ? mapArtifact(rows[0]) : null;
+  });
 }
 
-export async function getArtifactHtml(
-  id: string
-): Promise<{ id: string; html: string; sha256: string; ownerId: string | null; projectId: string; title: string; visibility: ArtifactVisibility } | null> {
+/** Just the HTML body (up to 2 MB). Metadata comes from getArtifactMeta(). */
+export async function readArtifactHtml(id: string): Promise<string | null> {
   if (!hasDatabaseUrl() || !id) return null;
-  await ensureResearchTables();
-  const sql = getSql();
-  const rows = (await sql`
-    SELECT id, html, sha256, owner_id, project_id, title, visibility
-    FROM research_artifacts WHERE id = ${id} LIMIT 1
-  `) as Array<{ id: string; html: string; sha256: string; owner_id: string | null; project_id: string; title: string; visibility: string | null }>;
-  const row = rows[0];
-  if (!row) return null;
-  return {
-    id: row.id,
-    html: row.html,
-    sha256: row.sha256,
-    ownerId: row.owner_id,
-    projectId: row.project_id,
-    title: row.title,
-    visibility: row.visibility === "public" ? "public" : "members",
-  };
+  return withTables(null, async () => {
+    const rows = (await getSql()`
+      SELECT html FROM research_artifacts WHERE id = ${id} LIMIT 1
+    `) as Array<{ html: string }>;
+    return rows[0]?.html ?? null;
+  });
 }
 
 export async function createArtifact(input: {
@@ -497,7 +442,6 @@ export async function deleteArtifact(id: string): Promise<boolean> {
 
 /** Persists a full ordering for a project. Ids not in the list keep their position. */
 export async function reorderArtifacts(projectId: string, orderedIds: string[]): Promise<void> {
-  await ensureResearchTables();
   if (orderedIds.length === 0) return;
   const sql = getSql();
   await sql.transaction(

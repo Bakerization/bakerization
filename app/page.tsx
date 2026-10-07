@@ -3,7 +3,7 @@ import TopPage from "@/components/home/TopPage";
 import JsonLd from "@/components/JsonLd";
 import { COMPANY } from "@/lib/company";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
-import { listPosts } from "@/lib/blog-store";
+import { listPostSummaries } from "@/lib/blog-store";
 import { getServerLocale } from "@/lib/i18n";
 import { getLocalizedPost } from "@/lib/blog-localize";
 
@@ -42,8 +42,8 @@ export default async function Home() {
   }[] = [];
 
   try {
-    const posts = await listPosts(false);
-    teasers = posts.slice(0, 3).map((p) => {
+    const posts = await listPostSummaries({ limit: 3 });
+    teasers = posts.map((p) => {
       const loc = getLocalizedPost(p, locale);
       return {
         slug: p.slug,

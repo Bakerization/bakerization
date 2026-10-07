@@ -323,6 +323,29 @@ body:has(.rs-viewer) .rs-main {
   padding-top: 0 !important;
   min-height: 0 !important;
 }
+/* Loading hint over the viewer iframe. Never blocks the content; fades out on
+   its own so a `load` event missed before hydration can't leave it stuck. */
+.rs-veil {
+  position: absolute;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--sub);
+  animation: rs-veil-out 0.3s ease 2.2s forwards;
+}
+@keyframes rs-veil-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 .rs-fab {
   position: fixed;
   right: 20px;

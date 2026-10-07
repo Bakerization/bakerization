@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print $1, $2, $9}')",
+      "Bash(curl -s -o /dev/null -w \"ipv6 [::1]:3000 -> %{http_code}\\\\n\" --max-time 5 \"http://[::1]:3000/\")",
+      "Bash(curl -s -o /dev/null -w \"ipv4 127.0.0.1:3000 -> %{http_code}\\\\n\" --max-time 5 \"http://127.0.0.1:3000/\")",
+      "Bash(node verify-next.js)"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAuthSession } from "@/lib/auth-server";
-import { listPosts } from "@/lib/blog-store";
+import { listPostSummaries } from "@/lib/blog-store";
 import { C, FONTS } from "@/lib/theme";
 
 export const metadata = {
@@ -14,7 +14,7 @@ export default async function AdmenDashboard() {
     redirect("/admen/login?callbackUrl=/admen");
   }
 
-  const posts = await listPosts(true);
+  const posts = await listPostSummaries({ includeUnpublished: true });
 
   return (
     <main

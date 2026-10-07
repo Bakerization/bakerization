@@ -12,18 +12,31 @@ const COLORS = { bg: "#f6e9cf", ink: "#1c0e02", sub: "#6b4d2a", line: "#c7a973",
  * Noto Sans JP subset containing just `text` (Google Fonts returns TTF when no
  * browser User-Agent is sent). Null on any failure: the image still renders,
  * only Japanese glyphs would be missing.
+ *
+ * Both fetches use `force-cache` (Next's Data Cache, shared across function
+ * instances) and the per-instance Map dedupes concurrent renders, so a given
+ * title fetches from Google at most once.
  */
-async function loadFont(text: string): Promise<ArrayBuffer | null> {
-  try {
-    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&text=${encodeURIComponent(text)}`;
-    const css = await (await fetch(cssUrl)).text();
-    const src = css.match(/src: url\((.+?)\) format\('(opentype|truetype)'\)/)?.[1];
-    if (!src) return null;
-    const res = await fetch(src);
-    return res.ok ? await res.arrayBuffer() : null;
-  } catch {
-    return null;
+const fontCache = new Map<string, Promise<ArrayBuffer | null>>();
+
+function loadFont(text: string): Promise<ArrayBuffer | null> {
+  let pending = fontCache.get(text);
+  if (!pending) {
+    pending = (async () => {
+      try {
+        const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&text=${encodeURIComponent(text)}`;
+        const css = await (await fetch(cssUrl, { cache: "force-cache" })).text();
+        const src = css.match(/src: url\((.+?)\) format\('(opentype|truetype)'\)/)?.[1];
+        if (!src) return null;
+        const res = await fetch(src, { cache: "force-cache" });
+        return res.ok ? await res.arrayBuffer() : null;
+      } catch {
+        return null;
+      }
+    })();
+    fontCache.set(text, pending);
   }
+  return pending;
 }
 
 function clamp(text: string, max: number) {

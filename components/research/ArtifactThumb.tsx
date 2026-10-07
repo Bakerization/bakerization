@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { C, FONTS } from "@/lib/theme";
-import { acquireThumbSlot } from "@/components/research/thumbSlots";
+import { registerThumb } from "@/components/research/thumbSlots";
+import { versionedArtifactHref } from "@/lib/research-url";
 
 type Props = {
   id: string;
   title: string;
+  /** artifact.sha256: the raw URL is content-addressed, so browsers and the CDN cache it. */
+  version: string;
+  /** Small label on the placeholder (e.g. the project slug). */
+  kicker?: string;
+  /** Above the fold: mount right away instead of waiting for IntersectionObserver. */
+  eager?: boolean;
+  /** false = static placeholder only (cards far down a long list). */
+  live?: boolean;
   /** Fixed box size (px). Ignored when `fluid`. */
   width?: number;
   height?: number;
@@ -17,31 +26,64 @@ type Props = {
 };
 
 /**
- * Live, scaled-down preview of an artifact. Mounted only while near the
- * viewport and while a global slot is free. The iframe is sandboxed
+ * Live, scaled-down preview of an artifact. Mounting is driven by
+ * thumbSlots.ts (viewport + concurrency caps); once loaded the iframe stays
+ * mounted so scrolling back never reloads it. The iframe is sandboxed
  * (scripts only, opaque origin) and ignores pointer events so drags and
- * clicks fall through to the row.
+ * clicks fall through to the card.
  */
-export default function ArtifactThumb({ id, title, width = 160, height = 100, fluid, frameW = 1280, frameH = 800 }: Props) {
+export default function ArtifactThumb({
+  id,
+  title,
+  version,
+  kicker,
+  eager = false,
+  live = true,
+  width = 160,
+  height = 100,
+  fluid,
+  frameW = 1024,
+  frameH = 640,
+}: Props) {
+  const key = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  const [granted, setGranted] = useState(false);
+  const ctlRef = useRef<ReturnType<typeof registerThumb> | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [boxWidth, setBoxWidth] = useState(fluid ? 0 : width);
 
   useEffect(() => {
-    const el = boxRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") {
-      setInView(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => setInView(entries.some((e) => e.isIntersecting)),
-      { rootMargin: "200px 0px" }
+    if (!live) return;
+    const ctl = registerThumb(
+      key,
+      {
+        mount: () => setMounted(true),
+        unmount: () => {
+          setMounted(false);
+          setLoaded(false);
+        },
+      },
+      eager
     );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    ctlRef.current = ctl;
+
+    const el = boxRef.current;
+    let io: IntersectionObserver | undefined;
+    if (el && typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(
+        (entries) => ctl.setInView(entries.some((e) => e.isIntersecting)),
+        { rootMargin: "300px 0px" }
+      );
+      io.observe(el);
+    } else {
+      ctl.setInView(true);
+    }
+    return () => {
+      io?.disconnect();
+      ctl.release();
+      ctlRef.current = null;
+    };
+  }, [key, eager, live]);
 
   useEffect(() => {
     if (!fluid) return;
@@ -55,17 +97,15 @@ export default function ArtifactThumb({ id, title, width = 160, height = 100, fl
     return () => ro.disconnect();
   }, [fluid]);
 
+  // A hung frame must not hold a loading slot forever.
   useEffect(() => {
-    if (!inView) {
-      setGranted(false);
-      setLoaded(false);
-      return;
-    }
-    const release = acquireThumbSlot(id, () => setGranted(true));
-    return () => {
-      release();
-    };
-  }, [inView, id]);
+    if (!mounted || loaded) return;
+    const t = window.setTimeout(() => {
+      setLoaded(true);
+      ctlRef.current?.setLoaded();
+    }, 8000);
+    return () => window.clearTimeout(t);
+  }, [mounted, loaded]);
 
   const k = boxWidth > 0 ? boxWidth / frameW : 0;
   const boxStyle: React.CSSProperties = fluid
@@ -85,32 +125,51 @@ export default function ArtifactThumb({ id, title, width = 160, height = 100, fl
         flexShrink: 0,
       }}
     >
+      {/* Server-rendered placeholder: visible until the frame has painted. */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: FONTS.mono,
-          fontSize: 10,
-          letterSpacing: "0.24em",
-          color: C.line,
+          padding: "10% 9%",
+          display: "grid",
+          alignContent: "center",
+          gap: 6,
           opacity: loaded ? 0 : 1,
           transition: "opacity .25s",
         }}
       >
-        PREVIEW
+        <span style={{ fontFamily: FONTS.mono, fontSize: 10, letterSpacing: "0.24em", color: C.sub, textTransform: "uppercase" }}>
+          {kicker ?? "PREVIEW"}
+        </span>
+        <span
+          style={{
+            fontFamily: FONTS.display,
+            fontWeight: 700,
+            fontSize: 15,
+            lineHeight: 1.35,
+            color: C.ink,
+            opacity: 0.55,
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {title}
+        </span>
       </div>
-      {granted && inView && k > 0 ? (
+      {live && mounted && k > 0 ? (
         <iframe
-          src={`/research/raw/${id}`}
+          src={versionedArtifactHref(id, version)}
           title={title}
           sandbox="allow-scripts"
-          loading="lazy"
+          loading={eager ? "eager" : undefined}
           tabIndex={-1}
           referrerPolicy="no-referrer"
-          onLoad={() => setLoaded(true)}
+          onLoad={() => {
+            setLoaded(true);
+            ctlRef.current?.setLoaded();
+          }}
           style={{
             position: "absolute",
             top: 0,

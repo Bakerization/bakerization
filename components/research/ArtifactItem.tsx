@@ -190,7 +190,7 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
       <article style={{ background: C.card, border: `1.5px solid ${C.ink}`, display: "flex", flexDirection: "column", height: "100%" }}>
         <div style={{ position: "relative" }}>
           <Link href={viewerHref} style={{ display: "block" }} tabIndex={-1} aria-hidden>
-            <ArtifactThumb id={artifact.id} title={artifact.title} fluid />
+            <ArtifactThumb id={artifact.id} title={artifact.title} version={artifact.sha256} kicker={`▍/${artifact.projectSlug}`} fluid />
           </Link>
           <div style={{ position: "absolute", top: 8, right: 8 }}>
             <DragHandle handle={handle} />
@@ -221,7 +221,7 @@ export default function ArtifactItem({ artifact, projects, currentProjectId, can
     >
       <DragHandle handle={handle} />
       <Link href={viewerHref} tabIndex={-1} aria-hidden style={{ display: "block" }}>
-        <ArtifactThumb id={artifact.id} title={artifact.title} width={160} height={100} />
+        <ArtifactThumb id={artifact.id} title={artifact.title} version={artifact.sha256} width={160} height={100} />
       </Link>
       <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
         {titleBlock}

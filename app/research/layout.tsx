@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { getAuthSession } from "@/lib/auth-server";
 import { getServerLocale } from "@/lib/i18n";
-import { C, FONTS } from "@/lib/theme";
-import { CrumbProvider } from "@/components/research/crumbs";
-import { ResearchI18nProvider } from "@/components/research/ResearchI18n";
-import ResearchHeader from "@/components/research/ResearchHeader";
+import ResearchShell from "@/components/research/ResearchShell";
 
 // Members-only screens stay out of search results; public pages (index,
 // projects, public artifacts) override robots in their own metadata.
@@ -22,13 +19,8 @@ export default async function ResearchLayout({ children }: { children: React.Rea
     : null;
 
   return (
-    <ResearchI18nProvider locale={locale}>
-      <CrumbProvider>
-        <ResearchHeader user={user} locale={locale} />
-        <main className="rs-main" style={{ paddingTop: 56, minHeight: "100vh", background: C.bg, color: C.ink, fontFamily: FONTS.body }}>
-          {children}
-        </main>
-      </CrumbProvider>
-    </ResearchI18nProvider>
+    <ResearchShell locale={locale} user={user}>
+      {children}
+    </ResearchShell>
   );
 }

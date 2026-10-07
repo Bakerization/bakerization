@@ -6,7 +6,7 @@ import { listProjects, listPublicArtifacts, listPublicProjects, toPublicArtifact
 import { formatDate } from "@/lib/research-format";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
-import { PageFrame, SectionRule } from "@/components/research/ui";
+import { PageFrame, SectionRule } from "@/components/research/ui-static";
 import NewProjectForm from "@/components/research/NewProjectForm";
 import ProjectCard from "@/components/research/ProjectCard";
 import PublicResearchIndex from "@/components/research/PublicResearchIndex";

@@ -8,7 +8,7 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { PostgresDialect, type PostgresPool } from "kysely";
 import { Pool } from "@neondatabase/serverless";
 import { sendEmail } from "@/lib/email";
-import { SITE_URL } from "@/lib/site";
+import { APP_URL, MCP_RESOURCE } from "@/lib/site";
 import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 
 // ─────────────────────────────────────────────────────────────
@@ -20,8 +20,9 @@ import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 // Keep this module free of `next/headers` so the CLI / scripts can load it.
 // ─────────────────────────────────────────────────────────────
 
-export const APP_URL = SITE_URL;
-export const MCP_RESOURCE = `${APP_URL}/api/mcp`;
+// Re-exported for existing importers; the values live in lib/site.ts so that
+// routes needing only the URL don't pull in Better Auth and the Neon pool.
+export { APP_URL, MCP_RESOURCE };
 export const RESEARCH_SCOPE = "research";
 /** Invitation / password-reset links stay valid this long. */
 export const RESET_TOKEN_DAYS = 7;

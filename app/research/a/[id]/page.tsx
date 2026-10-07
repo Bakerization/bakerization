@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getAuthSession, isAdmin } from "@/lib/auth-server";
 import { getServerLocale } from "@/lib/i18n";
 import { getResearchCopy } from "@/lib/research-copy";
-import { getArtifactMeta, getProjectById, toPublicArtifact } from "@/lib/research-store";
+import { getArtifactMeta, toPublicArtifact } from "@/lib/research-store";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
 import ArtifactViewer from "@/components/research/ArtifactViewer";
 import JsonLd from "@/components/JsonLd";
@@ -44,8 +44,8 @@ export default async function ArtifactPage({ params }: Params) {
   // Outsiders get the same 404 as for a missing id: no hint of a login.
   if (!session && !isPublic) notFound();
 
-  const projectRow = await getProjectById(artifact.projectId);
-  const project = projectRow ? { slug: projectRow.slug, name: projectRow.name } : null;
+  // The project's slug/name ride along on the artifact row: no second query.
+  const project = { slug: artifact.projectSlug, name: artifact.projectName };
   const viewerUrl = absoluteUrl(`/research/a/${artifact.id}`);
   const canManage = Boolean(session && (isAdmin(session) || artifact.ownerId === session.user.id));
 

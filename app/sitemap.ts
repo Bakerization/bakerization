@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { listPosts } from "@/lib/blog-store";
+import { listPostSummaries } from "@/lib/blog-store";
 import { hasEnglishVersion } from "@/lib/blog-localize";
 import { listPublicArtifacts, listPublicProjects } from "@/lib/research-store";
 import { sitemapEntries } from "@/lib/seo";
@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const [posts, artifacts, projects] = await Promise.all([
-    listPosts(false).catch(() => []),
+    listPostSummaries().catch(() => []),
     listPublicArtifacts().catch(() => []),
     listPublicProjects().catch(() => []),
   ]);

@@ -4,7 +4,7 @@ import type { Locale } from "@/lib/locale";
 import type { ResearchArtifactMeta, ResearchProject } from "@/lib/research-types";
 import { getResearchCopy } from "@/lib/research-copy";
 import { formatDate } from "@/lib/research-format";
-import { PageFrame, SectionRule } from "@/components/research/ui";
+import { PageFrame, SectionRule } from "@/components/research/ui-static";
 import PublicArtifactCard from "@/components/research/PublicArtifactCard";
 
 type Props = { locale: Locale; project: ResearchProject; artifacts: ResearchArtifactMeta[] };
@@ -28,8 +28,8 @@ export default function PublicProjectView({ locale, project, artifacts }: Props)
         </p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(320px, 100%), 1fr))", gap: 18 }}>
-        {artifacts.map((a) => (
-          <PublicArtifactCard key={a.id} artifact={a} meta={formatDate(a.updatedAt, locale)} />
+        {artifacts.map((a, i) => (
+          <PublicArtifactCard key={a.id} artifact={a} index={i} meta={formatDate(a.updatedAt, locale)} />
         ))}
       </div>
     </PageFrame>

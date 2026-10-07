@@ -13,7 +13,7 @@ import {
   toPublicArtifact,
 } from "@/lib/research-store";
 import { absoluteUrl, pageMetadata } from "@/lib/seo";
-import { PageFrame } from "@/components/research/ui";
+import { PageFrame } from "@/components/research/ui-static";
 import { SetCrumbs } from "@/components/research/crumbs";
 import ProjectBoard from "@/components/research/ProjectBoard";
 import PublicProjectView from "@/components/research/PublicProjectView";

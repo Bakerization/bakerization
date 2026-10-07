@@ -7,6 +7,7 @@ import { C, FONTS } from "@/lib/theme";
 import type { ArtifactVisibility, ResearchArtifactMeta } from "@/lib/research-types";
 import { Button, ButtonLink, CopyButton, InlineError, SourceBadge, TwoStepDelete, VisibilityBadge, fieldStyle, monoSmall } from "@/components/research/ui";
 import { formatBytes } from "@/lib/research-format";
+import { rawArtifactHref, versionedArtifactHref } from "@/lib/research-url";
 import { useResearchI18n } from "@/components/research/ResearchI18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -73,8 +74,18 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
   const fabRef = useRef<HTMLDivElement>(null);
   const open = hover || pinned || editing || selectActive;
 
-  const rawHref = `/research/raw/${artifact.id}`;
+  // Open HTML / download use the plain URL; the frame uses the content-addressed
+  // one so browsers and the CDN can keep it.
+  const rawHref = rawArtifactHref(artifact.id);
+  const frameSrc = versionedArtifactHref(artifact.id, artifact.sha256);
   const canDelete = canManage;
+
+  // The frame may finish loading before React hydrates, and a missed iframe
+  // `load` is never replayed, so the loading hint also times out by itself.
+  useEffect(() => {
+    const t = window.setTimeout(() => setLoaded(true), 2500);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!pinned) return;
@@ -167,19 +178,21 @@ export default function ArtifactViewer({ artifact, project, canManage, anonymous
 
   return (
     <div className="rs-viewer" style={{ position: "relative", height: "100vh", width: "100%" }}>
-      {!loaded ? (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONTS.mono, fontSize: 11, letterSpacing: "0.28em", color: C.sub }}>
-          {copy.common.loading}
-        </div>
-      ) : null}
+      {/* Always visible: the artifact must never wait for hydration to appear. */}
       <iframe
-        src={rawHref}
+        src={frameSrc}
         title={title}
         sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
         referrerPolicy="no-referrer"
         onLoad={() => setLoaded(true)}
-        style={{ position: "relative", display: "block", width: "100%", height: "100%", border: 0, background: "#fff", opacity: loaded ? 1 : 0, transition: "opacity .2s" }}
+        style={{ position: "relative", display: "block", width: "100%", height: "100%", border: 0, background: "#fff" }}
       />
+      {/* Small hint that fades by itself (CSS) even if JS never runs. */}
+      {!loaded ? (
+        <div className="rs-veil" aria-hidden>
+          {copy.common.loading}
+        </div>
+      ) : null}
 
       <div
         ref={fabRef}

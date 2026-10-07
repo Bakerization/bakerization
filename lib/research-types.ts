@@ -18,6 +18,7 @@ export type ResearchArtifactMeta = {
   id: string;
   projectId: string;
   projectSlug: string;
+  projectName: string;
   ownerId: string | null;
   ownerName: string | null;
   ownerEmail: string | null;

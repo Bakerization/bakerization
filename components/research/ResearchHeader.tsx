@@ -3,14 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
 import { useCrumbs } from "@/components/research/crumbs";
-import { useResearchI18n } from "@/components/research/ResearchI18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-type Props = { user: { name: string; email: string; role: string } | null; locale: Locale };
+export type ResearchHeaderLabels = { projects: string; settings: string; members: string; logout: string; menu: string };
+
+type Props = {
+  user: { name: string; email: string; role: string } | null;
+  locale: Locale;
+  /** Translated strings from the server, so the client bundle carries no dictionary. */
+  labels: ResearchHeaderLabels;
+};
 
 const navLink: React.CSSProperties = {
   fontFamily: FONTS.mono,
@@ -21,11 +26,10 @@ const navLink: React.CSSProperties = {
   textDecoration: "none",
 };
 
-export default function ResearchHeader({ user, locale }: Props) {
+export default function ResearchHeader({ user, locale, labels: t }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const crumbs = useCrumbs();
-  const { t } = useResearchI18n();
   const minimal = pathname === "/research/login" || pathname === "/research/consent";
   // Phones: member links fold into a menu so the language switcher always fits.
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,6 +37,9 @@ export default function ResearchHeader({ user, locale }: Props) {
   const member = !minimal && user ? user : null;
 
   async function signOut() {
+    // The Better Auth client (~16 KB gz) is only needed by members who sign
+    // out, so it is loaded on click rather than shipped to every visitor.
+    const { authClient } = await import("@/lib/auth-client");
     await authClient.signOut();
     router.push("/research");
     router.refresh();
@@ -94,12 +101,12 @@ export default function ResearchHeader({ user, locale }: Props) {
         <nav style={{ display: "flex", alignItems: "center", gap: 18, flexShrink: 0 }}>
           {member ? (
             <span className="mob-hide" style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Link href="/research" style={navLink}>{t.header.projects}</Link>
-              <Link href="/research/settings" style={navLink}>{t.header.settings}</Link>
-              {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.header.members}</Link> : null}
+              <Link href="/research" style={navLink}>{t.projects}</Link>
+              <Link href="/research/settings" style={navLink}>{t.settings}</Link>
+              {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.members}</Link> : null}
               <span style={{ ...navLink, textTransform: "none", letterSpacing: 0, color: C.ink }}>{member.name}</span>
               <button type="button" onClick={() => void signOut()} style={signOutStyle}>
-                {t.header.logout}
+                {t.logout}
               </button>
             </span>
           ) : null}
@@ -109,7 +116,7 @@ export default function ResearchHeader({ user, locale }: Props) {
               type="button"
               className="mob-only"
               aria-expanded={menuOpen}
-              aria-label={t.header.menu}
+              aria-label={t.menu}
               onClick={() => setMenuOpen((o) => !o)}
               style={{ ...signOutStyle, fontSize: 14, letterSpacing: 0, padding: "4px 10px" }}
             >
@@ -123,12 +130,12 @@ export default function ResearchHeader({ user, locale }: Props) {
           className="mob-only mob-pad"
           style={{ position: "absolute", top: 56, left: 0, right: 0, flexDirection: "column", gap: 14, padding: "16px 20px 20px", background: C.bg, borderBottom: `1px solid ${C.line}` }}
         >
-          <Link href="/research" style={navLink}>{t.header.projects}</Link>
-          <Link href="/research/settings" style={navLink}>{t.header.settings}</Link>
-          {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.header.members}</Link> : null}
+          <Link href="/research" style={navLink}>{t.projects}</Link>
+          <Link href="/research/settings" style={navLink}>{t.settings}</Link>
+          {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.members}</Link> : null}
           <span style={{ ...navLink, textTransform: "none", letterSpacing: 0, color: C.ink }}>{member.name}</span>
           <button type="button" onClick={() => void signOut()} style={{ ...signOutStyle, alignSelf: "flex-start" }}>
-            {t.header.logout}
+            {t.logout}
           </button>
         </div>
       ) : null}

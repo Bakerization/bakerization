@@ -3,9 +3,9 @@ import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthSession } from "@/lib/auth-server";
-import { getPost, listPosts } from "@/lib/blog-store";
-import { enrichHtmlWithToc } from "@/lib/content-utils";
-import AdminEditButton from "@/components/blog/AdminEditButton";
+import { getPost, listPostSummaries } from "@/lib/blog-store";
+import { enrichHtmlWithToc, optimizeContentImages } from "@/lib/content-utils";
+import BlogImage from "@/components/blog/BlogImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getServerLocale } from "@/lib/i18n";
 import { getLocalizedPost, hasEnglishVersion } from "@/lib/blog-localize";
@@ -47,7 +47,9 @@ function tokenize(text: string) {
     .filter((part) => part.length >= 2);
 }
 
-function relatedScore(base: BlogPost, target: BlogPost) {
+type RelatedText = Pick<BlogPost, "title" | "titleEn" | "excerpt" | "excerptEn">;
+
+function relatedScore(base: RelatedText, target: RelatedText) {
   const baseTokens = new Set(
     tokenize(`${base.title} ${base.titleEn} ${base.excerpt} ${base.excerptEn}`)
   );
@@ -74,8 +76,8 @@ export default async function BlogDetailPage({ params }: Params) {
   }
 
   const localized = getLocalizedPost(post, locale);
-  const { html, toc } = enrichHtmlWithToc(localized.contentHtml);
-  const publishedPosts = await listPosts(false);
+  const { html, toc } = enrichHtmlWithToc(optimizeContentImages(localized.contentHtml));
+  const publishedPosts = await listPostSummaries();
   const currentIndex = publishedPosts.findIndex((item) => item.slug === post.slug);
   const prevPost =
     currentIndex >= 0 ? publishedPosts[currentIndex + 1] ?? null : null;
@@ -178,7 +180,6 @@ export default async function BlogDetailPage({ params }: Params) {
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
-            <AdminEditButton slug={post.slug} locale={locale} />
           </div>
         </div>
 
@@ -252,12 +253,12 @@ export default async function BlogDetailPage({ params }: Params) {
                 border: `1px solid ${C.line}`,
               }}
             >
-              <img
+              <BlogImage
                 src={post.heroImageUrl}
                 alt={localized.title}
+                priority
+                sizes="(max-width: 880px) calc(100vw - 40px), 520px"
                 style={{
-                  width: "100%",
-                  height: "100%",
                   objectFit: "cover",
                   filter: "saturate(.95) contrast(1.05)",
                 }}
@@ -379,9 +380,12 @@ export default async function BlogDetailPage({ params }: Params) {
                       }}
                     >
                       {related.heroImageUrl ? (
-                        <img
+                        <BlogImage
                           src={related.heroImageUrl}
                           alt={rel.title}
+                          width={56}
+                          height={56}
+                          sizes="56px"
                           style={{
                             width: 56,
                             height: 56,

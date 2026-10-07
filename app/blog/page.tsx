@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { listPosts } from "@/lib/blog-store";
+import { listPostSummaries } from "@/lib/blog-store";
 import { getLocalizedPost } from "@/lib/blog-localize";
 import type { Metadata } from "next";
 import { getServerLocale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
+import BlogImage from "@/components/blog/BlogImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { C, FONTS } from "@/lib/theme";
 
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogListPage() {
   const locale = await getServerLocale();
-  const posts = await listPosts(false);
+  const posts = await listPostSummaries();
   const t =
     locale === "en"
       ? {
@@ -166,6 +167,7 @@ export default async function BlogListPage() {
                     {post.heroImageUrl ? (
                       <div
                         style={{
+                          position: "relative",
                           width: "100%",
                           aspectRatio: i === 0 ? "16/9" : "4/3",
                           overflow: "hidden",
@@ -173,12 +175,16 @@ export default async function BlogListPage() {
                           border: `1px solid ${C.line}`,
                         }}
                       >
-                        <img
+                        <BlogImage
                           src={post.heroImageUrl}
                           alt={localized.title}
+                          priority={i === 0}
+                          sizes={
+                            i === 0
+                              ? "(max-width: 880px) calc(100vw - 104px), 400px"
+                              : "(max-width: 880px) calc(100vw - 96px), 280px"
+                          }
                           style={{
-                            width: "100%",
-                            height: "100%",
                             objectFit: "cover",
                             filter: "saturate(.9) contrast(1.05)",
                           }}

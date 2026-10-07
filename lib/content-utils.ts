@@ -11,6 +11,31 @@ function stripTags(html: string) {
     .trim();
 }
 
+// Widths from Next's default deviceSizes, so the optimizer serves them from cache.
+const CONTENT_IMAGE_WIDTHS = [640, 828, 1080, 1200, 1920];
+// The article column: 1280 max − 128 padding − 280 TOC − 56 gap ≈ 816 px.
+const CONTENT_IMAGE_SIZES = "(max-width: 880px) calc(100vw - 40px), 816px";
+
+/**
+ * Makes the editor's <img> tags cheap to load: lazy + async decoding, and for
+ * uploads (/api/blob/…) a srcset through Next's image optimizer so phones get
+ * a 640 px AVIF instead of the original upload.
+ */
+export function optimizeContentImages(html: string): string {
+  return html.replace(/<img\b([^>]*?)\s*\/?>/gi, (_tag, attrs: string) => {
+    let a = attrs;
+    if (!/\bloading=/i.test(a)) a += ' loading="lazy"';
+    if (!/\bdecoding=/i.test(a)) a += ' decoding="async"';
+    const src = a.match(/\bsrc="(\/api\/blob\/[^"]+)"/i);
+    if (src && !/\bsrcset=/i.test(a)) {
+      const url = encodeURIComponent(src[1]);
+      const srcset = CONTENT_IMAGE_WIDTHS.map((w) => `/_next/image?url=${url}&w=${w}&q=75 ${w}w`).join(", ");
+      a = a.replace(src[0], `src="/_next/image?url=${url}&w=1200&q=75" srcset="${srcset}" sizes="${CONTENT_IMAGE_SIZES}"`);
+    }
+    return `<img${a}>`;
+  });
+}
+
 export function enrichHtmlWithToc(contentHtml: string): {
   html: string;
   toc: TocItem[];

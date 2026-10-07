@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { APP_URL } from "@/lib/auth";
+import { APP_URL } from "@/lib/site";
 import { getActor } from "@/lib/research-auth";
 import type { ResearchActor } from "@/lib/research-types";
 

@@ -17,3 +17,9 @@ export type BlogPost = {
   updatedAt: string;
   published: boolean;
 };
+
+/** A post without its (large) HTML bodies: lists, teasers, prev/next, sitemap. */
+export type BlogPostSummary = Omit<BlogPost, "contentHtml" | "contentHtmlEn"> & {
+  /** True when the post has its own English title and body. */
+  hasEnglish: boolean;
+};

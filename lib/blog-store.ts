@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { put } from "@vercel/blob";
-import { BlogPost } from "@/lib/blog-types";
+import { BlogPost, BlogPostSummary } from "@/lib/blog-types";
 
 const BLOG_ASSET_PREFIX = "blog-assets/";
 function getBlobToken() {
@@ -49,7 +49,12 @@ function resolveAssetUrl(value: string) {
   return toProxyUrl(trimmed.replace(/^\/+/, ""));
 }
 
-async function ensureBlogTable() {
+/**
+ * Creates / migrates the blog table. Only `savePost` and the
+ * `npm run ensure:tables` script call this; reads assume the table exists so
+ * a cold start pays no DDL round trips.
+ */
+export async function ensureBlogTable() {
   if (!ensureTablePromise) {
     const sql = getSql();
     ensureTablePromise = (async () => {
@@ -81,10 +86,22 @@ async function ensureBlogTable() {
         ALTER TABLE blog_posts
         ADD COLUMN IF NOT EXISTS content_html_en TEXT NOT NULL DEFAULT ''
       `;
-    })();
+    })().catch((error) => {
+      // Don't poison the instance on a transient failure.
+      ensureTablePromise = null;
+      throw error;
+    });
   }
 
   await ensureTablePromise;
+}
+
+/** Reads on a brand-new database (table missing) return `fallback` instead of throwing. */
+function withTable<T>(fallback: T, fn: () => Promise<T>): Promise<T> {
+  return fn().catch((error: unknown) => {
+    if ((error as { code?: string } | null)?.code === "42P01") return fallback;
+    throw error;
+  });
 }
 
 type DbBlogPostRow = {
@@ -120,6 +137,25 @@ function mapDbRowToBlogPost(row: DbBlogPostRow): BlogPost {
   };
 }
 
+type DbSummaryRow = Omit<DbBlogPostRow, "content_html" | "content_html_en"> & {
+  has_en: boolean;
+};
+
+function mapDbRowToSummary(row: DbSummaryRow): BlogPostSummary {
+  return {
+    slug: row.slug,
+    title: row.title,
+    titleEn: row.title_en || "",
+    excerpt: row.excerpt,
+    excerptEn: row.excerpt_en || "",
+    heroImageUrl: resolveAssetUrl(row.hero_image_url),
+    published: row.published,
+    hasEnglish: Boolean(row.has_en),
+    createdAt: new Date(row.created_at).toISOString(),
+    updatedAt: new Date(row.updated_at).toISOString(),
+  };
+}
+
 function toDateOrNow(value: string | undefined) {
   const parsed = value ? new Date(value) : new Date();
   if (Number.isNaN(parsed.getTime())) {
@@ -128,28 +164,38 @@ function toDateOrNow(value: string | undefined) {
   return parsed;
 }
 
-export async function listPosts(includeUnpublished = false) {
+/**
+ * Posts without their HTML bodies, newest first. Use this everywhere a list
+ * is shown (home teasers, /blog, prev/next/related, sitemap, admin): the
+ * bodies can be hundreds of KB each and are only needed by getPost().
+ */
+export async function listPostSummaries(
+  opts: { includeUnpublished?: boolean; limit?: number } = {}
+): Promise<BlogPostSummary[]> {
   if (!hasDatabaseUrl()) {
     return [];
   }
-
-  await ensureBlogTable();
-  const sql = getSql();
-
-  const rows = (includeUnpublished
-    ? await sql`
-        SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, content_html, content_html_en, published, created_at, updated_at
-        FROM blog_posts
-        ORDER BY updated_at DESC
-      `
-    : await sql`
-        SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, content_html, content_html_en, published, created_at, updated_at
-        FROM blog_posts
-        WHERE published = TRUE
-        ORDER BY updated_at DESC
-      `) as DbBlogPostRow[];
-
-  return rows.map(mapDbRowToBlogPost);
+  const limit = Math.min(Math.max(Math.trunc(opts.limit ?? 1000), 1), 1000);
+  return withTable([], async () => {
+    const sql = getSql();
+    const rows = (opts.includeUnpublished
+      ? await sql`
+          SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, published, created_at, updated_at,
+                 (btrim(title_en) <> '' AND btrim(content_html_en) <> '') AS has_en
+          FROM blog_posts
+          ORDER BY updated_at DESC
+          LIMIT ${limit}
+        `
+      : await sql`
+          SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, published, created_at, updated_at,
+                 (btrim(title_en) <> '' AND btrim(content_html_en) <> '') AS has_en
+          FROM blog_posts
+          WHERE published = TRUE
+          ORDER BY updated_at DESC
+          LIMIT ${limit}
+        `) as DbSummaryRow[];
+    return rows.map(mapDbRowToSummary);
+  });
 }
 
 export async function getPost(slug: string) {
@@ -157,21 +203,21 @@ export async function getPost(slug: string) {
     return null;
   }
 
-  await ensureBlogTable();
-  const sql = getSql();
+  return withTable(null, async () => {
+    const sql = getSql();
+    const rows = (await sql`
+      SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, content_html, content_html_en, published, created_at, updated_at
+      FROM blog_posts
+      WHERE slug = ${slug}
+      LIMIT 1
+    `) as DbBlogPostRow[];
 
-  const rows = (await sql`
-    SELECT slug, title, title_en, excerpt, excerpt_en, hero_image_url, content_html, content_html_en, published, created_at, updated_at
-    FROM blog_posts
-    WHERE slug = ${slug}
-    LIMIT 1
-  `) as DbBlogPostRow[];
+    if (!rows[0]) {
+      return null;
+    }
 
-  if (!rows[0]) {
-    return null;
-  }
-
-  return mapDbRowToBlogPost(rows[0]);
+    return mapDbRowToBlogPost(rows[0]);
+  });
 }
 
 export async function savePost(post: BlogPost) {

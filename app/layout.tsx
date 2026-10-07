@@ -3,7 +3,6 @@ import {
   Space_Grotesk,
   Zen_Kaku_Gothic_Antique,
   JetBrains_Mono,
-  Quicksand,
 } from "next/font/google";
 import "./globals.css";
 import Providers from "@/app/providers";
@@ -21,9 +20,11 @@ const fontDisplay = Space_Grotesk({
   display: "swap",
 });
 
+// Zen Kaku is a static-weight CJK family: every weight adds 121 unicode-range
+// @font-face rules (~90 KB of render-blocking CSS). Only 400 and 700 are used.
 const fontBody = Zen_Kaku_Gothic_Antique({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "700"],
   variable: "--font-body",
   display: "swap",
   preload: false,
@@ -36,12 +37,7 @@ const fontMono = JetBrains_Mono({
   display: "swap",
 });
 
-const fontRound = Quicksand({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-round",
-  display: "swap",
-});
+// Quicksand is only used by the home hero; components/home/TopPage.tsx loads it.
 
 // Site-wide defaults. No `alternates` here: every page would inherit the root
 // canonical. Pages set canonical / hreflang / OG through lib/seo.ts pageMetadata().
@@ -79,7 +75,8 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable} ${fontRound.variable}`}
+      data-scroll-behavior="smooth"
+      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`}
     >
       <body className="antialiased">
         <Providers>

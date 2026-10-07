@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { APP_URL } from "@/lib/auth";
+import { APP_URL } from "@/lib/site";
 import { requireMember } from "@/lib/auth-server";
 import { getServerLocale } from "@/lib/i18n";
 import { getResearchCopy } from "@/lib/research-copy";
-import { PageFrame, SectionRule } from "@/components/research/ui";
+import { PageFrame, SectionRule } from "@/components/research/ui-static";
 import { SetCrumbs } from "@/components/research/crumbs";
 import ApiKeysPanel from "@/components/research/ApiKeysPanel";
 import ChangePasswordForm from "@/components/research/ChangePasswordForm";

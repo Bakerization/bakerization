@@ -1,5 +1,6 @@
-// Canonical origin of the site. No imports, so the root layout, sitemap and
-// robots can use it without loading Better Auth or the database pool.
+// Canonical origin of the site. No imports, so the root layout, sitemap, robots
+// and the raw artifact route can use it without loading Better Auth or the
+// database pool.
 
 function resolveSiteUrl() {
   const explicit = process.env.BETTER_AUTH_URL?.trim();
@@ -9,3 +10,5 @@ function resolveSiteUrl() {
 }
 
 export const SITE_URL = resolveSiteUrl();
+export const APP_URL = SITE_URL;
+export const MCP_RESOURCE = `${SITE_URL}/api/mcp`;
