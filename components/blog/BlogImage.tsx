@@ -4,7 +4,11 @@ import type { CSSProperties } from "react";
 type Props = {
   src: string;
   alt: string;
-  /** Rendered width hints for next/image (e.g. "(max-width: 880px) 100vw, 400px"). */
+  /**
+   * Rendered width hints for next/image, e.g. "(max-width: 880px) 100vw, 400px".
+   * Use plain `NNvw` terms (not calc()): next/image only derives the srcset
+   * from those, and without one it emits every icon-sized candidate too.
+   */
   sizes: string;
   /** Above the fold: preload instead of lazy-load. */
   priority?: boolean;

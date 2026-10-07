@@ -243,7 +243,7 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
                 src={post.heroImageUrl}
                 alt={localized.title}
                 priority
-                sizes="(max-width: 880px) calc(100vw - 40px), 520px"
+                sizes="(max-width: 880px) 100vw, 520px"
                 style={{
                   objectFit: "cover",
                   filter: "saturate(.95) contrast(1.05)",

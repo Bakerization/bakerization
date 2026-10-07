@@ -186,8 +186,8 @@ export default async function BlogListPage({ params }: Props) {
                           priority={i === 0}
                           sizes={
                             i === 0
-                              ? "(max-width: 880px) calc(100vw - 104px), 400px"
-                              : "(max-width: 880px) calc(100vw - 96px), 280px"
+                              ? "(max-width: 880px) 100vw, 400px"
+                              : "(max-width: 880px) 100vw, 280px"
                           }
                           style={{
                             objectFit: "cover",
