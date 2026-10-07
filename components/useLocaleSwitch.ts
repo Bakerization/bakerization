@@ -6,8 +6,11 @@ import { LANG_COOKIE, LANG_COOKIE_MAX_AGE, withLang, type Locale } from "@/lib/l
 
 /**
  * Switch language: remember it in the cookie, put it in the URL (en → ?lang=en,
- * ja → clean URL, other params and #hash kept), then refresh so the layouts
- * (html lang, nav, footer, research header) re-render too.
+ * ja → clean URL, other params and #hash kept). The new URL is rewritten to
+ * the other locale's prerendered tree (next.config.ts), which re-renders the
+ * root layout (html lang, nav, footer, research header) as a soft navigation.
+ * refresh() still runs to drop prefetched segments fetched under the old
+ * language, which the router would otherwise reuse for a while.
  */
 export function useLocaleSwitch(current: Locale) {
   const router = useRouter();

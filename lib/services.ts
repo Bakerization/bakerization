@@ -1,4 +1,4 @@
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
 
 /**
  * Service detail content — single source of truth for the home page cards

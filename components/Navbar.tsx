@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
+import { toPublicPathname } from "@/lib/public-pathname";
 import { C, FONTS } from "@/lib/theme";
 
 export default function Navbar({ locale }: { locale: Locale }) {
-  const pathname = usePathname();
+  const pathname = toPublicPathname(usePathname());
 
   // On the home page, TopPage renders its own integrated Nav — skip the global one.
   if (pathname === "/" || pathname === "/research" || pathname.startsWith("/research/")) return null;

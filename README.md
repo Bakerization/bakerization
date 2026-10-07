@@ -57,7 +57,17 @@ Notes:
 3. 管理者を作る: `npm run seed:admin`（パスワードの入れ替えは `npm run rotate:admin`: ランダム 32 文字に変更し、全セッションを失効、`.env` を更新）
 4. `/admen/login` で管理者ログイン → `/research/members` で名前とメールを入力して招待メールを送る（受け取った人が自分でパスワードを設定）。
    メールは Resend（`RESEND_API_KEY` / `CONTACT_FROM`）で送る。
-   研究用テーブル（`research_projects` / `research_artifacts`）は初回アクセス時に自動作成される。
+5. ブログ・研究用テーブルとインデックスを作る: `npm run ensure:tables`（再実行可）。
+   読み取り経路は起動時に DDL を実行しない（コールドスタート短縮のため）ので、新しい環境とスキーマ変更後はこれを 1 回実行する。
+   作成系の操作（プロジェクト作成・アーティファクト公開）は従来どおり自動で作成する。
+
+### レンダリングとキャッシュ
+
+- 公開ページは `app/[locale]/` 配下で言語ごとに静的生成される。公開 URL は従来どおり（ja = クリーン URL、en = `?lang=en`）で、`next.config.ts` の rewrite が内部パス `/ja/...` `/en/...` に振る。
+- `/research` の公開ページは ISR。公開・更新・削除・並べ替えのたびに `lib/research-store.ts` の `revalidateResearch()` が再生成を指示する（web / REST / MCP すべて同じ経路）。ブログは `savePost()` が同様に再生成する。
+- メンバー向け画面（セッション cookie あり）は `proxy.ts` が `/{locale}/m/research/...` に rewrite し、毎回動的に描画する。`/m/...` を直接開くと公開 URL にリダイレクトされる。
+- 成果物 HTML（`/research/raw/<id>`）は `?v=<sha256 先頭 16 桁>` 付きで配信され、ブラウザと Vercel CDN にキャッシュされる。内容が変わると URL が変わる。
+- Vercel の関数リージョンは `vercel.json` で Neon と同じ `sin1`。
 
 ### Claude からの公開
 

@@ -1,5 +1,7 @@
 import { neon } from "@neondatabase/serverless";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { toSlug } from "@/lib/slug";
+import { artifactCacheTag } from "@/lib/research-url";
 import { sha256Hex } from "@/lib/research-html";
 import { DEFAULT_PROJECT_SLUG, ensureResearchTables, newId } from "@/lib/research-schema";
 import type {
@@ -39,6 +41,27 @@ function withTables<T>(fallback: T, fn: () => Promise<T>): Promise<T> {
     if ((error as { code?: string } | null)?.code === "42P01") return fallback;
     throw error;
   });
+}
+
+/**
+ * Purges everything prerendered from research data: the anonymous /research
+ * pages (both languages), the sitemap, and the CDN copies of the given
+ * artifacts' raw HTML. Paths are the internal route patterns (+ type) because
+ * the public URLs are rewritten to /[locale]/…; see next.config.ts. Every
+ * writer (web UI, REST, MCP) goes through the mutations below, which all run
+ * inside route handlers. (The OG image routes are rendered per request.)
+ */
+function revalidateResearch(artifactIds: string[] = []) {
+  try {
+    revalidatePath("/[locale]/research", "layout");
+    revalidatePath("/sitemap.xml");
+    for (const id of artifactIds) {
+      // { expire: 0 } = purge now (same as the one-argument form, without its deprecation warning).
+      revalidateTag(artifactCacheTag(id), { expire: 0 });
+    }
+  } catch (error) {
+    console.error("[research-store] revalidate failed", error);
+  }
 }
 
 function iso(value: unknown) {
@@ -232,6 +255,7 @@ export async function createProject(input: {
   `;
   const project = await getProjectById(id);
   if (!project) throw new Error("Failed to create project.");
+  revalidateResearch();
   return project;
 }
 
@@ -249,6 +273,7 @@ export async function updateProject(
         updated_at = NOW()
     WHERE id = ${id}
   `;
+  revalidateResearch();
   return getProjectById(id);
 }
 
@@ -258,6 +283,7 @@ export async function deleteProject(id: string): Promise<boolean> {
   if (!project || project.isDefault) return false;
   const inbox = await getDefaultProject();
   const sql = getSql();
+  const moved = (await sql`SELECT id FROM research_artifacts WHERE project_id = ${id}`) as Array<{ id: string }>;
   await sql.transaction([
     sql`
       UPDATE research_artifacts
@@ -268,6 +294,7 @@ export async function deleteProject(id: string): Promise<boolean> {
     `,
     sql`DELETE FROM research_projects WHERE id = ${id}`,
   ]);
+  revalidateResearch(moved.map((row) => row.id));
   return true;
 }
 
@@ -382,6 +409,7 @@ export async function createArtifact(input: {
   ]);
   const meta = await getArtifactMeta(id);
   if (!meta) throw new Error("Failed to create artifact.");
+  revalidateResearch([id]);
   return meta;
 }
 
@@ -426,6 +454,7 @@ export async function updateArtifact(
   }
   queries.push(sql`UPDATE research_projects SET updated_at = NOW() WHERE id = ${targetProject}`);
   await sql.transaction(queries);
+  revalidateResearch([id]);
   return getArtifactMeta(id);
 }
 
@@ -437,6 +466,7 @@ export async function deleteArtifact(id: string): Promise<boolean> {
     sql`DELETE FROM research_artifacts WHERE id = ${id}`,
     sql`UPDATE research_projects SET updated_at = NOW() WHERE id = ${current.projectId}`,
   ]);
+  revalidateResearch([id]);
   return true;
 }
 
@@ -453,4 +483,5 @@ export async function reorderArtifacts(projectId: string, orderedIds: string[]):
       `
     )
   );
+  revalidateResearch();
 }

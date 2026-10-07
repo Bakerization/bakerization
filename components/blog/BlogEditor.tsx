@@ -290,7 +290,8 @@ export default function BlogEditor({ initialPost }: Props) {
     setSlug(data.post.slug);
     setPublished(data.post.published);
     setMessage(nextPublished ? "公開しました。" : "下書きを保存しました。");
-    router.push(`/blog/${data.post.slug}`);
+    // The public page is static and only shows published posts; drafts open in the admin preview.
+    router.push(data.post.published ? `/blog/${data.post.slug}` : `/admen/preview/${data.post.slug}`);
   }
 
   // ─────────────────────────────────────────────────────────────

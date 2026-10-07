@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
 import { C, FONTS } from "@/lib/theme";
 
 export default function ContactForm({ locale }: { locale: Locale }) {

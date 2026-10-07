@@ -1,26 +1,39 @@
 // Locale primitives shared by server components, client components and proxy.ts.
-// Keep this module free of `next/headers` (lib/i18n.ts adds the server-only reader).
+// Keep this module free of `next/headers`: pages take the locale from the
+// `[locale]` route param (filled in by the rewrites in next.config.ts), so
+// every public page can be prerendered.
 
 export type Locale = "ja" | "en";
 
 export const LOCALES = ["ja", "en"] as const satisfies readonly Locale[];
 export const DEFAULT_LOCALE: Locale = "ja";
 
-/** `?lang=en` in the URL wins over the cookie (crawlers send no cookies). */
+/** `?lang=en` in the URL selects English (crawlers send no cookies). */
 export const LANG_PARAM = "lang";
+/** Remembers the last `?lang=`; proxy.ts redirects clean URLs to `?lang=en` for en readers. */
 export const LANG_COOKIE = "lang";
-/** Set only by proxy.ts from `?lang=`; any client-sent value is stripped there. */
-export const LANG_HEADER = "x-lang";
 export const LANG_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+export function isLocale(value: unknown): value is Locale {
+  return value === "ja" || value === "en";
+}
 
 export function normalizeLocale(value: string | null | undefined): Locale {
   return value === "en" ? "en" : "ja";
 }
 
-/** Strict parse of a `?lang=` value: null unless it names a supported locale. */
+/**
+ * Strict parse of a `?lang=` value: null unless it names a supported locale.
+ * Case-sensitive on purpose: the rewrite rule in next.config.ts matches
+ * `lang=en` exactly, and the site only ever emits lowercase.
+ */
 export function parseLocaleParam(value: string | null | undefined): Locale | null {
-  const v = value?.trim().toLowerCase();
-  return v === "ja" || v === "en" ? v : null;
+  return isLocale(value) ? value : null;
+}
+
+/** Locale from the `[locale]` route param. Internal paths only ever carry ja/en. */
+export async function localeFromParams(params: Promise<{ locale: string }>): Promise<Locale> {
+  return normalizeLocale((await params).locale);
 }
 
 /**

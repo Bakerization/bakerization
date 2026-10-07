@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
+import { toPublicPathname } from "@/lib/public-pathname";
 import { useCrumbs } from "@/components/research/crumbs";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -27,7 +28,8 @@ const navLink: React.CSSProperties = {
 };
 
 export default function ResearchHeader({ user, locale, labels: t }: Props) {
-  const pathname = usePathname();
+  // Public form of the path: on the server this can be /ja/… or /en/m/… .
+  const pathname = toPublicPathname(usePathname());
   const router = useRouter();
   const crumbs = useCrumbs();
   const minimal = pathname === "/research/login" || pathname === "/research/consent";

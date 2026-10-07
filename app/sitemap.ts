@@ -5,7 +5,9 @@ import { listPublicArtifacts, listPublicProjects } from "@/lib/research-store";
 import { sitemapEntries } from "@/lib/seo";
 import { SERVICES } from "@/lib/services";
 
-export const dynamic = "force-dynamic";
+// ISR: regenerated when a post or research artifact changes (revalidatePath in
+// the stores) and at most hourly otherwise.
+export const revalidate = 3600;
 
 // Every two-language page appears once per language (clean URL = ja, ?lang=en = en),
 // each entry listing both versions, as Google expects for hreflang in sitemaps.

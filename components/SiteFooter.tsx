@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { C, FONTS } from "@/lib/theme";
 import { APP } from "@/lib/company";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
 import InlineLanguageSwitcher from "@/components/InlineLanguageSwitcher";
 
 /**

@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { put } from "@vercel/blob";
+import { revalidatePath } from "next/cache";
 import { BlogPost, BlogPostSummary } from "@/lib/blog-types";
 
 const BLOG_ASSET_PREFIX = "blog-assets/";
@@ -220,6 +221,21 @@ export async function getPost(slug: string) {
   });
 }
 
+/**
+ * Purges every prerendered page that shows posts. Paths are the internal
+ * route patterns (+ type) because the public URLs are rewritten to
+ * /[locale]/…; see next.config.ts. Only valid inside a request (the API route).
+ */
+function revalidateBlog() {
+  try {
+    revalidatePath("/[locale]/blog", "layout"); // /blog and /blog/[slug], both languages
+    revalidatePath("/[locale]", "page"); // home teasers
+    revalidatePath("/sitemap.xml");
+  } catch (error) {
+    console.error("[blog-store] revalidate failed", error);
+  }
+}
+
 export async function savePost(post: BlogPost) {
   await ensureBlogTable();
   const sql = getSql();
@@ -253,6 +269,7 @@ export async function savePost(post: BlogPost) {
       published = EXCLUDED.published,
       updated_at = EXCLUDED.updated_at
   `;
+  revalidateBlog();
 }
 
 export async function uploadBlogAsset(file: File, prefix = BLOG_ASSET_PREFIX) {

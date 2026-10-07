@@ -1,5 +1,5 @@
 import { BlogPost, BlogPostSummary } from "@/lib/blog-types";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
 
 type LocalizableText = Pick<BlogPost, "title" | "titleEn" | "excerpt" | "excerptEn">;
 type LocalizableBody = Partial<Pick<BlogPost, "contentHtml" | "contentHtmlEn">>;

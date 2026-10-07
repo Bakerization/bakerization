@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Quicksand } from "next/font/google";
 import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
-import { Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/locale";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 // Only the hero <h1> uses Quicksand, so it is loaded here (home route only)
