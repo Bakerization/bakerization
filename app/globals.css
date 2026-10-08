@@ -131,6 +131,60 @@ body {
   padding: 0;
 }
 
+/* News bodies are Markdown (GFM): tables, rules, task lists */
+.news-content > :first-child {
+  margin-top: 0;
+}
+
+.news-content hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 2rem 0;
+}
+
+.news-table-wrap {
+  overflow-x: auto;
+  margin: 1.4rem 0;
+}
+
+.news-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+
+.news-content th,
+.news-content td {
+  border: 1px solid var(--line);
+  padding: 0.6rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.news-content th {
+  background: var(--card);
+  font-weight: 700;
+}
+
+.news-content li > p {
+  margin: 0.2rem 0;
+}
+
+.news-content input[type="checkbox"] {
+  margin-right: 0.5em;
+}
+
+@media (max-width: 880px) {
+  .news-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .news-row-arrow {
+    display: none;
+  }
+}
+
 /* TipTap placeholder */
 .tiptap p.is-editor-empty:first-child::before {
   color: var(--sub);

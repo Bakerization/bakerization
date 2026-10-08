@@ -8,6 +8,7 @@
     "start": "next start",
     "seed:admin": "node --env-file=.env --import=tsx scripts/seed-admin.ts",
     "ensure:tables": "node --env-file=.env --import=tsx scripts/ensure-tables.ts",
+    "seed:news": "node --env-file=.env --import=tsx scripts/seed-news.ts",
     "rotate:admin": "node --env-file=.env --import=tsx scripts/rotate-admin-password.ts"
   },
   "dependencies": {
@@ -31,6 +32,8 @@
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {

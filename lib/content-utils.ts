@@ -17,9 +17,22 @@ const CONTENT_IMAGE_WIDTHS = [640, 828, 1080, 1200, 1920];
 const CONTENT_IMAGE_SIZES = "(max-width: 880px) calc(100vw - 40px), 816px";
 
 /**
+ * For an upload (/api/blob/…): a src + srcset through Next's image optimizer so
+ * phones get a 640 px AVIF instead of the original. Null for any other URL.
+ */
+export function blobImageSources(src: string, sizes = CONTENT_IMAGE_SIZES) {
+  if (!src.startsWith("/api/blob/")) return null;
+  const url = encodeURIComponent(src);
+  return {
+    src: `/_next/image?url=${url}&w=1200&q=75`,
+    srcSet: CONTENT_IMAGE_WIDTHS.map((w) => `/_next/image?url=${url}&w=${w}&q=75 ${w}w`).join(", "),
+    sizes,
+  };
+}
+
+/**
  * Makes the editor's <img> tags cheap to load: lazy + async decoding, and for
- * uploads (/api/blob/…) a srcset through Next's image optimizer so phones get
- * a 640 px AVIF instead of the original upload.
+ * uploads a srcset through the image optimizer (see blobImageSources).
  */
 export function optimizeContentImages(html: string): string {
   return html.replace(/<img\b([^>]*?)\s*\/?>/gi, (_tag, attrs: string) => {
@@ -27,10 +40,9 @@ export function optimizeContentImages(html: string): string {
     if (!/\bloading=/i.test(a)) a += ' loading="lazy"';
     if (!/\bdecoding=/i.test(a)) a += ' decoding="async"';
     const src = a.match(/\bsrc="(\/api\/blob\/[^"]+)"/i);
-    if (src && !/\bsrcset=/i.test(a)) {
-      const url = encodeURIComponent(src[1]);
-      const srcset = CONTENT_IMAGE_WIDTHS.map((w) => `/_next/image?url=${url}&w=${w}&q=75 ${w}w`).join(", ");
-      a = a.replace(src[0], `src="/_next/image?url=${url}&w=1200&q=75" srcset="${srcset}" sizes="${CONTENT_IMAGE_SIZES}"`);
+    const opt = src && !/\bsrcset=/i.test(a) ? blobImageSources(src[1]) : null;
+    if (src && opt) {
+      a = a.replace(src[0], `src="${opt.src}" srcset="${opt.srcSet}" sizes="${opt.sizes}"`);
     }
     return `<img${a}>`;
   });

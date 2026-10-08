@@ -52,22 +52,39 @@ export default async function AdmenDashboard() {
           >
             ▍ADMEN — Dashboard
           </span>
-          <Link
-            href="/blog/new"
-            style={{
-              background: C.accent,
-              color: C.bg,
-              border: "none",
-              padding: "12px 20px",
-              fontFamily: FONTS.body,
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: 0.3,
-              textDecoration: "none",
-            }}
-          >
-            新規作成 →
-          </Link>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Link
+              href="/admen/news"
+              style={{
+                border: `1px solid ${C.ink}`,
+                color: C.ink,
+                padding: "12px 20px",
+                fontFamily: FONTS.body,
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: 0.3,
+                textDecoration: "none",
+              }}
+            >
+              ニュース管理 →
+            </Link>
+            <Link
+              href="/blog/new"
+              style={{
+                background: C.accent,
+                color: C.bg,
+                border: "none",
+                padding: "12px 20px",
+                fontFamily: FONTS.body,
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: 0.3,
+                textDecoration: "none",
+              }}
+            >
+              ブログ新規作成 →
+            </Link>
+          </div>
         </div>
 
         <h1

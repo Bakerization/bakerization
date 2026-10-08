@@ -17,6 +17,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
     home: "Home",
     product: "Product",
     services: "Services",
+    news: "News",
     journal: "Journal",
     research: "Research",
     about: "About",
@@ -124,6 +125,14 @@ export default function Navbar({ locale }: { locale: Locale }) {
                 kiji hub
               </Link>
             </div>
+          </li>
+          <li>
+            <Link
+              href="/news"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.news}
+            </Link>
           </li>
           <li>
             <Link

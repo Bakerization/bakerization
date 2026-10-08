@@ -18,7 +18,15 @@ type BlogTeaser = {
   en: string;
 };
 
-type Props = { posts?: BlogTeaser[]; locale?: Locale };
+type NewsTeaser = {
+  slug: string;
+  date: string;
+  /** ISO timestamp for <time dateTime>. */
+  iso: string;
+  title: string;
+};
+
+type Props = { posts?: BlogTeaser[]; news?: NewsTeaser[]; locale?: Locale };
 
 type ServiceItem = {
   num: string;
@@ -222,6 +230,7 @@ function Nav({ locale }: { locale: Locale }) {
     { label: "Message", href: "/message" },
     { label: "Services", href: "#services" },
     { label: "Product", href: "/app", drop: "kiji hub" },
+    { label: "News", href: "/news" },
     { label: "Journal", href: "/blog" },
     { label: "Research", href: "/research" },
     { label: "Contact", href: "#contact" },
@@ -493,6 +502,89 @@ function Hero({ locale }: { locale: Locale }) {
             {en ? COPY.heroCaptionEn : COPY.heroCaptionJa}
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   News — dated list band under the hero (hidden when empty)
+   ───────────────────────────────────────────────────────────── */
+function News({ news, locale }: { news: NewsTeaser[]; locale: Locale }) {
+  if (news.length === 0) return null;
+  const en = locale === "en";
+  return (
+    <section
+      className="mob-pad mob-pad-v-sm"
+      style={{ padding: "56px 64px", background: C.bg, borderTop: `1px solid ${C.line}` }}
+    >
+      <div
+        className="mob-1col"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "200px 1fr auto",
+          gap: 40,
+          alignItems: "start",
+        }}
+      >
+        <div
+          style={{
+            background: C.slab,
+            color: C.onSlab,
+            padding: "10px 14px",
+            justifySelf: "start",
+            fontFamily: FONTS.mono,
+            fontSize: 11,
+            letterSpacing: "0.24em",
+            textTransform: "uppercase",
+          }}
+        >
+          ▍NEWS
+        </div>
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1.5px solid ${C.ink}` }}>
+          {news.map((n) => (
+            <li key={n.slug} style={{ borderBottom: `1px solid ${C.line}` }}>
+              <Link
+                href={`/news/${n.slug}`}
+                className="news-row"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "120px 1fr auto",
+                  gap: 24,
+                  alignItems: "baseline",
+                  padding: "18px 0",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <time
+                  dateTime={n.iso}
+                  style={{ fontFamily: FONTS.mono, fontSize: 12, letterSpacing: "0.16em", color: C.accent }}
+                >
+                  {n.date}
+                </time>
+                <span style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.6, color: C.ink }}>{n.title}</span>
+                <span aria-hidden className="news-row-arrow" style={{ fontFamily: FONTS.mono, fontSize: 12, color: C.ink }}>
+                  →
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/news"
+          style={{
+            fontFamily: FONTS.mono,
+            fontSize: 12,
+            color: C.accent,
+            letterSpacing: "0.2em",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+            paddingTop: 8,
+          }}
+        >
+          {en ? "VIEW ALL NEWS →" : "ニュース一覧 →"}
+        </Link>
       </div>
     </section>
   );
@@ -1336,7 +1428,7 @@ function Contact({ locale }: { locale: Locale }) {
 /* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
-export default function TopPage({ posts = [], locale = "ja" }: Props) {
+export default function TopPage({ posts = [], news = [], locale = "ja" }: Props) {
   return (
     <Stage>
       <div
@@ -1352,6 +1444,7 @@ export default function TopPage({ posts = [], locale = "ja" }: Props) {
       >
         <Nav locale={locale} />
         <Hero locale={locale} />
+        <News news={news} locale={locale} />
         <About locale={locale} />
         <Services locale={locale} />
         <Product locale={locale} />

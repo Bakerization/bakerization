@@ -6,9 +6,12 @@ import { absoluteUrl, pageMetadata } from "@/lib/seo";
 import { listPostSummaries } from "@/lib/blog-store";
 import { localeFromParams } from "@/lib/locale";
 import { getLocalizedPost } from "@/lib/blog-localize";
+import { listNewsSummaries } from "@/lib/news-store";
+import { formatNewsDate, localizeNews } from "@/lib/news-format";
 
-// ISR: the three journal teasers come from the database. savePost() purges
-// this page on publish; the hourly revalidate is only a safety net.
+// ISR: the news list and the three journal teasers come from the database.
+// savePost() and the news store purge this page on change; the hourly
+// revalidate is only a safety net.
 export const revalidate = 3600;
 type Props = { params: Promise<{ locale: string }> };
 
@@ -47,6 +50,8 @@ export default async function Home({ params }: Props) {
     en: string;
   }[] = [];
 
+  const newsPromise = listNewsSummaries({ limit: 3 }).catch(() => []);
+
   try {
     const posts = await listPostSummaries({ limit: 3 });
     teasers = posts.map((p) => {
@@ -62,6 +67,13 @@ export default async function Home({ params }: Props) {
   } catch {
     teasers = [];
   }
+
+  const news = (await newsPromise).map((n) => ({
+    slug: n.slug,
+    date: formatNewsDate(n.publishedAt),
+    iso: n.publishedAt,
+    title: localizeNews(n, locale).title,
+  }));
 
   const home = absoluteUrl("/");
   return (
@@ -89,7 +101,7 @@ export default async function Home({ params }: Props) {
           },
         ]}
       />
-      <TopPage posts={teasers} locale={locale} />
+      <TopPage posts={teasers} news={news} locale={locale} />
     </>
   );
 }
