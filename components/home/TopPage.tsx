@@ -106,9 +106,9 @@ const COPY = {
         ja: "データの可視化",
         en: "Data Visibility & Improvement",
         bodyJa:
-          "AIや機械学習を用いたパン専用工学デバイスの開発、パン屋さんに特化したSaaSの開発をし、パンにまつわる数値を徹底的に可視化します。",
+          "パン屋さんに特化したSaaSの開発をし、パンにまつわる数値を徹底的に可視化します。",
         bodyEn:
-          "We develop bread-specific engineering devices using AI and machine learning, and bakery-focused SaaS, to thoroughly visualize the numbers behind bread.",
+          "We develop bakery-focused SaaS to thoroughly visualize the numbers behind bread.",
         noteJa: "kiji hubというSaaSを開発中です。",
         noteEn: "We are building a SaaS called kiji hub.",
       },
@@ -135,19 +135,13 @@ const COPY = {
         num: "01",
         name: "kiji hub",
         pointsJa: [
-          "ミキシングのデータと環境データを計測し、仕込みの条件とあわせて記録",
-          <>
-            機械学習・AIを駆使したミキサーの自動制御によって、その日に合わせた
-            <strong>最適なミキシング</strong>を自動で再現
-          </>,
+          "ミキシングと仕込みの条件を記録",
+          "記録をあとから一覧・グラフで見返せる",
           "パン職人の負担を軽減",
         ],
         pointsEn: [
-          "Measures mixing data and environmental data, and records them alongside the day's conditions",
-          <>
-            Reproduces <strong>the optimal mix</strong> for that day automatically,
-            through mixer control driven by machine learning and AI
-          </>,
+          "Records each mix alongside the day's conditions",
+          "Look back on records later as lists and graphs",
           "Lightens the load on the baker",
         ],
         href: "/app",

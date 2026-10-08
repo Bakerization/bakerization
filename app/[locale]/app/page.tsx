@@ -32,21 +32,18 @@ function copyFor(locale: Locale) {
   const isEn = locale === "en";
   return {
     headline: isEn
-      ? ["Every mix,", "kept in numbers", "and video."]
-      : ["ミキシングを、", "数値と映像で", "残す。"],
+      ? ["Every mix,", "on record,", "to look back on."]
+      : ["ミキシングを、", "記録して、", "見返す。"],
     deck: isEn ? (
       <>
-        {APP.name} is a working tool for bakeries. A device retrofitted to your
-        mixer measures the mixing data and records it alongside the day&apos;s
-        conditions. It also reproduces{" "}
-        <strong>the optimal mix</strong> for that day automatically, through
-        mixer control driven by machine learning and AI.
+        {APP.name} is a working tool for bakeries. It records each day&apos;s
+        mixing alongside the batch conditions, so you can look back on them
+        later.
       </>
     ) : (
       <>
         {APP.name}{" "}
-        は、ベーカリー向けの業務用ツールです。ミキサーに後付けしたデバイスが、ミキシングデータを計測し、仕込みの条件とあわせて記録します。また、機械学習・AIを駆使したミキサーの自動制御によって、その日に合わせた
-        <strong>最適なミキシング</strong>を自動で再現します。
+        は、ベーカリー向けの業務用ツールです。日々のミキシングの様子と仕込みの条件を記録し、あとから見返すことができます。
       </>
     ),
     featuresLabel: isEn ? "What it does" : "このアプリでできること",
@@ -54,13 +51,11 @@ function copyFor(locale: Locale) {
       ? [
           {
             no: "01",
-            title: "Measure and record",
-            lead: "A device retrofitted to the mixer measures and records what happens during mixing, automatically.",
+            title: "Record",
+            lead: "Records what happens during mixing.",
             items: [
-              "Power",
-              "Rotation speed",
-              "Video from a camera",
-              "Audio from a microphone",
+              "Mixing data",
+              "Video and audio",
               "Room temperature and humidity (measured by a separately purchased thermo-hygrometer)",
             ],
           },
@@ -69,8 +64,8 @@ function copyFor(locale: Locale) {
             title: "Enter",
             lead: "The baker enters the conditions for that day's batch.",
             items: [
-              "Recipe and weights (set the recipe in advance and the weights are calculated for you)",
-              "Flour temperature, water temperature, final dough temperature, flour lot",
+              "Recipe and weights",
+              "Batch conditions such as temperatures",
               "An assessment of the dough",
             ],
           },
@@ -84,27 +79,15 @@ function copyFor(locale: Locale) {
               "Playback of saved video and audio",
             ],
           },
-          {
-            no: "04",
-            title: `Control (${APP.name})`,
-            lead: "The device controls the mixer automatically to achieve the optimal mix.",
-            items: [
-              "AI and machine learning",
-              "Control of the mixer's rotation speed",
-              "Ends the mix at the right moment, using power and video data",
-            ],
-          },
         ]
       : [
           {
             no: "01",
-            title: "計測・記録する",
-            lead: "ミキサーに後付けしたデバイスが、ミキシング中の状態を自動で計測し、記録します。",
+            title: "記録する",
+            lead: "ミキシングの様子を記録します。",
             items: [
-              "電力",
-              "回転速度",
-              "カメラによる映像",
-              "マイクによる録音",
+              "ミキシングのデータ",
+              "映像・録音",
               "室温・湿度（別途購入の温湿度計により計測）",
             ],
           },
@@ -113,8 +96,8 @@ function copyFor(locale: Locale) {
             title: "入力する",
             lead: "その日の仕込みの条件を、職人が入力します。",
             items: [
-              "レシピ・重量（事前にレシピを設定すれば、重量を自動で計算します）",
-              "粉温度・水温・こね上げ温度・小麦粉ロット",
+              "レシピ・重量",
+              "温度などの仕込みの条件",
               "生地の評価",
             ],
           },
@@ -127,38 +110,6 @@ function copyFor(locale: Locale) {
               "CSVでの書き出し",
               "保存した映像・録音の再生",
             ],
-          },
-          {
-            no: "04",
-            title: `制御する（${APP.name}）`,
-            lead: "ミキサーをデバイスが自動で制御し、最適なミキシングを実現します。",
-            items: [
-              "AI・機械学習",
-              "ミキサーの回転速度を制御",
-              "電力と映像データにより、最適なタイミングでミキシングを終了",
-            ],
-          },
-        ],
-    lineupLabel: isEn ? "Product line" : "製品構成",
-    lineup: isEn
-      ? [
-          {
-            title: APP.name,
-            body: "Measures and records the mixing data, and controls the mixer on top of that.",
-          },
-          {
-            title: `${APP.logName} (early version)`,
-            body: "Measures, records and stores the mixing data only. It does not control the mixer.",
-          },
-        ]
-      : [
-          {
-            title: APP.name,
-            body: "ミキシングデータの計測・記録に加えて、ミキサーの制御を行います。",
-          },
-          {
-            title: `${APP.logName}（先行版）`,
-            body: "ミキシングデータの計測・記録と保存のみを行います。ミキサーの制御は行いません。",
           },
         ],
     loginLabel: isEn ? "Signing in" : "ログインについて",
@@ -368,7 +319,7 @@ export default async function AppPage({ params }: Props) {
           style={{
             marginTop: 24,
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: 24,
             alignItems: "start",
           }}
@@ -438,25 +389,6 @@ export default async function AppPage({ params }: Props) {
             </div>
           ))}
         </section>
-
-        {/* ── 製品構成 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>{t.lineupLabel}</SectionLabel>
-        <div
-          className="mob-1col"
-          style={{
-            marginTop: 24,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
-          {t.lineup.map((p) => (
-            <Card key={p.title} title={p.title}>
-              {p.body}
-            </Card>
-          ))}
-        </div>
 
         {/* ── ログインについて ── */}
         <SectionLabel style={{ marginTop: 80 }}>{t.loginLabel}</SectionLabel>
@@ -693,33 +625,6 @@ function MethodLabel({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
-    </div>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div
-      className="mob-pad-card"
-      style={{
-        background: C.card,
-        border: `1.5px solid ${C.line}`,
-        padding: 36,
-      }}
-    >
-      <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.ink }}>
-        {title}
-      </h3>
-      <p
-        style={{
-          margin: "14px 0 0",
-          fontSize: 16,
-          lineHeight: 1.95,
-          color: C.sub,
-        }}
-      >
-        {children}
-      </p>
     </div>
   );
 }

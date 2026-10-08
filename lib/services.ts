@@ -168,7 +168,7 @@ export const SERVICES: Service[] = [
       ],
       approachLabel: "私たちにできること",
       approach: [
-        "AIや機械学習を用いたパン専用の工学デバイスの開発、そしてパン屋さんに特化したSaaSの開発を行い、パンにまつわる数値を徹底的に可視化します。",
+        "パン屋さんに特化したSaaSの開発を行い、パンにまつわる数値を徹底的に可視化します。",
         "大切なのは、現場に新しい負担を増やさないこと。レジを打つ、パンを並べる——その当たり前の動作の裏側で数字が静かに集まり、翌朝の判断に変わっていく。そんな仕組みを目指しています。",
       ],
       stepsLabel: "進め方",
@@ -214,7 +214,7 @@ export const SERVICES: Service[] = [
       ],
       approachLabel: "What we do",
       approach: [
-        "We build bread-specific engineering devices powered by AI and machine learning, and SaaS made for bakeries — making the numbers behind bread thoroughly visible.",
+        "We build SaaS made for bakeries — making the numbers behind bread thoroughly visible.",
         "What matters is adding no new burden to the floor. Ring up a sale, set out a loaf — and behind those ordinary motions, the numbers quietly gather and become tomorrow morning's decision. That's the kind of system we're after.",
       ],
       stepsLabel: "How it works",
