@@ -40,3 +40,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local leftovers (create-next-app defaults, old components) — not used by the site
+/app/defaultico.ico
+/components/About.tsx
+/components/Contact.tsx
+/components/Hero.tsx
+/components/Services.tsx
+/components/blog/AdminEditButton.tsx
+/lib/i18n.ts
+/public/file.svg
+/public/globe.svg
+/public/next.svg
+/public/vercel.svg
+/public/window.svg
