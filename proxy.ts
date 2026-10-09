@@ -44,8 +44,10 @@ export function proxy(req: NextRequest) {
   // Sticky English: the remembered language is en but the URL is the clean
   // (Japanese) form. 307, never 308: it depends on a cookie and must not be
   // cached. Applied to documents, RSC navigations and prefetches alike; the
-  // client router follows the redirect and keeps the final URL.
-  if (fromCookie === "en" && !url.searchParams.has(LANG_PARAM)) {
+  // client router follows the redirect and keeps the final URL. OAuth hops
+  // (/research/login, /research/consent carry client_id) are left alone:
+  // req.nextUrl has already turned a 127.0.0.1 redirect_uri into localhost.
+  if (fromCookie === "en" && !url.searchParams.has(LANG_PARAM) && !url.searchParams.has("client_id")) {
     const target = url.clone();
     target.searchParams.set(LANG_PARAM, "en");
     return NextResponse.redirect(target, 307);
