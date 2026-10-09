@@ -1,0 +1,30 @@
+{
+  "name": "bakerization-news",
+  "version": "0.1.0",
+  "description": "パン・ベーカリー業界のニュースを調べて、bakerization.com/news に週刊まとめ記事（日本語＋英語）を公開します。",
+  "author": {
+    "name": "Bakerization",
+    "url": "https://www.bakerization.com"
+  },
+  "homepage": "https://www.bakerization.com/news",
+  "keywords": ["Bakerization", "news", "bakery", "bread", "MCP"],
+  "mcpServers": "./.mcp.json",
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Bakerization NEWS",
+    "shortDescription": "パン業界ニュースをBakerizationに公開",
+    "longDescription": "国内外のパン・ベーカリー業界、食トレンド、フードテックのニュースをWebで調べて出典付きの週刊まとめ記事を書き、Bakerizationの管理者アカウント（OAuth）で bakerization.com/news に日本語・英語で公開します。毎週の定期タスクにも対応します。",
+    "developerName": "Bakerization",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://www.bakerization.com/news",
+    "defaultPrompt": [
+      "先週のパン業界ウィークリーを作って公開して",
+      "Bakerization NEWSの最近の記事を一覧して",
+      "毎週月曜の朝にパン業界ニュースのまとめを自動で公開するよう設定して"
+    ],
+    "brandColor": "#C8451A",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  }
+}

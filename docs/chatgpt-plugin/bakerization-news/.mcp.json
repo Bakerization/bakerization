@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "bakerization-news": {
+      "type": "streamable-http",
+      "url": "https://www.bakerization.com/api/mcp",
+      "headers": {}
+    }
+  }
+}
