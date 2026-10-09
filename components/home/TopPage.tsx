@@ -181,6 +181,17 @@ const COPY = {
       },
     ],
   },
+  club: {
+    labelJa: "メーリングリスト",
+    labelEn: "Mailing list",
+    title: "Bakerization CLUB",
+    bodyJa:
+      "パンの未来に関わるすべての人のためのメーリングリストです。イベントのご案内、リサーチやプロダクトの最新情報、NEWS をお届けします。",
+    bodyEn:
+      "A mailing list for everyone shaping the future of bread — event invitations, research and product updates, and news.",
+    ctaJa: "CLUB にエントリーする →",
+    ctaEn: "Join the CLUB →",
+  },
   contact: {
     labelJa: "お問い合わせ",
     labelEn: "Contact",
@@ -227,6 +238,7 @@ function Nav({ locale }: { locale: Locale }) {
     { label: "News", href: "/news" },
     { label: "Journal", href: "/blog" },
     { label: "Research", href: "/research" },
+    { label: "Club", href: "/club" },
     { label: "Contact", href: "#contact" },
   ];
   return (
@@ -1293,6 +1305,98 @@ function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Club — mailing-list band, links to /club (Google Form)
+   ───────────────────────────────────────────────────────────── */
+function Club({ locale }: { locale: Locale }) {
+  const c = COPY.club;
+  const en = locale === "en";
+  return (
+    <section
+      id="club"
+      className="mob-pad mob-pad-v-sm"
+      style={{
+        padding: "96px 64px",
+        background: C.slab,
+        color: C.onSlab,
+      }}
+    >
+      <div
+        className="mob-1col"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.2fr 1fr",
+          gap: 60,
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              background: C.accent,
+              color: C.paper,
+              padding: "10px 14px",
+              display: "inline-block",
+              fontFamily: FONTS.mono,
+              fontSize: 11,
+              letterSpacing: "0.24em",
+              textTransform: "uppercase",
+              marginBottom: 28,
+            }}
+          >
+            ▍{en ? c.labelEn : c.labelJa}
+          </div>
+          <h2
+            className="mob-h3"
+            style={{
+              fontFamily: FONTS.display,
+              fontSize: 64,
+              lineHeight: 1.08,
+              letterSpacing: -2,
+              fontWeight: 700,
+              color: C.onSlab,
+              margin: 0,
+            }}
+          >
+            {c.title}
+          </h2>
+          <p
+            style={{
+              marginTop: 24,
+              fontSize: 17,
+              lineHeight: 1.95,
+              opacity: 0.85,
+              maxWidth: 540,
+            }}
+          >
+            {en ? c.bodyEn : c.bodyJa}
+          </p>
+        </div>
+        <div>
+          <Link
+            href="/club"
+            style={{
+              width: "100%",
+              padding: "24px 28px",
+              background: C.accent,
+              color: C.paper,
+              fontFamily: FONTS.body,
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: 0.5,
+              textAlign: "center",
+              display: "block",
+              textDecoration: "none",
+            }}
+          >
+            {en ? c.ctaEn : c.ctaJa}
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Contact — block-button
    ───────────────────────────────────────────────────────────── */
 function Contact({ locale }: { locale: Locale }) {
@@ -1443,6 +1547,7 @@ export default function TopPage({ posts = [], news = [], locale = "ja" }: Props)
         <Services locale={locale} />
         <Product locale={locale} />
         <Blog posts={posts} locale={locale} />
+        <Club locale={locale} />
         <Contact locale={locale} />
       </div>
     </Stage>

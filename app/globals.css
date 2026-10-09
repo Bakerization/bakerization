@@ -299,6 +299,10 @@ body {
     margin-top: 32px !important;
     order: 2 !important;
   }
+  /* /club の Google フォーム iframe — 幅が狭いと選択肢が折り返して縦に伸びる */
+  .club-form-frame {
+    height: 1650px !important;
+  }
   /* Footer columns stack & smaller text */
   .mob-footer {
     flex-direction: column !important;

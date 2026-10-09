@@ -22,6 +22,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
     research: "Research",
     about: "About",
     message: "Message",
+    club: "Club",
     contact: "Contact",
   };
 
@@ -156,6 +157,14 @@ export default function Navbar({ locale }: { locale: Locale }) {
               style={{ color: "inherit", textDecoration: "none" }}
             >
               {t.message}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/club"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {t.club}
             </Link>
           </li>
           <li>
