@@ -1,12 +1,19 @@
 import { ImageResponse } from "next/og";
+import { WORDMARK_PATH, WORDMARK_VIEWBOX } from "@/components/brand/Wordmark";
 
 // Shared renderer for the Open Graph images (1200×630 PNG).
 // Colors mirror app/globals.css :root (CSS variables aren't available here).
+// The card is the brand book's cover: a yellow field, green type, and the
+// BAKERIZATION wordmark in the bottom-right corner.
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
-const COLORS = { bg: "#f6e9cf", ink: "#1c0e02", sub: "#6b4d2a", line: "#c7a973", accent: "#c8451a" };
+const COLORS = { bg: "#fbd26b", ink: "#2f5340", rule: "rgba(47,83,64,.35)" };
+
+const WORDMARK_SRC = `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${WORDMARK_VIEWBOX}"><path fill="${COLORS.ink}" d="${WORDMARK_PATH}"/></svg>`
+)}`;
 
 /**
  * Noto Sans JP subset containing just `text` (Google Fonts returns TTF when no
@@ -81,26 +88,25 @@ export async function renderOgImage({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderTop: `3px solid ${COLORS.ink}`,
-            borderBottom: `1px solid ${COLORS.line}`,
-            padding: "16px 0",
+            borderBottom: `1px solid ${COLORS.rule}`,
+            padding: "0 0 20px",
             fontSize: 24,
-            letterSpacing: 4,
+            letterSpacing: 2,
           }}
         >
-          <span style={{ display: "flex", alignItems: "center", gap: 14, color: COLORS.accent }}>
-            <span style={{ width: 6, height: 26, background: COLORS.accent }} />
+          <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <span>-</span>
             {kicker}
           </span>
-          <span style={{ color: COLORS.sub }}>bakerization.com</span>
+          <span>bakerization.com</span>
         </div>
         <div style={{ display: "flex", fontSize: titleSize, fontWeight: 700, lineHeight: 1.25, letterSpacing: -1 }}>{shownTitle}</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 40 }}>
-          <div style={{ display: "flex", fontSize: 28, color: COLORS.sub, lineHeight: 1.4, maxWidth: 700 }}>{shownSubtitle}</div>
-          <div style={{ display: "flex", gap: 12, fontSize: 34, fontWeight: 700, whiteSpace: "nowrap" }}>
-            <span>Bakerization</span>
-            {brand === "research" ? <span style={{ color: COLORS.accent }}>/</span> : null}
-            {brand === "research" ? <span>Research</span> : null}
+          <div style={{ display: "flex", fontSize: 28, lineHeight: 1.4, maxWidth: 700, opacity: 0.85 }}>{shownSubtitle}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 30, fontWeight: 700, whiteSpace: "nowrap" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={WORDMARK_SRC} width={267} height={32} alt="Bakerization" />
+            {brand === "research" ? <span>/ Research</span> : null}
           </div>
         </div>
       </div>

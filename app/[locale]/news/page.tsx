@@ -7,6 +7,7 @@ import { formatNewsDate, localizeNews } from "@/lib/news-format";
 import { listNewsSummaries } from "@/lib/news-store";
 import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
+import { Inner, NAV_HEIGHT, SectionCover, TextLink, labelText } from "@/components/brand/ui";
 
 // ISR, purged by the news store on every change; hourly revalidate as a safety net.
 export const revalidate = 3600;
@@ -37,57 +38,21 @@ export default async function NewsListPage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div className="mob-pad" style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 64px 96px" }}>
-        <div
-          className="mob-flex-wrap"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
-            marginBottom: 48,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍NEWS — {en ? "Announcements" : "お知らせ"}
-          </span>
+      <SectionCover as="h1" title="News" sub="お知らせ" no="01" />
+
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 72, paddingBottom: 120 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 28 }}>
           <LanguageSwitcher locale={locale} />
         </div>
-
-        <h1
-          className="mob-h2"
-          style={{
-            fontFamily: FONTS.display,
-            fontSize: 72,
-            lineHeight: 1.05,
-            letterSpacing: -3,
-            fontWeight: 700,
-            color: C.ink,
-            margin: "0 0 48px",
-          }}
-        >
-          News
-        </h1>
 
         {items.length === 0 ? (
           <p
             style={{
-              border: `1.5px solid ${C.ink}`,
-              background: C.card,
+              margin: 0,
+              background: C.paper,
               padding: 32,
               color: C.sub,
               fontSize: 14,
@@ -96,7 +61,7 @@ export default async function NewsListPage({ params }: Props) {
             {en ? "No news yet." : "現在お知らせはありません。"}
           </p>
         ) : (
-          <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1.5px solid ${C.ink}` }}>
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1px solid ${C.ink}` }}>
             {items.map((item, i) => {
               const localized = localizeNews(item, locale);
               return (
@@ -106,44 +71,27 @@ export default async function NewsListPage({ params }: Props) {
                     className="news-row"
                     style={{
                       display: "grid",
-                      gridTemplateColumns: item.coverImageUrl ? "140px 1fr 200px" : "140px 1fr",
-                      gap: 28,
+                      gridTemplateColumns: item.coverImageUrl ? "140px 1fr 220px" : "140px 1fr",
+                      gap: 32,
                       alignItems: "start",
-                      padding: "28px 0",
+                      padding: "32px 0",
                       textDecoration: "none",
                       color: "inherit",
                     }}
                   >
-                    <time
-                      dateTime={item.publishedAt}
-                      style={{
-                        fontFamily: FONTS.mono,
-                        fontSize: 13,
-                        letterSpacing: "0.16em",
-                        color: C.accent,
-                        paddingTop: 4,
-                      }}
-                    >
+                    <time dateTime={item.publishedAt} style={{ ...labelText, color: C.sub, paddingTop: 5 }}>
                       {formatNewsDate(item.publishedAt)}
                     </time>
                     <div>
-                      <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.45, color: C.ink }}>
+                      <div style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.55, color: C.ink }}>
                         {localized.title}
                       </div>
                       {localized.summary ? (
-                        <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.8, color: C.sub }}>
+                        <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.85, color: C.sub }}>
                           {localized.summary}
                         </p>
                       ) : null}
-                      <div
-                        style={{
-                          marginTop: 14,
-                          fontFamily: FONTS.mono,
-                          fontSize: 11,
-                          letterSpacing: "0.22em",
-                          color: C.ink,
-                        }}
-                      >
+                      <div style={{ ...labelText, marginTop: 18, color: C.ink }}>
                         {en ? "READ MORE" : "詳しく見る"} →
                       </div>
                     </div>
@@ -154,15 +102,15 @@ export default async function NewsListPage({ params }: Props) {
                           width: "100%",
                           aspectRatio: "4/3",
                           overflow: "hidden",
-                          border: `1px solid ${C.line}`,
+                          background: C.paper,
                         }}
                       >
                         <BlogImage
                           src={item.coverImageUrl}
                           alt={localized.title}
                           priority={i === 0}
-                          sizes="(max-width: 880px) 100vw, 200px"
-                          style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                          sizes="(max-width: 880px) 100vw, 220px"
+                          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                         />
                       </div>
                     ) : null}
@@ -173,22 +121,10 @@ export default async function NewsListPage({ params }: Props) {
           </ul>
         )}
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
-            ← {en ? "Back to Home" : "トップへ戻る"}
-          </Link>
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">← {en ? "Back to Home" : "トップへ戻る"}</TextLink>
         </div>
-      </div>
+      </Inner>
     </main>
   );
 }

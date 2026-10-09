@@ -111,7 +111,7 @@ export function buttonStyle(variant: ButtonVariant = "outline", size: ButtonSize
     variant === "accent"
       ? { background: C.accent, color: C.bg, border: `1.5px solid ${C.accent}` }
       : variant === "danger"
-        ? { background: "transparent", color: C.accent, border: `1px solid ${C.accent}` }
+        ? { background: "transparent", color: C.alert, border: `1px solid ${C.alert}` }
         : variant === "ghost"
           ? { background: "transparent", color: C.sub, border: "1px solid transparent" }
           : { background: "transparent", color: C.ink, border: `1px solid ${C.line}` };

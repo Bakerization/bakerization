@@ -1,9 +1,19 @@
-import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import type { Metadata } from "next";
 import { localeFromParams } from "@/lib/locale";
 import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
+import {
+  BrandBar,
+  HandQuote,
+  Inner,
+  NAV_HEIGHT,
+  RuleText,
+  SectionCover,
+  SubLabel,
+  TextLink,
+  labelText,
+} from "@/components/brand/ui";
 
 // Fully static: no request-time work. `dynamic = "error"` makes the build fail if
 // a dynamic API ever sneaks in. `dynamicParams = false` only applies to this leaf.
@@ -27,6 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ContactPage({ params }: Props) {
   const locale = await localeFromParams(params);
+  const isEn = locale === "en";
 
   const t =
     locale === "en"
@@ -60,101 +71,30 @@ export default async function ContactPage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{
-          maxWidth: 1280,
-          margin: "0 auto",
-          padding: "32px 64px 96px",
-        }}
-      >
-        {/* Strip */}
-        <div
-          className="mob-flex-wrap"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
-            marginBottom: 64,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍SECTION VI — {t.section}
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            {t.page}
-          </span>
-        </div>
+      <SectionCover as="h1" title="Contact" sub="お問い合わせ" no="01" />
 
-        {/* Headline */}
-        <h1
-          className="mob-h1"
-          style={{
-            margin: 0,
-            fontFamily: FONTS.display,
-            fontSize: 132,
-            lineHeight: 0.9,
-            letterSpacing: -4,
-            fontWeight: 700,
-            color: C.ink,
-            textTransform: "uppercase",
-          }}
-        >
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <HandQuote size={isEn ? 38 : 44}>
           {t.headlineTop}
           <br />
           {t.headlineMid}
           <br />
-          <span style={{ color: C.accent }}>{t.headlineBot}</span>
-        </h1>
-
-        <div
-          style={{
-            marginTop: 32,
-            width: 100,
-            height: 3,
-            background: C.accent,
-          }}
-        />
-
-        <p
-          style={{
-            marginTop: 28,
-            fontSize: 18,
-            lineHeight: 1.95,
-            color: C.sub,
-            maxWidth: 720,
-          }}
-        >
+          {t.headlineBot}
+        </HandQuote>
+        <BrandBar reach="58%" style={{ marginTop: 32 }} />
+        <RuleText style={{ marginTop: 56, maxWidth: 760, fontSize: 18, lineHeight: 1.95, color: C.ink }}>
           {t.deck}
-        </p>
+        </RuleText>
+      </Inner>
 
+      <Inner style={{ paddingBottom: 120 }}>
         {/* Body — form + email block */}
         <section
           className="mob-1col"
           style={{
-            marginTop: 80,
             display: "grid",
             gridTemplateColumns: "1.5fr 1fr",
             gap: 56,
@@ -165,22 +105,11 @@ export default async function ContactPage({ params }: Props) {
             className="mob-pad-card-lg"
             style={{
               background: C.card,
-              border: `1.5px solid ${C.line}`,
+              border: `1px solid ${C.line}`,
               padding: 40,
             }}
           >
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 28,
-              }}
-            >
-              ▎{t.formLabel}
-            </div>
+            <SubLabel style={{ marginBottom: 28 }}>{t.formLabel}</SubLabel>
             <ContactForm locale={locale} />
           </div>
 
@@ -188,36 +117,32 @@ export default async function ContactPage({ params }: Props) {
             className="mob-pad-card-lg"
             style={{
               background: C.slab,
-              color: C.onSlab,
+              color: C.onSlabSoft,
               padding: 40,
             }}
           >
+            <div style={{ ...labelText, color: C.onSlab, marginBottom: 12 }}>{t.emailLabel}</div>
             <div
               style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                opacity: 0.7,
-                marginBottom: 12,
+                fontSize: 22,
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+                color: C.onSlabSoft,
+                overflowWrap: "anywhere",
               }}
             >
-              {t.emailLabel}
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 24 }}>
               info@bakerization.com
             </div>
             <div
+              aria-hidden
               style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                opacity: 0.7,
-                marginBottom: 12,
+                height: 1,
+                margin: "28px 0",
+                background: "color-mix(in srgb, var(--on-slab) 30%, transparent)",
               }}
-            >
-              ADDRESS
-            </div>
-            <div style={{ fontSize: 14, opacity: 0.85, lineHeight: 1.7 }}>
+            />
+            <div style={{ ...labelText, color: C.onSlab, marginBottom: 12 }}>ADDRESS</div>
+            <div style={{ fontSize: 14, lineHeight: 1.7, color: C.onSlabSoft }}>
               Tokyo · Osaka
               <br />
               Japan
@@ -225,22 +150,10 @@ export default async function ContactPage({ params }: Props) {
           </div>
         </section>
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
-            {t.back}
-          </Link>
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">{t.back}</TextLink>
         </div>
-      </div>
+      </Inner>
     </main>
   );
 }

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import type { Locale } from "@/lib/locale";
 import { C, FONTS } from "@/lib/theme";
+import { brandButtonStyle, labelText } from "@/components/brand/ui";
 
 export default function ContactForm({ locale }: { locale: Locale }) {
   const [name, setName] = useState("");
@@ -63,22 +64,21 @@ export default function ContactForm({ locale }: { locale: Locale }) {
     width: "100%",
     background: C.fieldBg,
     color: C.ink,
-    border: `1.5px solid ${C.fieldBorder}`,
+    border: `1px solid ${C.fieldBorder}`,
     padding: "14px 16px",
+    boxSizing: "border-box",
     fontFamily: FONTS.body,
     fontSize: 15,
     outline: "none",
   };
 
   const labelStyle: React.CSSProperties = {
+    ...labelText,
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
-    fontFamily: FONTS.mono,
-    fontSize: 11,
-    letterSpacing: "0.22em",
-    textTransform: "uppercase",
-    color: C.sub,
+    gap: 12,
+    color: C.ink,
     marginBottom: 10,
   };
 
@@ -89,8 +89,8 @@ export default function ContactForm({ locale }: { locale: Locale }) {
     >
       <div>
         <div style={labelStyle}>
-          <span>▎{t.name}</span>
-          <span style={{ color: C.accent }}>{t.required}</span>
+          <span>{t.name}</span>
+          <span style={{ color: C.sub, fontSize: 11 }}>{t.required}</span>
         </div>
         <input
           style={fieldStyle}
@@ -103,8 +103,8 @@ export default function ContactForm({ locale }: { locale: Locale }) {
 
       <div>
         <div style={labelStyle}>
-          <span>▎{t.email}</span>
-          <span style={{ color: C.accent }}>{t.required}</span>
+          <span>{t.email}</span>
+          <span style={{ color: C.sub, fontSize: 11 }}>{t.required}</span>
         </div>
         <input
           style={fieldStyle}
@@ -118,8 +118,8 @@ export default function ContactForm({ locale }: { locale: Locale }) {
 
       <div>
         <div style={labelStyle}>
-          <span>▎{t.message}</span>
-          <span style={{ color: C.accent }}>{t.required}</span>
+          <span>{t.message}</span>
+          <span style={{ color: C.sub, fontSize: 11 }}>{t.required}</span>
         </div>
         <textarea
           style={{ ...fieldStyle, minHeight: 180, resize: "vertical" }}
@@ -154,15 +154,8 @@ export default function ContactForm({ locale }: { locale: Locale }) {
         type="submit"
         disabled={loading}
         style={{
+          ...brandButtonStyle("green"),
           alignSelf: "flex-start",
-          padding: "18px 28px",
-          background: C.accent,
-          color: C.bg,
-          border: "none",
-          fontFamily: FONTS.body,
-          fontSize: 15,
-          fontWeight: 700,
-          letterSpacing: 0.4,
           cursor: loading ? "wait" : "pointer",
           opacity: loading ? 0.6 : 1,
         }}
@@ -173,11 +166,10 @@ export default function ContactForm({ locale }: { locale: Locale }) {
       {status && (
         <p
           style={{
-            fontFamily: FONTS.mono,
-            fontSize: 12,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: status === t.success ? C.accent : C.sub,
+            fontSize: 14,
+            fontWeight: 500,
+            lineHeight: 1.7,
+            color: status === t.success ? C.ink : C.alert,
             margin: 0,
           }}
         >

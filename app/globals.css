@@ -4,21 +4,29 @@
    Theme tokens — single source of truth
    ───────────────────────────────────────────────────────────── */
 :root {
-  --bg: #f6e9cf;
-  --paper: #fff5dc;
+  /* Brand palette (Donut Inc. / Bakerization brand book):
+     main  #FBD26B 花葉色 — warm yellow for surfaces, bars and markers
+     sub   #2F5340 花葉色の裏 — deep green for type and green panels
+     Yellow is never used as text on white (contrast); only on green. */
+  --bg: #ffffff;
+  --paper: #fdf6e1;
   --card: #ffffff;
-  --ink: #1c0e02;
-  --sub: #6b4d2a;
-  --line: #c7a973;
-  --rule: #1c0e02;
-  --accent: #c8451a;
-  --slab: #1c0e02;
-  --on-slab: #f6e9cf;
-  --mk: rgba(200, 69, 26, 0.32);
-  --mk-end: rgba(200, 69, 26, 0.22);
-  --field-bg: #fff5dc;
-  --field-border: #c7a973;
-  --shadow: rgba(28, 14, 2, 0.12);
+  --ink: #2f5340;
+  --sub: #5c6660;
+  --line: #d5d9d4;
+  --line-strong: #9aa59e;
+  --rule: #2f5340;
+  --accent: #2f5340;
+  --slab: #2f5340;
+  --on-slab: #fbd26b;
+  --on-slab-soft: #ffffff;
+  --main: #fbd26b;
+  --on-main: #2f5340;
+  --alert: #b3471d;
+  --mk: rgba(251, 210, 107, 0.8);
+  --mk-end: rgba(251, 210, 107, 0.6);
+  --field-bg: #ffffff;
+  --field-border: #c9cfc9;
 }
 
 html {
@@ -29,6 +37,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body), system-ui, sans-serif;
+  /* Full-bleed bands use 100vw math; never let it cause sideways scroll. */
+  overflow-x: clip;
 }
 
 /* Editorial highlighter ・ 蛍光ペン */
@@ -51,7 +61,7 @@ body {
    Rich content (blog body, editor preview) — theme-aware
    ───────────────────────────────────────────────────────────── */
 .blog-content-rich {
-  color: var(--ink);
+  color: var(--sub);
   line-height: 1.95;
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 16px;
@@ -62,10 +72,10 @@ body {
   margin-bottom: 0.9rem;
   font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   font-size: 1.9rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   color: var(--ink);
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--ink);
   padding-top: 1.4rem;
 }
 
@@ -74,8 +84,8 @@ body {
   margin-bottom: 0.5rem;
   font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
   font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--accent);
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .blog-content-rich p {
@@ -83,8 +93,10 @@ body {
 }
 
 .blog-content-rich a {
-  color: var(--accent);
+  color: var(--ink);
   text-decoration: underline;
+  text-decoration-color: var(--main);
+  text-decoration-thickness: 3px;
   text-underline-offset: 3px;
 }
 
@@ -103,9 +115,10 @@ body {
 .blog-content-rich blockquote {
   margin: 1.4rem 0;
   padding: 1rem 1.4rem;
-  border-left: 3px solid var(--accent);
-  color: var(--sub);
-  font-style: italic;
+  border-left: 4px solid var(--main);
+  color: var(--ink);
+  font-family: var(--font-hand), var(--font-body), system-ui, sans-serif;
+  font-size: 1.15em;
 }
 
 .blog-content-rich code {
@@ -129,6 +142,25 @@ body {
 .blog-content-rich pre code {
   background: transparent;
   padding: 0;
+}
+
+/* Posts pasted from another web page carry that page's inline colors and
+   fonts (e.g. beige paragraph backgrounds). Articles follow the site's
+   palette and type instead; the stored HTML is left as is. */
+.blog-content-rich [style] {
+  background-color: transparent !important;
+  border-color: var(--line) !important;
+  color: inherit !important;
+  font-family: inherit !important;
+}
+.blog-content-rich h2[style],
+.blog-content-rich h3[style] {
+  border-color: var(--ink) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif !important;
+}
+.blog-content-rich blockquote[style] {
+  border-color: var(--main) !important;
 }
 
 /* News bodies are Markdown (GFM): tables, rules, task lists */
@@ -163,7 +195,7 @@ body {
 }
 
 .news-content th {
-  background: var(--card);
+  background: var(--paper);
   font-weight: 700;
 }
 
@@ -309,6 +341,65 @@ body {
     gap: 14px !important;
     text-align: center !important;
     padding: 32px 20px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Brand-book primitives (components/brand/ui.tsx) — mobile sizes
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 880px) {
+  .brand-cover {
+    min-height: 0 !important;
+  }
+  .brand-cover-inner {
+    padding: 64px 20px 72px !important;
+  }
+  .brand-cover-title {
+    font-size: clamp(40px, 11vw, 88px) !important;
+  }
+  .brand-heading {
+    font-size: 30px !important;
+  }
+  .brand-hand {
+    font-size: clamp(22px, 6.2vw, 40px) !important;
+  }
+  .brand-bar {
+    height: 22px !important;
+  }
+  .brand-photo {
+    height: 380px !important;
+  }
+  .brand-hero-title {
+    font-size: clamp(44px, 13vw, 120px) !important;
+  }
+  .brand-hero-pad {
+    padding-top: 56px !important;
+  }
+}
+
+/* Yomogi's Latin letters are typewriter-like, so English pages put a Latin
+   hand in front. Japanese pages keep Yomogi for everything (digits included). */
+html:lang(en) .brand-hand,
+html:lang(en) .blog-content-rich blockquote {
+  font-family: var(--font-hand-latin), var(--font-hand), var(--font-body), system-ui, sans-serif !important;
+}
+
+/* Site header: full link row on desktop, a MENU toggle on narrow screens. */
+.nav-toggle {
+  display: none !important;
+}
+.nav-panel {
+  display: none;
+}
+@media (max-width: 880px) {
+  .nav-links {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: inline-flex !important;
+  }
+  .nav-panel[data-open="true"] {
+    display: block;
   }
 }
 

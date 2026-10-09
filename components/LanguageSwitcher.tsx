@@ -12,11 +12,12 @@ export default function LanguageSwitcher({ locale }: Props) {
   const { switchTo: changeLanguage, pending } = useLocaleSwitch(locale);
 
   const btnBase: React.CSSProperties = {
-    fontFamily: FONTS.mono,
+    fontFamily: FONTS.label,
     fontSize: 11,
-    letterSpacing: "0.18em",
-    fontWeight: 600,
+    letterSpacing: "0.14em",
+    fontWeight: 500,
     padding: "6px 10px",
+    borderRadius: 999,
     border: `1px solid ${C.line}`,
     background: "transparent",
     cursor: "pointer",
@@ -33,7 +34,7 @@ export default function LanguageSwitcher({ locale }: Props) {
         aria-pressed={locale === "ja"}
         style={{
           ...btnBase,
-          color: locale === "ja" ? C.bg : C.sub,
+          color: locale === "ja" ? C.onSlab : C.sub,
           background: locale === "ja" ? C.accent : "transparent",
           borderColor: locale === "ja" ? C.accent : C.line,
         }}
@@ -47,7 +48,7 @@ export default function LanguageSwitcher({ locale }: Props) {
         aria-pressed={locale === "en"}
         style={{
           ...btnBase,
-          color: locale === "en" ? C.bg : C.sub,
+          color: locale === "en" ? C.onSlab : C.sub,
           background: locale === "en" ? C.accent : "transparent",
           borderColor: locale === "en" ? C.accent : C.line,
         }}

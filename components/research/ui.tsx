@@ -46,7 +46,7 @@ export function InlineError({ children, onClose }: { children: ReactNode; onClos
         fontFamily: FONTS.mono,
         fontSize: 12,
         letterSpacing: "0.12em",
-        color: C.accent,
+        color: C.alert,
         margin: "12px 0",
         display: "flex",
         gap: 12,

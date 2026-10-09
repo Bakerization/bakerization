@@ -185,7 +185,7 @@ export default function LoginForm({
                 fontSize: 12,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
-                color: C.accent,
+                color: C.alert,
                 margin: "0 0 18px",
               }}
             >

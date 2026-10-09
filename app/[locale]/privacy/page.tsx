@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { C, FONTS } from "@/lib/theme";
+import { Inner, NAV_HEIGHT, RuleText, SectionCover, TextLink } from "@/components/brand/ui";
 import { pageMetadata } from "@/lib/seo";
 import { APP, COMPANY, COMPANY_ADDRESS } from "@/lib/company";
 
@@ -385,72 +385,53 @@ export default function PrivacyPage() {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{ maxWidth: 860, margin: "0 auto", padding: "40px 64px 96px" }}
-      >
-        <h1
-          style={{
-            margin: 0,
-            fontSize: 30,
-            lineHeight: 1.4,
-            fontWeight: 700,
-            color: C.ink,
-          }}
-        >
-          プライバシーポリシー
-        </h1>
+      <SectionCover as="h1" title="Privacy Policy" sub="プライバシーポリシー" no="01" />
 
-        <p
-          style={{
-            margin: "20px 0 0",
-            fontSize: 15,
-            lineHeight: 1.9,
-            color: C.sub,
-          }}
-        >
-          Bakerizationが提供するミキシング記録アプリ「{APP.name}」「{APP.logName}
-          」において取得する情報、その利用目的、保存先、第三者への提供、保管期間および削除の方法について定めます。
-        </p>
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 88, paddingBottom: 120 }}>
+        <div style={{ maxWidth: 860 }}>
+          <RuleText style={{ fontSize: 16, lineHeight: 1.95 }}>
+            <p style={{ margin: 0 }}>
+              Bakerizationが提供するミキシング記録アプリ「{APP.name}」「{APP.logName}
+              」において取得する情報、その利用目的、保存先、第三者への提供、保管期間および削除の方法について定めます。
+            </p>
+          </RuleText>
 
-        <div
-          style={{
-            marginTop: 28,
-            paddingTop: 12,
-            borderTop: `1px solid ${C.line}`,
-            fontSize: 13,
-            color: C.sub,
-          }}
-        >
-          制定日：{COMPANY.established}
+          <div
+            style={{
+              marginTop: 32,
+              paddingTop: 12,
+              borderTop: `1px solid ${C.line}`,
+              fontSize: 13,
+              color: C.sub,
+            }}
+          >
+            制定日：{COMPANY.established}
+          </div>
+
+          {ARTICLES.map((a) => (
+            <ArticleBlock key={a.no} article={a} />
+          ))}
+
+          <div
+            style={{
+              marginTop: 72,
+              paddingTop: 24,
+              borderTop: `1px solid ${C.line}`,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 32,
+            }}
+          >
+            <TextLink href="/app" style={{ textTransform: "none" }}>
+              kiji hub について
+            </TextLink>
+            <TextLink href="/">トップへ戻る</TextLink>
+          </div>
         </div>
-
-        {ARTICLES.map((a) => (
-          <ArticleBlock key={a.no} article={a} />
-        ))}
-
-        <div
-          style={{
-            marginTop: 56,
-            paddingTop: 20,
-            borderTop: `1px solid ${C.line}`,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 24,
-            fontSize: 14,
-          }}
-        >
-          <Link href="/app" style={{ color: C.accent }}>
-            kiji hub について
-          </Link>
-          <Link href="/" style={{ color: C.accent }}>
-            トップへ戻る
-          </Link>
-        </div>
-      </div>
+      </Inner>
     </main>
   );
 }
@@ -460,13 +441,15 @@ export default function PrivacyPage() {
    ───────────────────────────────────────────────────────────── */
 function ArticleBlock({ article }: { article: Article }) {
   return (
-    <section style={{ marginTop: 44 }}>
+    <section style={{ marginTop: 56, paddingTop: 28, borderTop: `1px solid ${C.line}` }}>
       <h2
         style={{
           margin: 0,
-          fontSize: 19,
-          lineHeight: 1.6,
-          fontWeight: 700,
+          fontFamily: FONTS.display,
+          fontSize: 22,
+          lineHeight: 1.5,
+          fontWeight: 500,
+          letterSpacing: "-0.01em",
           color: C.ink,
         }}
       >
@@ -484,10 +467,11 @@ function BlockView({ block }: { block: Block }) {
     return (
       <h3
         style={{
-          margin: "26px 0 0",
+          margin: "28px 0 0",
+          fontFamily: FONTS.display,
           fontSize: 16,
           lineHeight: 1.7,
-          fontWeight: 700,
+          fontWeight: 500,
           color: C.ink,
         }}
       >
@@ -503,7 +487,7 @@ function BlockView({ block }: { block: Block }) {
           margin: "14px 0 0",
           fontSize: 15,
           lineHeight: 1.95,
-          color: C.ink,
+          color: C.sub,
         }}
       >
         {block.text}
@@ -518,6 +502,7 @@ function BlockView({ block }: { block: Block }) {
           margin: "14px 0 0",
           paddingLeft: 22,
           listStyle: "disc",
+          color: C.sub,
         }}
       >
         {block.items.map((item, i) => (
@@ -527,7 +512,7 @@ function BlockView({ block }: { block: Block }) {
               margin: i === 0 ? 0 : "8px 0 0",
               fontSize: 15,
               lineHeight: 1.95,
-              color: C.ink,
+              color: C.sub,
             }}
           >
             {item}
@@ -539,25 +524,27 @@ function BlockView({ block }: { block: Block }) {
 
   if (block.t === "rows") {
     return (
-      <dl style={{ margin: "16px 0 0" }}>
-        {block.rows.map(([k, v], i) => (
+      <dl style={{ margin: "18px 0 0" }}>
+        {block.rows.map(([k, v]) => (
           <div
             key={k}
-            className="mob-1col"
             style={{
-              display: "grid",
-              gridTemplateColumns: "220px 1fr",
-              gap: 16,
-              padding: "12px 0",
+              display: "flex",
+              flexWrap: "wrap",
+              columnGap: 16,
+              rowGap: 4,
+              padding: "14px 0",
               borderTop: `1px solid ${C.line}`,
             }}
           >
             <dt
               style={{
+                flex: "0 0 220px",
+                maxWidth: "100%",
                 fontSize: 14,
                 lineHeight: 1.8,
                 fontWeight: 700,
-                color: C.sub,
+                color: C.ink,
               }}
             >
               {k}
@@ -565,9 +552,12 @@ function BlockView({ block }: { block: Block }) {
             <dd
               style={{
                 margin: 0,
+                flex: "1 1 260px",
+                minWidth: 0,
                 fontSize: 15,
                 lineHeight: 1.9,
-                color: C.ink,
+                color: C.sub,
+                overflowWrap: "anywhere",
               }}
             >
               {v}

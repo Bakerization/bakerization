@@ -48,6 +48,7 @@ export default async function Home({ params }: Props) {
     tag: string;
     ja: string;
     en: string;
+    image?: string;
   }[] = [];
 
   const newsPromise = listNewsSummaries({ limit: 3 }).catch(() => []);
@@ -62,6 +63,7 @@ export default async function Home({ params }: Props) {
         tag: locale === "en" ? "Journal" : "ジャーナル",
         ja: loc.title,
         en: loc.excerpt,
+        image: p.heroImageUrl || undefined,
       };
     });
   } catch {

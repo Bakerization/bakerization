@@ -7,6 +7,15 @@ import { pageMetadata } from "@/lib/seo";
 import BlogImage from "@/components/blog/BlogImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { C, FONTS } from "@/lib/theme";
+import {
+  Inner,
+  NAV_HEIGHT,
+  NumberDot,
+  RuleText,
+  SectionCover,
+  TextLink,
+  labelText,
+} from "@/components/brand/ui";
 
 // ISR, purged by savePost(); hourly revalidate as a safety net.
 export const revalidate = 3600;
@@ -51,77 +60,25 @@ export default async function BlogListPage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
-      >
-        {/* Header */}
+      <SectionCover as="h1" title="Journal" sub="ジャーナル" no="01" />
+
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 72, paddingBottom: 120 }}>
         <div
-          className="mob-flex-wrap"
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "end",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 24,
             marginBottom: 48,
           }}
         >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍SECTION IV — {t.label}
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            JOURNAL · p. 008
-          </span>
-        </div>
-
-        <div
-          className="mob-stack"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "end",
-            marginBottom: 56,
-            gap: 24,
-          }}
-        >
           {t.heading && (
-            <h1
-              className="mob-h2"
-              style={{
-                fontFamily: FONTS.display,
-                fontSize: 84,
-                lineHeight: 1.05,
-                letterSpacing: -3,
-                fontWeight: 700,
-                color: C.ink,
-                margin: 0,
-              }}
-            >
-              {t.heading}
-            </h1>
+            <RuleText style={{ fontSize: 18, lineHeight: 1.8, color: C.ink }}>{t.heading}</RuleText>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ marginLeft: "auto" }}>
             <LanguageSwitcher locale={locale} />
           </div>
         </div>
@@ -129,8 +86,8 @@ export default async function BlogListPage({ params }: Props) {
         {posts.length === 0 ? (
           <p
             style={{
-              border: `1.5px solid ${C.ink}`,
-              background: C.card,
+              margin: 0,
+              background: C.paper,
               padding: 32,
               color: C.sub,
               fontSize: 14,
@@ -144,7 +101,9 @@ export default async function BlogListPage({ params }: Props) {
             style={{
               display: "grid",
               gridTemplateColumns: "1.4fr 1fr 1fr",
-              gap: 18,
+              columnGap: 28,
+              rowGap: 64,
+              alignItems: "start",
             }}
           >
             {posts.map((post, i) => {
@@ -152,122 +111,93 @@ export default async function BlogListPage({ params }: Props) {
               const date = new Date(post.updatedAt).toLocaleDateString(
                 t.dateLocale
               );
+              const lead = i % 3 === 0;
               return (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   style={{
-                    background: C.card,
-                    border: `1.5px solid ${C.ink}`,
-                    padding: i === 0 ? 32 : 28,
-                    minHeight: i === 0 ? 420 : 360,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
                     textDecoration: "none",
                     color: "inherit",
                   }}
                 >
-                  <div>
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "4 / 3",
+                      background: C.paper,
+                      overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     {post.heroImageUrl ? (
-                      <div
+                      <BlogImage
+                        src={post.heroImageUrl}
+                        alt={localized.title}
+                        priority={i === 0}
+                        sizes={
+                          lead
+                            ? "(max-width: 880px) 100vw, 520px"
+                            : "(max-width: 880px) 100vw, 380px"
+                        }
                         style={{
-                          position: "relative",
+                          position: "absolute",
+                          inset: 0,
                           width: "100%",
-                          aspectRatio: i === 0 ? "16/9" : "4/3",
-                          overflow: "hidden",
-                          marginBottom: 20,
-                          border: `1px solid ${C.line}`,
+                          height: "100%",
+                          objectFit: "cover",
                         }}
-                      >
-                        <BlogImage
-                          src={post.heroImageUrl}
-                          alt={localized.title}
-                          priority={i === 0}
-                          sizes={
-                            i === 0
-                              ? "(max-width: 880px) 100vw, 400px"
-                              : "(max-width: 880px) 100vw, 280px"
-                          }
-                          style={{
-                            objectFit: "cover",
-                            filter: "saturate(.9) contrast(1.05)",
-                          }}
-                        />
-                      </div>
-                    ) : null}
-                    <div
-                      style={{
-                        fontFamily: FONTS.mono,
-                        fontSize: 11,
-                        letterSpacing: "0.24em",
-                        color: C.accent,
-                        textTransform: "uppercase",
-                        marginBottom: 14,
-                      }}
-                    >
-                      {t.label} · {date}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: i === 0 ? 28 : 22,
-                        fontWeight: 700,
-                        color: C.ink,
-                        lineHeight: 1.35,
-                      }}
-                    >
-                      {localized.title}
-                    </div>
+                      />
+                    ) : (
+                      <NumberDot
+                        n={String(i + 1).padStart(2, "0")}
+                        tone={i % 3 === 1 ? "green" : "yellow"}
+                        size={64}
+                      />
+                    )}
+                  </div>
+                  <div style={{ ...labelText, marginTop: 20, color: C.sub }}>
+                    {t.label} · {date}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 10,
+                      fontSize: lead ? 24 : 19,
+                      fontWeight: 700,
+                      lineHeight: 1.45,
+                      color: C.ink,
+                    }}
+                  >
+                    {localized.title}
+                  </div>
+                  {localized.excerpt ? (
                     <p
                       style={{
-                        marginTop: 10,
+                        margin: "10px 0 0",
                         fontSize: 13,
+                        lineHeight: 1.75,
                         color: C.sub,
-                        lineHeight: 1.7,
                       }}
                     >
                       {localized.excerpt}
                     </p>
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 24,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderTop: `1px solid ${C.line}`,
-                      paddingTop: 14,
-                      fontFamily: FONTS.mono,
-                      fontSize: 11,
-                      letterSpacing: "0.22em",
-                      color: C.ink,
-                    }}
-                  >
-                    <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
-                    <span>→</span>
-                  </div>
+                  ) : null}
                 </Link>
               );
             })}
           </div>
         )}
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">
             ← {locale === "en" ? "Back to Home" : "トップへ戻る"}
-          </Link>
+          </TextLink>
         </div>
-      </div>
+      </Inner>
     </main>
   );
 }

@@ -1,9 +1,21 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { localeFromParams } from "@/lib/locale";
 import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
+import {
+  BrandBar,
+  ContentHeading,
+  HandQuote,
+  Inner,
+  NAV_HEIGHT,
+  NumberDot,
+  RuleText,
+  SectionCover,
+  SubLabel,
+  TextLink,
+  labelText,
+} from "@/components/brand/ui";
 
 // Fully static: no request-time work. `dynamic = "error"` makes the build fail if
 // a dynamic API ever sneaks in. `dynamicParams = false` only applies to this leaf.
@@ -175,209 +187,84 @@ export default async function AboutPage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
-      >
-        {/* Header strip */}
-        <div
-          className="mob-flex-wrap"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
-            marginBottom: 64,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍SECTION V — {t.tag} / {t.section}
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            {t.page}
-          </span>
-        </div>
+      <SectionCover as="h1" title="About" sub="団体情報" no="01" />
 
-        {/* Big headline */}
-        <h1
-          className="mob-h1"
-          style={{
-            margin: 0,
-            fontFamily: FONTS.display,
-            fontSize: 132,
-            lineHeight: 0.9,
-            letterSpacing: -4,
-            fontWeight: 700,
-            color: C.ink,
-            textTransform: "uppercase",
-          }}
-        >
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <HandQuote size={isEn ? 38 : 44}>
           {t.headlineTop}
           <br />
           {t.headlineMid}
           <br />
-          <span style={{ color: C.accent }}>{t.headlineBot}</span>
-        </h1>
-
-        <div
-          style={{
-            marginTop: 32,
-            width: 100,
-            height: 3,
-            background: C.accent,
-          }}
-        />
-
-        <p
-          style={{
-            marginTop: 28,
-            fontSize: 18,
-            lineHeight: 1.95,
-            color: C.sub,
-            maxWidth: 720,
-          }}
-        >
+          {t.headlineBot}
+        </HandQuote>
+        <BrandBar reach="58%" style={{ marginTop: 32 }} />
+        <RuleText style={{ marginTop: 56, maxWidth: 760, fontSize: 18, lineHeight: 1.95, color: C.ink }}>
           {t.deck}
-        </p>
+        </RuleText>
+      </Inner>
 
-        {/* Founder cards */}
-        <FounderCard founder={hatanaka} t={t} primary />
+      <Inner>
+        <ContentHeading title="Founders" sub="共同代表" />
+        <FounderCard founder={hatanaka} t={t} />
         <FounderCard founder={ikeda} t={t} />
+      </Inner>
 
-        {/* Statement + Principles */}
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 120 }}>
         <section
           className="mob-1col"
           style={{
-            marginTop: 80,
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 64,
           }}
         >
           <div>
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 18,
-              }}
-            >
-              ▎{t.statementLabel}
-            </div>
-            <p
-              style={{
-                fontSize: 17,
-                lineHeight: 2,
-                color: C.ink,
-                margin: 0,
-              }}
-            >
-              {t.statement}
-            </p>
+            <ContentHeading title="Statement" sub="ステートメント" />
+            <RuleText style={{ fontSize: 17, color: C.ink }}>{t.statement}</RuleText>
           </div>
           <div>
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 18,
-              }}
-            >
-              ▎{t.principlesLabel}
-            </div>
+            <ContentHeading title="Principles" sub="行動原則" />
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {[t.p1, t.p2, t.p3].map((p, i) => (
                 <li
                   key={i}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "60px 1fr",
-                    gap: 16,
-                    padding: "20px 0",
+                    gridTemplateColumns: "48px 1fr",
+                    gap: 18,
+                    alignItems: "center",
+                    padding: "18px 0",
                     borderTop: i === 0 ? `1px solid ${C.line}` : "none",
                     borderBottom: `1px solid ${C.line}`,
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: FONTS.display,
-                      fontSize: 32,
-                      fontWeight: 700,
-                      color: C.accent,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      lineHeight: 1.7,
-                      color: C.ink,
-                    }}
-                  >
-                    {p}
-                  </span>
+                  <NumberDot n={String(i + 1).padStart(2, "0")} tone={i === 1 ? "green" : "yellow"} size={44} />
+                  <span style={{ fontSize: 16, lineHeight: 1.7, color: C.ink }}>{p}</span>
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
-            {t.back}
-          </Link>
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">{t.back}</TextLink>
         </div>
-      </div>
+      </Inner>
     </main>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   FounderCard — framed portrait + bio + (optional) credentials/socials
+   FounderCard — portrait on an offset yellow block + ruled bio.
+   A founder without a photo keeps the frame, so a portrait can
+   drop in later by setting imageSrc.
    ───────────────────────────────────────────────────────────── */
 function FounderCard({
   founder,
   t,
-  primary = false,
 }: {
   founder: Founder;
   t: {
@@ -385,170 +272,86 @@ function FounderCard({
     credLabel: string;
     socialLabel: string;
   };
-  primary?: boolean;
 }) {
   return (
     <section
-      className="mob-founder mob-pad-card-lg"
+      className="mob-founder"
       style={{
-        marginTop: 56,
-        background: primary ? C.slab : C.card,
-        color: primary ? C.onSlab : C.ink,
-        padding: 48,
+        borderTop: `1px solid ${C.ink}`,
+        padding: "56px 0 72px",
         display: "grid",
         gridTemplateColumns: "0.85fr 1.55fr",
-        gap: 56,
+        gap: 64,
         alignItems: "start",
-        border: primary ? "none" : `1.5px solid ${C.line}`,
       }}
     >
       <div>
-        {founder.imageSrc && (
-          <div style={{ background: C.accent, padding: 12 }}>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "4/5",
-                overflow: "hidden",
-              }}
-            >
+        <div style={{ position: "relative", marginRight: 18, marginBottom: 18 }}>
+          <div
+            aria-hidden
+            style={{ position: "absolute", left: 18, top: 18, right: -18, bottom: -18, background: C.main }}
+          />
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              aspectRatio: "4/5",
+              overflow: "hidden",
+              background: C.paper,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {founder.imageSrc ? (
               <Image
                 src={founder.imageSrc}
                 alt={founder.imageAlt ?? ""}
                 fill
                 sizes="(max-width: 880px) 100vw, 420px"
-                priority={primary}
-                style={{
-                  objectFit: "cover",
-                  filter: "saturate(1.05) contrast(1.05)",
-                }}
+                style={{ objectFit: "cover" }}
               />
-            </div>
+            ) : (
+              <span aria-hidden style={{ width: "46%", aspectRatio: "1", borderRadius: "50%", background: C.main }} />
+            )}
           </div>
-        )}
-        <div
-          style={{
-            marginTop: 16,
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.24em",
-            color: primary ? C.onSlab : C.sub,
-            opacity: 0.75,
-            textTransform: "uppercase",
-          }}
-        >
-          {founder.kicker}
         </div>
-        <div
-          style={{
-            marginTop: 14,
-            fontSize: 26,
-            fontWeight: 700,
-            color: primary ? C.onSlab : C.ink,
-          }}
-        >
-          {founder.name}
-        </div>
-        <div
-          style={{
-            marginTop: 4,
-            fontSize: 13,
-            color: primary ? C.onSlab : C.sub,
-            opacity: 0.7,
-          }}
-        >
-          {founder.nameAlt}
-        </div>
-        <div
-          style={{
-            marginTop: 10,
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.22em",
-            color: C.accent,
-            textTransform: "uppercase",
-          }}
-        >
-          {founder.role}
-        </div>
+        <div style={{ ...labelText, marginTop: 28, color: C.sub }}>{founder.kicker}</div>
+        <div style={{ marginTop: 12, fontSize: 26, fontWeight: 700, color: C.ink }}>{founder.name}</div>
+        <div style={{ marginTop: 4, fontSize: 13, color: C.sub }}>{founder.nameAlt}</div>
+        <div style={{ ...labelText, marginTop: 10, color: C.ink }}>{founder.role}</div>
       </div>
 
       <div>
-        <div
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.24em",
-            textTransform: "uppercase",
-            color: C.accent,
-            marginBottom: 16,
-          }}
-        >
-          ▎{t.bioLabel}
-        </div>
-        {founder.bio.map((p, i) => (
-          <p
-            key={i}
-            style={{
-              fontSize: 16,
-              lineHeight: 1.95,
-              margin: i === 0 ? 0 : "20px 0 0",
-              color: primary ? C.onSlab : C.ink,
-            }}
-          >
-            {p}
-          </p>
-        ))}
+        <SubLabel>{t.bioLabel}</SubLabel>
+        <RuleText>
+          {founder.bio.map((p, i) => (
+            <p key={i} style={{ margin: i === 0 ? 0 : "20px 0 0", color: C.ink }}>
+              {p}
+            </p>
+          ))}
+        </RuleText>
 
         {founder.credentials && (
           <>
-            <div
-              style={{
-                marginTop: 36,
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 14,
-              }}
-            >
-              ▎{t.credLabel}
-            </div>
-            <ul
-              style={{
-                listStyle: "none",
-                margin: 0,
-                padding: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: 0,
-              }}
-            >
+            <SubLabel style={{ marginTop: 40 }}>{t.credLabel}</SubLabel>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {founder.credentials.map((c, i) => (
                 <li
                   key={i}
                   style={{
                     padding: "10px 0",
-                    borderTop:
-                      i === 0
-                        ? `1px solid ${
-                            primary ? "rgba(246,231,201,0.18)" : C.line
-                          }`
-                        : "none",
-                    borderBottom: `1px solid ${
-                      primary ? "rgba(246,231,201,0.18)" : C.line
-                    }`,
+                    borderTop: i === 0 ? `1px solid ${C.line}` : "none",
+                    borderBottom: `1px solid ${C.line}`,
                     fontSize: 15,
                     lineHeight: 1.55,
-                    color: primary ? C.onSlab : C.ink,
+                    color: C.ink,
                     display: "grid",
                     gridTemplateColumns: "24px 1fr",
                     gap: 12,
                   }}
                 >
-                  <span style={{ color: C.accent, fontWeight: 700 }}>—</span>
+                  <span aria-hidden>—</span>
                   <span>{c}</span>
                 </li>
               ))}
@@ -558,19 +361,7 @@ function FounderCard({
 
         {founder.socials && founder.socials.length > 0 && (
           <>
-            <div
-              style={{
-                marginTop: 36,
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 14,
-              }}
-            >
-              ▎{t.socialLabel}
-            </div>
+            <SubLabel style={{ marginTop: 40 }}>{t.socialLabel}</SubLabel>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               {founder.socials.map((s) => (
                 <a
@@ -579,15 +370,11 @@ function FounderCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    fontFamily: FONTS.mono,
-                    fontSize: 11,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    padding: "10px 14px",
-                    border: `1px solid ${
-                      primary ? "rgba(246,231,201,0.32)" : C.line
-                    }`,
-                    color: primary ? C.onSlab : C.ink,
+                    ...labelText,
+                    padding: "10px 16px",
+                    borderRadius: 999,
+                    border: `1px solid ${C.ink}`,
+                    color: C.ink,
                     textDecoration: "none",
                   }}
                 >

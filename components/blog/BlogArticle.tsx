@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { enrichHtmlWithToc, optimizeContentImages } from "@/lib/content-utils";
 import BlogImage from "@/components/blog/BlogImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -8,6 +9,17 @@ import { absoluteUrl } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 import type { BlogPost, BlogPostSummary } from "@/lib/blog-types";
 import { C, FONTS } from "@/lib/theme";
+import {
+  ContentHeading,
+  Inner,
+  NAV_HEIGHT,
+  NumberDot,
+  RuleText,
+  SubLabel,
+  TextLink,
+  brandButtonStyle,
+  labelText,
+} from "@/components/brand/ui";
 
 type Props = {
   post: BlogPost;
@@ -113,55 +125,29 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 64,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <section
-        className="mob-pad"
-        style={{
-          maxWidth: 1280,
-          margin: "0 auto",
-          padding: "32px 64px 0",
-        }}
-      >
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 72, paddingBottom: 0 }}>
         <div
           className="mob-flex-wrap"
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
+            gap: 12,
             marginBottom: 40,
           }}
         >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍{t.section}
-          </span>
+          <Link href="/blog" style={{ textDecoration: "none" }}>
+            <SubLabel style={{ marginBottom: 0 }}>{t.section}</SubLabel>
+          </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LanguageSwitcher locale={locale} />
             {editHref ? (
               <Link
                 href={editHref}
-                style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: C.bg,
-                  background: C.accent,
-                  padding: "8px 12px",
-                  textDecoration: "none",
-                }}
+                style={{ ...brandButtonStyle("green"), padding: "8px 16px", fontSize: 12 }}
               >
                 {t.edit}
               </Link>
@@ -174,129 +160,103 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
           style={{
             display: "grid",
             gridTemplateColumns: "1.2fr 1fr",
-            gap: 48,
+            gap: 64,
             alignItems: "start",
           }}
         >
           <div>
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 12,
-                letterSpacing: "0.24em",
-                textTransform: "uppercase",
-                color: C.sub,
-                marginBottom: 18,
-              }}
-            >
-              {new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}
-              {!post.published && (
-                <span style={{ marginLeft: 12, color: C.accent }}>
-                  · {t.draft}
-                </span>
-              )}
-            </div>
             <h1
               className="mob-h3"
               style={{
                 margin: 0,
                 fontFamily: FONTS.display,
-                fontSize: 64,
-                lineHeight: 1.1,
-                letterSpacing: -2,
-                fontWeight: 700,
+                fontSize: 52,
+                lineHeight: 1.25,
+                letterSpacing: "-0.02em",
+                fontWeight: 500,
                 color: C.ink,
               }}
             >
               {localized.title}
             </h1>
-            <div
-              style={{
-                marginTop: 28,
-                width: 80,
-                height: 3,
-                background: C.accent,
-              }}
-            />
-            <p
-              style={{
-                marginTop: 24,
-                fontSize: 17,
-                lineHeight: 1.95,
-                color: C.sub,
-                margin: "24px 0 0",
-              }}
-            >
-              {localized.excerpt}
-            </p>
+            <div style={{ ...labelText, marginTop: 20, color: C.sub }}>
+              {new Date(post.updatedAt).toLocaleDateString(t.dateLocale)}
+              {!post.published && (
+                <span
+                  style={{
+                    marginLeft: 12,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                    background: C.main,
+                    color: C.onMain,
+                  }}
+                >
+                  {t.draft}
+                </span>
+              )}
+            </div>
+            {localized.excerpt ? (
+              <RuleText style={{ marginTop: 32, fontSize: 17, lineHeight: 1.95 }}>
+                {localized.excerpt}
+              </RuleText>
+            ) : null}
           </div>
-          {post.heroImageUrl ? (
-            <div
-              style={{
-                position: "relative",
-                aspectRatio: "4/5",
-                overflow: "hidden",
-                border: `1px solid ${C.line}`,
-              }}
-            >
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "4/5",
+              overflow: "hidden",
+              background: C.paper,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {post.heroImageUrl ? (
               <BlogImage
                 src={post.heroImageUrl}
                 alt={localized.title}
                 priority
                 sizes="(max-width: 880px) 100vw, 520px"
                 style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
                   objectFit: "cover",
-                  filter: "saturate(.95) contrast(1.05)",
                 }}
               />
-            </div>
-          ) : (
-            <div
-              style={{
-                aspectRatio: "4/5",
-                background: C.card,
-                border: `1px solid ${C.line}`,
-              }}
-            />
-          )}
+            ) : (
+              <span
+                aria-hidden
+                style={{ width: "46%", aspectRatio: "1", borderRadius: "50%", background: C.main }}
+              />
+            )}
+          </div>
         </div>
-      </section>
+      </Inner>
 
-      <div
-        className="mob-pad mob-1col"
+      <Inner
+        className="mob-1col mob-pad-v-sm"
         style={{
-          maxWidth: 1280,
-          margin: "0 auto",
-          padding: "80px 64px",
+          paddingTop: 96,
+          paddingBottom: 0,
           display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gap: 56,
+          gridTemplateColumns: "260px 1fr",
+          gap: 72,
         }}
       >
         <aside
           className="mob-toc-bottom"
           style={{
             position: "sticky",
-            top: 96,
+            top: NAV_HEIGHT + 32,
             alignSelf: "start",
-            background: C.card,
-            border: `1.5px solid ${C.line}`,
-            padding: 24,
+            borderTop: `1px solid ${C.ink}`,
+            paddingTop: 22,
           }}
         >
-          <h2
-            style={{
-              margin: 0,
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-              marginBottom: 14,
-            }}
-          >
-            ▎{t.toc}
-          </h2>
+          <AsideHeading>{t.toc}</AsideHeading>
           {toc.length === 0 ? (
             <p style={{ fontSize: 13, color: C.sub, margin: 0 }}>
               {t.noHeadings}
@@ -307,148 +267,73 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
                 <li
                   key={item.id}
                   style={{
-                    marginLeft: item.level === 3 ? 14 : 0,
-                    padding: "6px 0",
+                    borderBottom: `1px solid ${C.line}`,
                     fontSize: 13,
-                    lineHeight: 1.55,
+                    lineHeight: 1.6,
                   }}
                 >
                   <a
                     href={`#${item.id}`}
-                    style={{ color: C.ink, textDecoration: "none" }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "12px 1fr",
+                      gap: 10,
+                      alignItems: "baseline",
+                      padding: "10px 0",
+                      paddingLeft: item.level === 3 ? 16 : 0,
+                      color: item.level === 3 ? C.sub : C.ink,
+                      fontWeight: item.level === 3 ? 400 : 500,
+                      textDecoration: "none",
+                    }}
                   >
-                    {item.text}
+                    <span
+                      aria-hidden
+                      style={{
+                        display: "block",
+                        height: item.level === 3 ? 1 : 4,
+                        width: item.level === 3 ? 8 : 12,
+                        background: item.level === 3 ? C.lineStrong : C.main,
+                        transform: "translateY(-4px)",
+                      }}
+                    />
+                    <span>{item.text}</span>
                   </a>
                 </li>
               ))}
             </ul>
           )}
-
-          <div
-            style={{
-              marginTop: 28,
-              paddingTop: 22,
-              borderTop: `1px solid ${C.line}`,
-            }}
-          >
-            <h3
-              style={{
-                margin: 0,
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: C.accent,
-                marginBottom: 14,
-              }}
-            >
-              ▎{t.relatedPosts}
-            </h3>
-            {relatedPosts.length === 0 ? (
-              <p style={{ fontSize: 13, color: C.sub, margin: 0 }}>
-                {t.noRelated}
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {relatedPosts.map((related) => {
-                  const rel = getLocalizedPost(related, locale);
-                  return (
-                    <Link
-                      key={related.slug}
-                      href={`/blog/${related.slug}`}
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        padding: 8,
-                        border: `1px solid ${C.line}`,
-                        textDecoration: "none",
-                        color: "inherit",
-                      }}
-                    >
-                      {related.heroImageUrl ? (
-                        <BlogImage
-                          src={related.heroImageUrl}
-                          alt={rel.title}
-                          width={56}
-                          height={56}
-                          sizes="56px"
-                          style={{
-                            width: 56,
-                            height: 56,
-                            objectFit: "cover",
-                            filter: "saturate(.9)",
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 56,
-                            height: 56,
-                            background: C.bg,
-                          }}
-                        />
-                      )}
-                      <p
-                        style={{
-                          margin: 0,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: C.ink,
-                          lineHeight: 1.4,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {rel.title}
-                      </p>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </aside>
 
-        <div>
+        <div style={{ minWidth: 0 }}>
           <article
             className="blog-content-rich"
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
+          {(prevPost || nextPost) && (
           <div
             className="mob-1col"
             style={{
-              marginTop: 56,
+              marginTop: 72,
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: 16,
+              gap: 28,
             }}
           >
             {prevPost ? (
               <Link
                 href={`/blog/${prevPost.slug}`}
                 style={{
-                  background: C.card,
-                  border: `1.5px solid ${C.line}`,
-                  padding: 24,
+                  borderTop: `1px solid ${C.ink}`,
+                  paddingTop: 20,
                   textDecoration: "none",
                   color: "inherit",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 8,
+                  gap: 10,
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: FONTS.mono,
-                    fontSize: 11,
-                    letterSpacing: "0.24em",
-                    textTransform: "uppercase",
-                    color: C.accent,
-                  }}
-                >
+                <span style={{ ...labelText, color: C.sub }}>
                   ← {t.previousPost}
                 </span>
                 <span
@@ -456,7 +341,7 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
                     fontSize: 16,
                     fontWeight: 700,
                     color: C.ink,
-                    lineHeight: 1.4,
+                    lineHeight: 1.5,
                   }}
                 >
                   {getLocalizedPost(prevPost, locale).title}
@@ -470,26 +355,17 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
               <Link
                 href={`/blog/${nextPost.slug}`}
                 style={{
-                  background: C.card,
-                  border: `1.5px solid ${C.line}`,
-                  padding: 24,
+                  borderTop: `1px solid ${C.ink}`,
+                  paddingTop: 20,
                   textDecoration: "none",
                   color: "inherit",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 8,
+                  gap: 10,
                   textAlign: "right",
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: FONTS.mono,
-                    fontSize: 11,
-                    letterSpacing: "0.24em",
-                    textTransform: "uppercase",
-                    color: C.accent,
-                  }}
-                >
+                <span style={{ ...labelText, color: C.sub }}>
                   {t.nextPost} →
                 </span>
                 <span
@@ -497,7 +373,7 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
                     fontSize: 16,
                     fontWeight: 700,
                     color: C.ink,
-                    lineHeight: 1.4,
+                    lineHeight: 1.5,
                   }}
                 >
                   {getLocalizedPost(nextPost, locale).title}
@@ -507,25 +383,139 @@ export default function BlogArticle({ post, summaries, locale, editHref }: Props
               <div />
             )}
           </div>
-
-          <div style={{ marginTop: 56 }}>
-            <Link
-              href="/blog"
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 12,
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: C.accent,
-                textDecoration: "none",
-              }}
-            >
-              {t.backToBlog}
-            </Link>
-          </div>
+          )}
         </div>
-      </div>
+      </Inner>
+
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 120, paddingBottom: 120 }}>
+        <ContentHeading title="Related" sub="関連記事" />
+        {relatedPosts.length === 0 ? (
+          <p
+            style={{
+              margin: 0,
+              background: C.paper,
+              padding: 28,
+              fontSize: 14,
+              color: C.sub,
+            }}
+          >
+            {t.noRelated}
+          </p>
+        ) : (
+          <div
+            className="mob-1col"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 28,
+              alignItems: "start",
+            }}
+          >
+            {relatedPosts.map((related, i) => {
+              const rel = getLocalizedPost(related, locale);
+              return (
+                <Link
+                  key={related.slug}
+                  href={`/blog/${related.slug}`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "4 / 3",
+                      background: C.paper,
+                      overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {related.heroImageUrl ? (
+                      <BlogImage
+                        src={related.heroImageUrl}
+                        alt={rel.title}
+                        sizes="(max-width: 880px) 100vw, 380px"
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <NumberDot
+                        n={String(i + 1).padStart(2, "0")}
+                        tone={i === 1 ? "green" : "yellow"}
+                        size={56}
+                      />
+                    )}
+                  </div>
+                  <div style={{ ...labelText, marginTop: 18, color: C.sub }}>
+                    {new Date(related.updatedAt).toLocaleDateString(t.dateLocale)}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 10,
+                      fontSize: 18,
+                      fontWeight: 700,
+                      lineHeight: 1.5,
+                      color: C.ink,
+                    }}
+                  >
+                    {rel.title}
+                  </div>
+                  {rel.excerpt ? (
+                    <p
+                      style={{
+                        margin: "10px 0 0",
+                        fontSize: 13,
+                        lineHeight: 1.75,
+                        color: C.sub,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {rel.excerpt}
+                    </p>
+                  ) : null}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/blog">{t.backToBlog}</TextLink>
+        </div>
+      </Inner>
     </main>
     </>
+  );
+}
+
+/** Small aside heading led by a short yellow bar (SubLabel, as a real heading). */
+function AsideHeading({ children }: { children: ReactNode }) {
+  return (
+    <h2
+      style={{
+        ...labelText,
+        margin: "0 0 14px",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        color: C.ink,
+      }}
+    >
+      <span aria-hidden style={{ width: 18, height: 6, background: C.main, flexShrink: 0 }} />
+      <span>{children}</span>
+    </h2>
   );
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import {
-  Space_Grotesk,
+  Indie_Flower,
+  Inter_Tight,
+  Jost,
+  Yomogi,
   Zen_Kaku_Gothic_Antique,
   JetBrains_Mono,
 } from "next/font/google";
@@ -17,11 +20,39 @@ import HideOnResearch from "@/components/HideOnResearch";
 // `/about` → `/ja/about` and `/about?lang=en` → `/en/about`, so every page
 // below can be prerendered once per language with zero per-request work.
 
-const fontDisplay = Space_Grotesk({
+// Thin grotesk for section titles ("Our Mission", "Product" in the brand book).
+const fontDisplay = Inter_Tight({
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["300", "400", "500"],
   variable: "--font-display",
   display: "swap",
+});
+
+// Futura-like labels, nav and page numbers. FONTS.label tries the system
+// Futura first (Apple devices), so this is the fallback everywhere else.
+const fontLabel = Jost({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-label",
+  display: "swap",
+});
+
+// Handwritten pull quotes: Indie Flower draws the Latin letters (Yomogi's
+// Latin is typewriter-like), Yomogi the Japanese. Yomogi is a CJK
+// unicode-range family like Zen Kaku, so it isn't preloaded.
+const fontHandLatin = Indie_Flower({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-hand-latin",
+  display: "swap",
+});
+
+const fontHand = Yomogi({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-hand",
+  display: "swap",
+  preload: false,
 });
 
 // Zen Kaku is a static-weight CJK family: every weight adds 121 unicode-range
@@ -40,8 +71,6 @@ const fontMono = JetBrains_Mono({
   variable: "--font-mono",
   display: "swap",
 });
-
-// Quicksand is only used by the home hero; components/home/TopPage.tsx loads it.
 
 type Props = {
   children: React.ReactNode;
@@ -88,7 +117,7 @@ export default async function RootLayout({ children, params }: Props) {
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`}
+      className={`${fontDisplay.variable} ${fontLabel.variable} ${fontHandLatin.variable} ${fontHand.variable} ${fontBody.variable} ${fontMono.variable}`}
     >
       <body className="antialiased">
         <Providers>

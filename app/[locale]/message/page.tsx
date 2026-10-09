@@ -1,9 +1,9 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { localeFromParams } from "@/lib/locale";
 import { pageMetadata } from "@/lib/seo";
 import { C, FONTS } from "@/lib/theme";
+import { Inner, NAV_HEIGHT, SectionCover, TextLink, labelText } from "@/components/brand/ui";
 
 // Fully static: no request-time work. `dynamic = "error"` makes the build fail if
 // a dynamic API ever sneaks in. `dynamicParams = false` only applies to this leaf.
@@ -95,182 +95,76 @@ export default async function MessagePage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
-      >
-        {/* Header strip */}
-        <div
-          className="mob-flex-wrap"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
-            marginBottom: 64,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.accent,
-            }}
-          >
-            ▍SECTION VI — {t.tag} / {t.section}
-          </span>
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-            }}
-          >
-            {t.page}
-          </span>
-        </div>
+      <SectionCover as="h1" title="Message" sub="代表メッセージ" no="01" />
 
-        {/* Headline */}
-        <h1
-          className="mob-h2"
-          style={{
-            margin: 0,
-            fontFamily: FONTS.display,
-            fontSize: 96,
-            lineHeight: 0.95,
-            letterSpacing: -3,
-            fontWeight: 700,
-            color: C.ink,
-          }}
-        >
-          {t.heading}
-        </h1>
-
-        <div
-          style={{
-            marginTop: 32,
-            width: 100,
-            height: 3,
-            background: C.accent,
-          }}
-        />
-
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 120 }}>
         {/* Portraits — photos only, no message text */}
         <div
           className="mob-1col"
           style={{
-            marginTop: 72,
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 36,
+            gap: 64,
           }}
         >
           {reps.map((r) => (
-            <section
-              key={r.name}
-              className="mob-pad-card-lg"
-              style={{
-                background: C.card,
-                border: `1.5px solid ${C.line}`,
-                padding: 32,
-              }}
-            >
-              {r.imageSrc && (
-                <div style={{ background: C.accent, padding: 12 }}>
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      aspectRatio: "4/5",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Image
-                      src={r.imageSrc}
-                      alt={r.imageAlt ?? ""}
-                      fill
-                      sizes="(max-width: 880px) 100vw, 560px"
-                      style={{
-                        objectFit: "cover",
-                        filter: "saturate(1.05) contrast(1.05)",
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-              <div
-                style={{
-                  marginTop: 18,
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.24em",
-                  color: C.sub,
-                  textTransform: "uppercase",
-                }}
-              >
-                {r.kicker}
-              </div>
-              <div
-                style={{
-                  marginTop: 12,
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: C.ink,
-                }}
-              >
-                {r.name}
-              </div>
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: 13,
-                  color: C.sub,
-                  opacity: 0.8,
-                }}
-              >
-                {r.nameAlt}
-              </div>
-              <div
-                style={{
-                  marginTop: 12,
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
-                  color: C.accent,
-                  textTransform: "uppercase",
-                }}
-              >
-                {r.role}
-              </div>
-            </section>
+            <RepCard key={r.name} rep={r} />
           ))}
         </div>
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
-            {t.back}
-          </Link>
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">{t.back}</TextLink>
+        </div>
+      </Inner>
+    </main>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RepCard — portrait on an offset yellow block (same look as the
+   About founder cards). A rep without a photo keeps the frame, so
+   a portrait can drop in later by setting imageSrc.
+   ───────────────────────────────────────────────────────────── */
+function RepCard({ rep }: { rep: Rep }) {
+  return (
+    <section style={{ borderTop: `1px solid ${C.ink}`, paddingTop: 48 }}>
+      <div style={{ position: "relative", maxWidth: 420, marginRight: 18, marginBottom: 18 }}>
+        <div
+          aria-hidden
+          style={{ position: "absolute", left: 18, top: 18, right: -18, bottom: -18, background: C.main }}
+        />
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            aspectRatio: "4/5",
+            overflow: "hidden",
+            background: C.paper,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {rep.imageSrc ? (
+            <Image
+              src={rep.imageSrc}
+              alt={rep.imageAlt ?? ""}
+              fill
+              sizes="(max-width: 880px) 100vw, 560px"
+              style={{ objectFit: "cover" }}
+            />
+          ) : (
+            <span aria-hidden style={{ width: "46%", aspectRatio: "1", borderRadius: "50%", background: C.main }} />
+          )}
         </div>
       </div>
-    </main>
+      <div style={{ ...labelText, marginTop: 28, color: C.sub }}>{rep.kicker}</div>
+      <div style={{ marginTop: 12, fontSize: 26, fontWeight: 700, color: C.ink }}>{rep.name}</div>
+      <div style={{ marginTop: 4, fontSize: 13, color: C.sub }}>{rep.nameAlt}</div>
+      <div style={{ ...labelText, marginTop: 10, color: C.ink }}>{rep.role}</div>
+    </section>
   );
 }

@@ -1,14 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Quicksand } from "next/font/google";
 import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-
-// Only the hero <h1> uses Quicksand, so it is loaded here (home route only)
-// instead of in the root layout where every page would preload it.
-const fontRound = Quicksand({ subsets: ["latin"], weight: "600", display: "swap" });
+import BlogImage from "@/components/blog/BlogImage";
+import {
+  BrandBar,
+  BrandButtonLink,
+  ContentHeading,
+  HandQuote,
+  Inner,
+  NAV_HEIGHT,
+  NumberDot,
+  PhotoSpread,
+  RuleText,
+  SectionCover,
+  TextLink,
+  labelText,
+} from "@/components/brand/ui";
 
 type BlogTeaser = {
   slug: string;
@@ -16,6 +25,8 @@ type BlogTeaser = {
   tag: string;
   ja: string;
   en: string;
+  /** Journal hero image, when the post has one. */
+  image?: string;
 };
 
 type NewsTeaser = {
@@ -207,347 +218,91 @@ const COPY = {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   Stage — fluid container capped at 1280px (no more zoom scaling)
-   ───────────────────────────────────────────────────────────── */
-function Stage({ children }: { children: ReactNode }) {
-  return (
-    <div style={{ width: "100%", maxWidth: 1280, margin: "0 auto" }}>
-      {children}
-    </div>
-  );
-}
-
-function Rule({ style }: { style?: CSSProperties }) {
-  return (
-    <div
-      style={{ width: "100%", height: 1, background: C.line, ...style }}
-    />
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Nav
-   ───────────────────────────────────────────────────────────── */
-function Nav({ locale }: { locale: Locale }) {
-  const items: { label: string; href: string; drop?: string }[] = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Message", href: "/message" },
-    { label: "Services", href: "#services" },
-    { label: "Product", href: "/app", drop: "kiji hub" },
-    { label: "News", href: "/news" },
-    { label: "Journal", href: "/blog" },
-    { label: "Research", href: "/research" },
-    { label: "Club", href: "/club" },
-    { label: "Contact", href: "#contact" },
-  ];
-  return (
-    <div
-      className="mob-flex-wrap mob-pad"
-      style={{
-        position: "relative",
-        zIndex: 10,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "20px 56px",
-        background: "transparent",
-        gap: 12,
-      }}
-    >
-      <Link
-        href="/"
-        style={{
-          fontFamily: FONTS.display,
-          fontSize: 22,
-          fontWeight: 500,
-          letterSpacing: 0.3,
-          color: C.ink,
-          textDecoration: "none",
-        }}
-      >
-        {COPY.brand}
-      </Link>
-      <ul
-        className="mob-flex-wrap"
-        style={{
-          listStyle: "none",
-          margin: 0,
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          gap: 22,
-          fontFamily: FONTS.mono,
-          fontSize: 12,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: C.sub,
-        }}
-      >
-        {items.map((x) => (
-          <li key={x.label} className={x.drop ? "nav-drop" : undefined}>
-            <Link
-              href={x.href}
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
-              {x.label}
-            </Link>
-            {x.drop && (
-              <div className="nav-drop-menu">
-                <Link
-                  href={x.href}
-                  style={{
-                    display: "block",
-                    padding: "10px 16px",
-                    background: C.card,
-                    border: `1px solid ${C.line}`,
-                    color: C.ink,
-                    textDecoration: "none",
-                    textTransform: "none",
-                    letterSpacing: "0.08em",
-                    fontSize: 12,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {x.drop}
-                </Link>
-              </div>
-            )}
-          </li>
-        ))}
-        <li style={{ display: "flex", alignItems: "center" }}>
-          <LanguageSwitcher locale={locale} />
-        </li>
-      </ul>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   CTAs
-   ───────────────────────────────────────────────────────────── */
-function CtaPrimary({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      style={{
-        background: C.accent,
-        color: C.paper,
-        border: "none",
-        padding: "16px 24px",
-        fontFamily: FONTS.body,
-        fontSize: 14,
-        letterSpacing: 0.4,
-        fontWeight: 600,
-        cursor: "pointer",
-        borderRadius: 4,
-        textDecoration: "none",
-        display: "inline-block",
-      }}
-    >
-      {children} →
-    </Link>
-  );
-}
-
-function CtaGhost({
-  href,
-  children,
-  onPhoto = false,
-}: {
-  href: string;
-  children: ReactNode;
-  onPhoto?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      style={{
-        background: "transparent",
-        color: onPhoto ? "#fbf3df" : C.ink,
-        border: `1px solid ${
-          onPhoto ? "rgba(255,250,238,.65)" : C.line
-        }`,
-        padding: "16px 24px",
-        fontFamily: FONTS.body,
-        fontSize: 14,
-        letterSpacing: 0.4,
-        fontWeight: 700,
-        cursor: "pointer",
-        borderRadius: 4,
-        textDecoration: "none",
-        display: "inline-block",
-      }}
-    >
-      {children}
-    </Link>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Hero — poster-split
+   Hero — the brand book's yellow cover, with the watercolor wheat
+   field along the bottom. `darken` keeps the painting's own colors
+   and lets only its pale paper take the yellow, so no rectangle
+   shows. No z-index on the wrappers: a stacking context would
+   isolate the blend.
    ───────────────────────────────────────────────────────────── */
 function Hero({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section
-      className="mob-h-auto"
       style={{
         position: "relative",
-        height: 880,
+        background: C.main,
+        color: C.onMain,
+        paddingTop: NAV_HEIGHT,
         overflow: "hidden",
-        background: C.bg,
       }}
     >
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          height: "100%",
-        }}
-      >
-        <div
-          className="mob-hero-pad"
+      <Inner className="brand-hero-pad" style={{ paddingTop: 104 }}>
+        <h1
+          className="brand-hero-title"
           style={{
-            background: C.bg,
-            color: C.ink,
-            padding: "96px 60px 48px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            gap: 36,
-            position: "relative",
+            margin: 0,
+            fontFamily: FONTS.label,
+            fontWeight: 500,
+            fontSize: 120,
+            lineHeight: 0.98,
+            letterSpacing: "0.01em",
+            textTransform: "uppercase",
+            color: C.onMain,
           }}
         >
-          <div>
-            <h1
-              className={`mob-h1-hero ${fontRound.className}`}
-              style={{
-                fontSize: 116,
-                lineHeight: 0.92,
-                letterSpacing: -1,
-                fontWeight: 600,
-                margin: 0,
-                color: C.ink,
-                textTransform: "uppercase",
-              }}
-            >
-              We<br />Bake<br />the<br />
-              <span style={{ color: C.accent }}>Future.</span>
-            </h1>
-            <div
-              style={{
-                marginTop: 32,
-                width: 80,
-                height: 2,
-                background: C.accent,
-              }}
-            />
-            <p
-              style={{
-                marginTop: 26,
-                fontSize: 17,
-                lineHeight: 1.95,
-                color: C.sub,
-                maxWidth: 460,
-              }}
-            >
-              {en ? COPY.heroSubEn : COPY.heroSubJa}
-            </p>
-            <div style={{ marginTop: 36, display: "flex", gap: 12 }}>
-              <CtaPrimary href="/about">
-                {en ? COPY.ctaPrimaryEn : COPY.ctaPrimaryJa}
-              </CtaPrimary>
-              <CtaGhost href="#services">
-                {en ? COPY.ctaSecondaryEn : COPY.ctaSecondaryJa}
-              </CtaGhost>
-            </div>
-          </div>
-
-        </div>
-
-        <div
+          We Bake
+          <br />
+          the Future.
+        </h1>
+        <p
           style={{
-            position: "relative",
-            overflow: "hidden",
-            minHeight: 320,
+            margin: "36px 0 0",
+            maxWidth: 640,
+            fontSize: 17,
+            lineHeight: 1.95,
           }}
         >
-          <Image
-            src="/top.webp"
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 880px) 100vw, 50vw"
-            style={{
-              objectFit: "cover",
-              filter: "saturate(1.08) contrast(1.12) brightness(.78)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,.22)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              left: 32,
-              bottom: 32,
-              color: C.paper,
-              fontFamily: FONTS.mono,
-              fontSize: 10,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              opacity: 0.92,
-            }}
-          >
-            {en ? COPY.heroCaptionEn : COPY.heroCaptionJa}
-          </div>
+          {en ? COPY.heroSubEn : COPY.heroSubJa}
+        </p>
+        <div className="mob-flex-wrap" style={{ marginTop: 36, display: "flex", gap: 12 }}>
+          <BrandButtonLink href="/about">
+            {en ? COPY.ctaPrimaryEn : COPY.ctaPrimaryJa}
+          </BrandButtonLink>
+          <BrandButtonLink href="#services" variant="outline" arrow={false}>
+            {en ? COPY.ctaSecondaryEn : COPY.ctaSecondaryJa}
+          </BrandButtonLink>
         </div>
+      </Inner>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 20px" }}>
+        <Image
+          src="/illustrations/wheat-field.webp"
+          alt=""
+          width={996}
+          height={440}
+          priority
+          sizes="(max-width: 1040px) 100vw, 1000px"
+          style={{ display: "block", width: "100%", height: "auto", mixBlendMode: "darken" }}
+        />
       </div>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   News — dated list band under the hero (hidden when empty)
+   News — dated list under the hero (hidden when empty)
    ───────────────────────────────────────────────────────────── */
 function News({ news, locale }: { news: NewsTeaser[]; locale: Locale }) {
   if (news.length === 0) return null;
   const en = locale === "en";
   return (
-    <section
-      className="mob-pad mob-pad-v-sm"
-      style={{ padding: "56px 64px", background: C.bg, borderTop: `1px solid ${C.line}` }}
-    >
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "200px 1fr auto",
-          gap: 40,
-          alignItems: "start",
-        }}
-      >
-        <div
-          style={{
-            background: C.slab,
-            color: C.onSlab,
-            padding: "10px 14px",
-            justifySelf: "start",
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.24em",
-            textTransform: "uppercase",
-          }}
-        >
-          ▍NEWS
-        </div>
-        <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1.5px solid ${C.ink}` }}>
+    <section style={{ background: C.bg }}>
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 88, paddingBottom: 96 }}>
+        <ContentHeading
+          title="News"
+          sub="お知らせ"
+          aside={<TextLink href="/news">{en ? "View all news →" : "ニュース一覧 →"}</TextLink>}
+        />
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1px solid ${C.ink}` }}>
           {news.map((n) => (
             <li key={n.slug} style={{ borderBottom: `1px solid ${C.line}` }}>
               <Link
@@ -555,49 +310,32 @@ function News({ news, locale }: { news: NewsTeaser[]; locale: Locale }) {
                 className="news-row"
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "120px 1fr auto",
+                  gridTemplateColumns: "140px 1fr auto",
                   gap: 24,
                   alignItems: "baseline",
-                  padding: "18px 0",
+                  padding: "20px 0",
                   textDecoration: "none",
                   color: "inherit",
                 }}
               >
-                <time
-                  dateTime={n.iso}
-                  style={{ fontFamily: FONTS.mono, fontSize: 12, letterSpacing: "0.16em", color: C.accent }}
-                >
+                <time dateTime={n.iso} style={{ ...labelText, color: C.sub }}>
                   {n.date}
                 </time>
                 <span style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.6, color: C.ink }}>{n.title}</span>
-                <span aria-hidden className="news-row-arrow" style={{ fontFamily: FONTS.mono, fontSize: 12, color: C.ink }}>
+                <span aria-hidden className="news-row-arrow" style={{ fontFamily: FONTS.label, fontSize: 14, color: C.ink }}>
                   →
                 </span>
               </Link>
             </li>
           ))}
         </ul>
-        <Link
-          href="/news"
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 12,
-            color: C.accent,
-            letterSpacing: "0.2em",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-            paddingTop: 8,
-          }}
-        >
-          {en ? "VIEW ALL NEWS →" : "ニュース一覧 →"}
-        </Link>
-      </div>
+      </Inner>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   About — feature-spread
+   About — green divider, handwritten question, ruled body copy
    ───────────────────────────────────────────────────────────── */
 function About({ locale }: { locale: Locale }) {
   const c = COPY.about;
@@ -605,93 +343,16 @@ function About({ locale }: { locale: Locale }) {
   const lead = en ? c.leadEn : c.leadJa;
   const paragraphs = en ? c.paragraphsEn : c.paragraphsJa;
   return (
-    <section
-      id="about"
-      className="mob-pad mob-pad-v-sm"
-      style={{
-        padding: "120px 60px 120px",
-        background: C.bg,
-        color: C.ink,
-      }}
-    >
-      <div
-        className="mob-flex-wrap"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderTop: `1px solid ${C.line}`,
-          borderBottom: `1px solid ${C.line}`,
-          padding: "16px 0",
-          marginBottom: 64,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            color: C.accent,
-          }}
-        >
-          ▍FEATURE.001 — {en ? c.labelEn : c.labelJa}
-        </span>
-        <span
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 11,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            color: C.sub,
-          }}
-        >
-          What is Bakerization? / p. 02
-        </span>
-      </div>
-
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 64,
-          alignItems: "start",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: C.sub,
-              marginBottom: 18,
-            }}
-          >
-            ↗ A QUESTION
-          </div>
-          <h2
-            className="mob-h2"
-            style={{
-              margin: 0,
-              fontFamily: FONTS.display,
-              fontSize: en ? 64 : 96,
-              lineHeight: 1.08,
-              letterSpacing: en ? -2 : -3,
-              fontWeight: 700,
-              color: C.ink,
-            }}
-          >
+    <>
+      <SectionCover id="about" title="About" sub={c.labelJa} no="02" />
+      <section style={{ background: C.bg }}>
+        <Inner className="mob-pad-v-sm" style={{ paddingTop: 104, paddingBottom: 120 }}>
+          <HandQuote as="h2" size={en ? 34 : 44}>
             {en ? (
               <>
-                What kind of
+                What kind of bakeries
                 <br />
-                bakeries will exist
-                <br />
-                in the{" "}
-                <span style={{ color: C.accent }}>22nd&nbsp;century?</span>
+                will exist in the 22nd&nbsp;century?
               </>
             ) : (
               <>
@@ -699,443 +360,257 @@ function About({ locale }: { locale: Locale }) {
                 <br />
                 どんなパン屋さんが
                 <br />
-                <span style={{ color: C.accent }}>あるでしょうか？</span>
+                あるでしょうか？
               </>
             )}
-          </h2>
-          <Rule
+          </HandQuote>
+          <BrandBar reach="58%" style={{ marginTop: 36 }} />
+
+          <div
+            className="mob-1col"
             style={{
-              background: C.accent,
-              height: 3,
-              width: 100,
-              margin: "40px 0",
-            }}
-          />
-          <p
-            style={{
-              fontSize: 17,
-              lineHeight: 1.95,
-              color: C.sub,
-              margin: 0,
-              maxWidth: 520,
+              marginTop: 80,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 64,
+              alignItems: "start",
             }}
           >
-            {lead}
-          </p>
-        </div>
-        <div>
-          <p style={pStyle()}>{paragraphs[0]}</p>
-          <p style={pStyle(true)}>{paragraphs[1]}</p>
-          <p style={pStyle(true)}>{paragraphs[2]}</p>
-        </div>
-      </div>
+            <RuleText style={{ color: C.ink, fontSize: 18, lineHeight: 1.95 }}>{lead}</RuleText>
+            <div>
+              <p style={pStyle()}>{paragraphs[0]}</p>
+              <p style={pStyle(true)}>{paragraphs[1]}</p>
+              <p style={pStyle(true)}>{paragraphs[2]}</p>
+            </div>
+          </div>
 
-      <div
-        className="mob-1col"
-        style={{
-          marginTop: 80,
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 64,
-        }}
-      >
-        <div>
-          <p style={pStyle()}>{paragraphs[3]}</p>
-          <p style={pStyle(true)}>
-            {en ? (
-              <>
-                <span className="mk">For every bread lover in the universe</span>
-                , <span className="mk">Bakerization</span> keeps weaving culture
-                today.
-              </>
-            ) : (
-              <>
-                <span className="mk">宇宙の全てのパン好きのために</span>、
-                <span className="mk">Bakerization</span>
-                は今日も文化を紡ぎ続けます。
-              </>
-            )}
-          </p>
-        </div>
-        <div>
-          <p style={pStyle()}>{paragraphs[4]}</p>
-          <p style={pStyle(true)}>
-            {en ? (
-              <>
-                <span className="mk">Bakerization</span> will carry Japan's bread
-                culture to the world and create the{" "}
-                <span className="mk">bakery of the 22nd century</span>.
-              </>
-            ) : (
-              <>
-                <span className="mk">Bakerization</span>
-                は日本のパン文化を世界に広げ、
-                <span className="mk">22世紀のパン屋さん</span>を創造します。
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-    </section>
+          <div
+            className="mob-1col"
+            style={{
+              marginTop: 72,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 64,
+            }}
+          >
+            <div>
+              <p style={pStyle()}>{paragraphs[3]}</p>
+              <p style={pStyle(true, true)}>
+                {en ? (
+                  <>
+                    <span className="mk">For every bread lover in the universe</span>
+                    , <span className="mk">Bakerization</span> keeps weaving culture
+                    today.
+                  </>
+                ) : (
+                  <>
+                    <span className="mk">宇宙の全てのパン好きのために</span>、
+                    <span className="mk">Bakerization</span>
+                    は今日も文化を紡ぎ続けます。
+                  </>
+                )}
+              </p>
+            </div>
+            <div>
+              <p style={pStyle()}>{paragraphs[4]}</p>
+              <p style={pStyle(true, true)}>
+                {en ? (
+                  <>
+                    <span className="mk">Bakerization</span> will carry Japan&apos;s bread
+                    culture to the world and create the{" "}
+                    <span className="mk">bakery of the 22nd century</span>.
+                  </>
+                ) : (
+                  <>
+                    <span className="mk">Bakerization</span>
+                    は日本のパン文化を世界に広げ、
+                    <span className="mk">22世紀のパン屋さん</span>を創造します。
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </Inner>
+      </section>
+    </>
   );
 }
 
-function pStyle(spaced = false): CSSProperties {
+function pStyle(spaced = false, strong = false): CSSProperties {
   return {
     fontSize: 16,
     lineHeight: 2,
-    color: C.ink,
+    color: strong ? C.ink : C.sub,
+    fontWeight: strong ? 700 : 400,
     margin: spaced ? "24px 0 0" : 0,
   };
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Services — color-block-cards
+   Photo spread — placeholder photo until the real shoot arrives
+   ───────────────────────────────────────────────────────────── */
+function Morning({ locale }: { locale: Locale }) {
+  const en = locale === "en";
+  return (
+    <PhotoSpread src="/top.webp">
+      <span style={labelText}>{en ? COPY.heroCaptionEn : COPY.heroCaptionJa}</span>
+    </PhotoSpread>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Services — numbered circles after the deck's Experience diagram
    ───────────────────────────────────────────────────────────── */
 function Services({ locale }: { locale: Locale }) {
   const c = COPY.services;
   const en = locale === "en";
   return (
-    <section
-      id="services"
-      className="mob-pad mob-pad-v-sm"
-      style={{ padding: "120px 64px", background: C.bg }}
-    >
-      <div
-        className="mob-stack"
-        style={{
-          display: "flex",
-          alignItems: "end",
-          justifyContent: "space-between",
-          marginBottom: 56,
-          gap: 24,
-        }}
-      >
-        <div>
+    <>
+      <SectionCover id="services" title="Service" sub={c.labelJa} no="03" />
+      <section style={{ background: C.bg }}>
+        <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 120 }}>
           <div
+            className="mob-1col"
             style={{
-              background: C.slab,
-              color: C.onSlab,
-              padding: "10px 14px",
-              display: "inline-block",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 24,
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 48,
             }}
           >
-            ▍{en ? c.labelEn : c.labelJa}
-          </div>
-          <h2
-            className="mob-h2"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 72,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-              fontWeight: 700,
-              color: C.ink,
-              margin: 0,
-            }}
-          >
-            Service.
-          </h2>
-        </div>
-        <span
-          style={{
-            fontFamily: FONTS.mono,
-            fontSize: 12,
-            color: C.sub,
-            letterSpacing: "0.2em",
-          }}
-        >
-          3 SERVICES → 01 / 02 / 03
-        </span>
-      </div>
-
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 18,
-        }}
-      >
-        {c.items.map((it, i) => {
-          const onAccent = i === 1;
-          return (
-            <Link
-              key={it.num}
-              href={`/services/${it.slug}`}
-              className="mob-pad-card-lg"
-              style={{
-                background: onAccent ? C.accent : C.card,
-                color: onAccent ? C.paper : C.ink,
-                padding: 36,
-                minHeight: 320,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                border: onAccent ? "none" : `1.5px solid ${C.ink}`,
-                textDecoration: "none",
-              }}
-            >
-              <div>
-                <div
-                  className="mob-num"
-                  style={{
-                    fontFamily: FONTS.display,
-                    fontSize: 88,
-                    fontWeight: 700,
-                    lineHeight: 0.9,
-                    marginBottom: 24,
-                    opacity: 0.95,
-                  }}
-                >
-                  {it.num}
-                </div>
+            {c.items.map((it, i) => (
+              <Link
+                key={it.num}
+                href={`/services/${it.slug}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  borderTop: `1px solid ${C.ink}`,
+                  paddingTop: 36,
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <NumberDot n={it.num} tone={i === 1 ? "green" : "yellow"} />
                 <div
                   style={{
-                    fontSize: 24,
+                    marginTop: 28,
+                    fontSize: 22,
                     fontWeight: 700,
-                    lineHeight: 1.3,
-                    marginBottom: 16,
+                    lineHeight: 1.45,
+                    color: C.ink,
                   }}
                 >
                   {en ? it.en : it.ja}
                 </div>
-                <p
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.85,
-                    margin: 0,
-                    opacity: onAccent ? 0.92 : 0.78,
-                  }}
-                >
+                <p style={{ margin: "14px 0 0", fontSize: 15, lineHeight: 1.9, color: C.sub }}>
                   {en ? it.bodyEn : it.bodyJa}
                 </p>
                 {(en ? it.noteEn : it.noteJa) && (
-                  <p
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.85,
-                      margin: "14px 0 0",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <p style={{ margin: "12px 0 0", fontSize: 15, lineHeight: 1.9, fontWeight: 700, color: C.ink }}>
                     {en ? it.noteEn : it.noteJa}
                   </p>
                 )}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: 32,
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.24em",
-                  textTransform: "uppercase",
-                }}
-              >
-                <span>{en ? it.ja : it.en}</span>
-                <span>↗</span>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </section>
+                <div
+                  style={{
+                    ...labelText,
+                    marginTop: "auto",
+                    paddingTop: 28,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    color: C.ink,
+                  }}
+                >
+                  <span>{en ? it.ja : it.en}</span>
+                  <span aria-hidden>↗</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Inner>
+      </section>
+    </>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Product — Service. と同じ組み。見出しは外に出し、
-   プロダクトが増えたら COPY.product.items に足すだけでよい。
+   Product — プロダクトが増えたら COPY.product.items に足すだけでよい。
    ───────────────────────────────────────────────────────────── */
 function Product({ locale }: { locale: Locale }) {
   const c = COPY.product;
   const en = locale === "en";
-  const cols = Math.min(c.items.length, 3);
   return (
-    <section
-      id="product"
-      className="mob-pad"
-      style={{ padding: "0 64px 120px", background: C.bg }}
-    >
-      <div
-        className="mob-stack"
-        style={{
-          display: "flex",
-          alignItems: "end",
-          justifyContent: "space-between",
-          marginBottom: 56,
-          gap: 24,
-        }}
-      >
-        <div>
-          <div
-            style={{
-              background: C.slab,
-              color: C.onSlab,
-              padding: "10px 14px",
-              display: "inline-block",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 24,
-            }}
-          >
-            ▍{en ? c.labelEn : c.labelJa}
-          </div>
-          <h2
-            className="mob-h2"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 72,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-              fontWeight: 700,
-              color: C.ink,
-              margin: 0,
-            }}
-          >
-            {c.titleEn}
-          </h2>
-        </div>
-        {/* プロダクトが1つのうちは出さない。増えたら Service. と同じカウンターが出る */}
-        {c.items.length > 1 && (
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              color: C.sub,
-              letterSpacing: "0.2em",
-            }}
-          >
-            {c.items.length} PRODUCTS →{" "}
-            {c.items.map((it) => it.num).join(" / ")}
-          </span>
-        )}
-      </div>
-
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          gap: 18,
-          alignItems: "start",
-        }}
-      >
-        {c.items.map((it) => (
-          <div
-            key={it.num}
-            className="mob-pad-card-lg"
-            style={{
-              background: C.card,
-              border: `1.5px solid ${C.ink}`,
-              padding: 40,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              minHeight: 280,
-            }}
-          >
-            <div>
-              {c.items.length > 1 && (
-                <div
-                  className="mob-num"
-                  style={{
-                    fontFamily: FONTS.display,
-                    fontSize: 88,
-                    fontWeight: 700,
-                    lineHeight: 0.9,
-                    color: C.accent,
-                    marginBottom: 24,
-                  }}
-                >
-                  {it.num}
-                </div>
-              )}
-              <div
-                style={{
-                  fontFamily: FONTS.display,
-                  fontSize: 40,
-                  fontWeight: 700,
-                  lineHeight: 1.2,
-                  letterSpacing: -1,
-                  color: C.ink,
-                }}
-              >
-                {it.name}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: "20px 0 0",
-                  padding: 0,
-                }}
-              >
-                {(en ? it.pointsEn : it.pointsJa).map((pt, i) => (
-                  <li
-                    key={i}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "22px 1fr",
-                      gap: 10,
-                      padding: "12px 0",
-                      borderTop: i === 0 ? `1px solid ${C.line}` : "none",
-                      borderBottom: `1px solid ${C.line}`,
-                      fontSize: 15,
-                      lineHeight: 1.8,
-                      color: C.ink,
-                    }}
-                  >
-                    <span style={{ color: C.accent, fontWeight: 700 }}>—</span>
-                    <span>{pt}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
+    <section id="product" style={{ background: C.bg }}>
+      <Inner style={{ paddingBottom: 120 }}>
+        <ContentHeading title="Product" sub={c.labelJa} />
+        <div style={{ display: "grid", gap: 18 }}>
+          {c.items.map((it) => (
             <div
-              className="mob-flex-wrap"
+              key={it.num}
+              className="mob-1col mob-pad-card"
               style={{
-                marginTop: 32,
-                display: "flex",
-                alignItems: "center",
-                gap: 24,
-                flexWrap: "wrap",
+                background: C.paper,
+                padding: 48,
+                display: "grid",
+                gridTemplateColumns: "1fr 1.2fr",
+                gap: 48,
+                alignItems: "start",
               }}
             >
-              <CtaPrimary href={it.href}>{en ? it.ctaEn : it.ctaJa}</CtaPrimary>
-              <Link
-                href={it.privacy}
-                style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  color: C.accent,
-                  textDecoration: "none",
-                }}
-              >
-                {en ? c.privacyLabelEn : c.privacyLabelJa}
-              </Link>
+              <div>
+                {c.items.length > 1 && <NumberDot n={it.num} size={64} />}
+                <div
+                  style={{
+                    fontFamily: FONTS.display,
+                    fontWeight: 300,
+                    fontSize: 56,
+                    lineHeight: 1.05,
+                    letterSpacing: "-0.035em",
+                    color: C.ink,
+                  }}
+                >
+                  {it.name}
+                </div>
+              </div>
+              <div>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {(en ? it.pointsEn : it.pointsJa).map((pt, i) => (
+                    <li
+                      key={i}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "22px 1fr",
+                        gap: 10,
+                        padding: "12px 0",
+                        borderTop: i === 0 ? `1px solid ${C.lineStrong}` : "none",
+                        borderBottom: `1px solid ${C.lineStrong}`,
+                        fontSize: 15,
+                        lineHeight: 1.8,
+                        color: C.ink,
+                      }}
+                    >
+                      <span aria-hidden>—</span>
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div
+                  className="mob-flex-wrap"
+                  style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}
+                >
+                  <BrandButtonLink href={it.href}>{en ? it.ctaEn : it.ctaJa}</BrandButtonLink>
+                  <TextLink href={it.privacy}>{en ? c.privacyLabelEn : c.privacyLabelJa}</TextLink>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </Inner>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Blog — horizontal-strip
+   Journal — three latest posts with their hero images
    ───────────────────────────────────────────────────────────── */
 function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
   const c = COPY.blog;
@@ -1152,6 +627,7 @@ function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
           date: p.date,
           primary: p.ja,
           secondary: p.en,
+          image: p.image,
         }))
       : c.posts.map((p, i) => ({
           key: String(i),
@@ -1160,146 +636,71 @@ function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
           date: p.date,
           primary: en ? p.en : p.ja,
           secondary: en ? p.ja : p.en,
+          image: undefined,
         }));
 
   return (
-    <section
-      className="mob-pad mob-pad-v-sm"
-      style={{ padding: "120px 64px", background: C.bg }}
-    >
-      <div
-        className="mob-stack"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          marginBottom: 48,
-          gap: 24,
-        }}
-      >
-        <div>
-          <div
-            style={{
-              background: C.slab,
-              color: C.onSlab,
-              padding: "10px 14px",
-              display: "inline-block",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 24,
-            }}
-          >
-            ▍{en ? c.labelEn : c.labelJa}
-          </div>
-          <h2
-            className="mob-h3"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 64,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-              fontWeight: 700,
-              color: C.ink,
-              margin: 0,
-            }}
-          >
-            {en ? c.titleEn : c.titleJa}
-          </h2>
-        </div>
-        <Link
-          href="/blog"
+    <section style={{ background: C.bg }}>
+      <Inner style={{ paddingBottom: 120 }}>
+        <ContentHeading title="Journal" sub={c.labelJa} aside={<TextLink href="/blog">{c.viewAll}</TextLink>} />
+        <div
+          className="mob-1col"
           style={{
-            fontFamily: FONTS.mono,
-            fontSize: 12,
-            color: C.accent,
-            letterSpacing: "0.2em",
-            textDecoration: "none",
+            display: "grid",
+            gridTemplateColumns: "1.4fr 1fr 1fr",
+            gap: 28,
+            alignItems: "start",
           }}
         >
-          {c.viewAll}
-        </Link>
-      </div>
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.4fr 1fr 1fr",
-          gap: 18,
-        }}
-      >
-        {items.map((p, i) => (
-          <Link
-            key={p.key}
-            href={p.href}
-            style={{
-              background: C.card,
-              border: `1.5px solid ${C.ink}`,
-              padding: i === 0 ? 32 : 28,
-              minHeight: i === 0 ? 380 : 320,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <div>
+          {items.map((p, i) => (
+            <Link
+              key={p.key}
+              href={p.href}
+              style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: "inherit" }}
+            >
               <div
                 style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 11,
-                  letterSpacing: "0.24em",
-                  color: C.accent,
-                  textTransform: "uppercase",
-                  marginBottom: 16,
+                  position: "relative",
+                  aspectRatio: "4 / 3",
+                  background: C.paper,
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
+                {p.image ? (
+                  <BlogImage
+                    src={p.image}
+                    alt=""
+                    sizes="(max-width: 880px) 100vw, 40vw"
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <NumberDot n={String(i + 1).padStart(2, "0")} tone={i === 1 ? "green" : "yellow"} size={64} />
+                )}
+              </div>
+              <div style={{ ...labelText, marginTop: 20, color: C.sub }}>
                 {p.tag} · {p.date}
               </div>
               <div
                 style={{
-                  fontSize: i === 0 ? 28 : 22,
+                  marginTop: 10,
+                  fontSize: i === 0 ? 24 : 19,
                   fontWeight: 700,
+                  lineHeight: 1.45,
                   color: C.ink,
-                  lineHeight: 1.35,
                 }}
               >
                 {p.primary}
               </div>
-              <div
-                style={{
-                  marginTop: 10,
-                  fontSize: 13,
-                  color: C.sub,
-                  lineHeight: 1.6,
-                  fontStyle: "italic",
-                }}
-              >
-                {p.secondary}
-              </div>
-            </div>
-            <div
-              style={{
-                marginTop: 24,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderTop: `1px solid ${C.line}`,
-                paddingTop: 14,
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.22em",
-                color: C.ink,
-              }}
-            >
-              <span>NOTE.{String(i + 1).padStart(2, "0")}</span>
-              <span>→</span>
-            </div>
-          </Link>
-        ))}
-      </div>
+              {p.secondary ? (
+                <div style={{ marginTop: 10, fontSize: 13, lineHeight: 1.75, color: C.sub }}>{p.secondary}</div>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+      </Inner>
     </section>
   );
 }
@@ -1311,214 +712,110 @@ function Club({ locale }: { locale: Locale }) {
   const c = COPY.club;
   const en = locale === "en";
   return (
-    <section
-      id="club"
-      className="mob-pad mob-pad-v-sm"
-      style={{
-        padding: "96px 64px",
-        background: C.slab,
-        color: C.onSlab,
-      }}
-    >
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr",
-          gap: 60,
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              background: C.accent,
-              color: C.paper,
-              padding: "10px 14px",
-              display: "inline-block",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 28,
-            }}
-          >
-            ▍{en ? c.labelEn : c.labelJa}
+    <section id="club" style={{ background: C.main, color: C.onMain }}>
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <div
+          className="mob-1col"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: 60,
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <p lang="ja" style={{ margin: 0, display: "flex", gap: 18, fontSize: 14, letterSpacing: "0.04em" }}>
+              <span aria-hidden>-</span>
+              <span>{c.labelJa}</span>
+            </p>
+            <h2
+              className="mob-h3"
+              style={{
+                margin: "16px 0 0",
+                fontFamily: FONTS.display,
+                fontWeight: 300,
+                fontSize: 64,
+                lineHeight: 1.05,
+                letterSpacing: "-0.035em",
+                color: C.onMain,
+              }}
+            >
+              {c.title}
+            </h2>
+            <p style={{ margin: "24px 0 0", fontSize: 17, lineHeight: 1.95, maxWidth: 540 }}>
+              {en ? c.bodyEn : c.bodyJa}
+            </p>
           </div>
-          <h2
-            className="mob-h3"
-            style={{
-              fontFamily: FONTS.display,
-              fontSize: 64,
-              lineHeight: 1.08,
-              letterSpacing: -2,
-              fontWeight: 700,
-              color: C.onSlab,
-              margin: 0,
-            }}
-          >
-            {c.title}
-          </h2>
-          <p
-            style={{
-              marginTop: 24,
-              fontSize: 17,
-              lineHeight: 1.95,
-              opacity: 0.85,
-              maxWidth: 540,
-            }}
-          >
-            {en ? c.bodyEn : c.bodyJa}
-          </p>
-        </div>
-        <div>
-          <Link
-            href="/club"
-            style={{
-              width: "100%",
-              padding: "24px 28px",
-              background: C.accent,
-              color: C.paper,
-              fontFamily: FONTS.body,
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: 0.5,
-              textAlign: "center",
-              display: "block",
-              textDecoration: "none",
-            }}
-          >
+          <BrandButtonLink href="/club" arrow={false} style={{ width: "100%", padding: "22px 28px", fontSize: 15 }}>
             {en ? c.ctaEn : c.ctaJa}
-          </Link>
+          </BrandButtonLink>
         </div>
-      </div>
+      </Inner>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Contact — block-button
+   Contact — green band above the yellow footer
    ───────────────────────────────────────────────────────────── */
 function Contact({ locale }: { locale: Locale }) {
   const c = COPY.contact;
   const en = locale === "en";
-  const title = en ? c.titleEn : c.titleJa;
   return (
-    <section
-      id="contact"
-      className="mob-pad mob-pad-v-sm"
-      style={{
-        padding: "120px 64px",
-        background: C.accent,
-        color: C.paper,
-      }}
-    >
-      <div
-        className="mob-1col"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr",
-          gap: 60,
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              background: C.slab,
-              color: C.onSlab,
-              padding: "10px 14px",
-              display: "inline-block",
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              marginBottom: 28,
-            }}
-          >
-            ▍{en ? c.labelEn : c.labelJa}
-          </div>
-          {title && (
+    <section id="contact" style={{ background: C.slab, color: C.onSlabSoft }}>
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 112, paddingBottom: 112 }}>
+        <div
+          className="mob-1col"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: 60,
+            alignItems: "center",
+          }}
+        >
+          <div>
             <h2
-              className="mob-h2"
+              className="mob-h3"
               style={{
-                fontFamily: FONTS.display,
-                fontSize: 72,
-                lineHeight: 1.08,
-                letterSpacing: -2,
-                fontWeight: 700,
-                color: C.paper,
                 margin: 0,
+                fontFamily: FONTS.display,
+                fontWeight: 300,
+                fontSize: 64,
+                lineHeight: 1.05,
+                letterSpacing: "-0.035em",
+                color: C.onSlab,
               }}
             >
-              {title}
+              Contact
             </h2>
-          )}
-          <p
-            style={{
-              marginTop: 24,
-              fontSize: 17,
-              lineHeight: 1.95,
-              opacity: 0.92,
-              maxWidth: 540,
-            }}
-          >
-            {en ? c.bodyEn : c.bodyJa}
-          </p>
-        </div>
-        <div>
-          <div
-            style={{
-              background: C.slab,
-              color: C.onSlab,
-              padding: 32,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: FONTS.mono,
-                fontSize: 11,
-                letterSpacing: "0.24em",
-                opacity: 0.7,
-                marginBottom: 12,
-              }}
-            >
-              EMAIL
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 700 }}>
+            <p lang="ja" style={{ margin: "18px 0 0", display: "flex", gap: 18, fontSize: 14, color: C.onSlab }}>
+              <span aria-hidden>-</span>
+              <span>{c.labelJa}</span>
+            </p>
+            <p style={{ margin: "28px 0 0", fontSize: 17, lineHeight: 1.95, maxWidth: 540 }}>
+              {en ? c.bodyEn : c.bodyJa}
+            </p>
+          </div>
+          <div>
+            <div style={{ ...labelText, color: C.onSlab }}>Email</div>
+            <div style={{ marginTop: 10, fontSize: 26, fontWeight: 500, letterSpacing: "0.01em" }}>
               info@bakerization.com
             </div>
-            <Rule
-              style={{
-                background: C.onSlab,
-                opacity: 0.2,
-                margin: "20px 0",
-                height: 1,
-              }}
+            <div
+              aria-hidden
+              style={{ height: 1, margin: "28px 0", background: "color-mix(in srgb, var(--on-slab) 35%, transparent)" }}
             />
-            <Link
+            <BrandButtonLink
               href="/contact"
-              style={{
-                width: "100%",
-                padding: "20px 24px",
-                background: C.onSlab,
-                color: C.slab,
-                border: "none",
-                fontFamily: FONTS.body,
-                fontSize: 15,
-                fontWeight: 700,
-                letterSpacing: 0.5,
-                cursor: "pointer",
-                textAlign: "center",
-                display: "block",
-                textDecoration: "none",
-              }}
+              variant="yellow"
+              arrow={false}
+              style={{ width: "100%", padding: "20px 24px", fontSize: 15 }}
             >
               {en ? c.ctaEn : c.ctaJa}
-            </Link>
+            </BrandButtonLink>
           </div>
         </div>
-      </div>
+      </Inner>
     </section>
   );
 }
@@ -1528,28 +825,25 @@ function Contact({ locale }: { locale: Locale }) {
    ───────────────────────────────────────────────────────────── */
 export default function TopPage({ posts = [], news = [], locale = "ja" }: Props) {
   return (
-    <Stage>
-      <div
-        className="marker-on"
-        style={{
-          width: "100%",
-          background: C.bg,
-          color: C.ink,
-          fontFamily: FONTS.body,
-          fontSynthesis: "none",
-          WebkitFontSmoothing: "antialiased",
-        }}
-      >
-        <Nav locale={locale} />
-        <Hero locale={locale} />
-        <News news={news} locale={locale} />
-        <About locale={locale} />
-        <Services locale={locale} />
-        <Product locale={locale} />
-        <Blog posts={posts} locale={locale} />
-        <Club locale={locale} />
-        <Contact locale={locale} />
-      </div>
-    </Stage>
+    <div
+      style={{
+        width: "100%",
+        background: C.bg,
+        color: C.ink,
+        fontFamily: FONTS.body,
+        fontSynthesis: "none",
+        WebkitFontSmoothing: "antialiased",
+      }}
+    >
+      <Hero locale={locale} />
+      <News news={news} locale={locale} />
+      <About locale={locale} />
+      <Morning locale={locale} />
+      <Services locale={locale} />
+      <Product locale={locale} />
+      <Blog posts={posts} locale={locale} />
+      <Club locale={locale} />
+      <Contact locale={locale} />
+    </div>
   );
 }

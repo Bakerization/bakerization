@@ -1,9 +1,22 @@
-import Link from "next/link";
 import { C, FONTS } from "@/lib/theme";
 import { APP, COMPANY, COMPANY_ADDRESS } from "@/lib/company";
 import type { Metadata } from "next";
 import { localeFromParams, type Locale } from "@/lib/locale";
 import { pageMetadata } from "@/lib/seo";
+import {
+  BrandBar,
+  BrandButtonLink,
+  ContentHeading,
+  HandQuote,
+  Inner,
+  NAV_HEIGHT,
+  NumberDot,
+  RuleText,
+  SectionCover,
+  SubLabel,
+  TextLink,
+  labelText,
+} from "@/components/brand/ui";
 
 // Fully static: no request-time work. `dynamic = "error"` makes the build fail if
 // a dynamic API ever sneaks in. `dynamicParams = false` only applies to this leaf.
@@ -229,6 +242,23 @@ function copyFor(locale: Locale) {
 
 type Copy = ReturnType<typeof copyFor>;
 
+// Section headings pair the English label with the Japanese one in both
+// locales (the brand book's "Title / 日本語").
+const EN = copyFor("en");
+const JA = copyFor("ja");
+
+const cardBox: React.CSSProperties = {
+  background: C.card,
+  border: `1px solid ${C.line}`,
+  padding: 40,
+};
+
+const bodyText: React.CSSProperties = {
+  fontSize: 15,
+  lineHeight: 1.9,
+  color: C.ink,
+};
+
 export default async function AppPage({ params }: Props) {
   const locale = await localeFromParams(params);
   const t = copyFor(locale);
@@ -240,348 +270,175 @@ export default async function AppPage({ params }: Props) {
         background: C.bg,
         color: C.ink,
         fontFamily: FONTS.body,
-        paddingTop: 96,
+        paddingTop: NAV_HEIGHT,
       }}
     >
-      <div
-        className="mob-pad"
-        style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 64px 96px" }}
-      >
-        {/* Header strip */}
-        <div
-          className="mob-flex-wrap"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            borderTop: `1px solid ${C.line}`,
-            borderBottom: `1px solid ${C.line}`,
-            padding: "16px 0",
-            marginBottom: 64,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.28em",
-              color: C.accent,
-            }}
-          >
-            ▍{APP.name}
-          </span>
-        </div>
+      <SectionCover as="h1" title={APP.name} sub="プロダクト" no="01" />
 
-        {/* Headline */}
-        <h1
-          className="mob-h1"
-          style={{
-            margin: 0,
-            fontFamily: FONTS.display,
-            fontSize: 132,
-            lineHeight: 0.9,
-            letterSpacing: -4,
-            fontWeight: 700,
-            color: C.ink,
-          }}
-        >
+      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <HandQuote size={locale === "en" ? 38 : 44}>
           {t.headline[0]}
           <br />
           {t.headline[1]}
           <br />
-          <span style={{ color: C.accent }}>{t.headline[2]}</span>
-        </h1>
-
-        <div
-          style={{ marginTop: 32, width: 100, height: 3, background: C.accent }}
-        />
-
-        <p
-          style={{
-            marginTop: 28,
-            fontSize: 18,
-            lineHeight: 1.95,
-            color: C.sub,
-          }}
-        >
+          {t.headline[2]}
+        </HandQuote>
+        <BrandBar reach="58%" style={{ marginTop: 32 }} />
+        <RuleText style={{ marginTop: 56, maxWidth: 760, fontSize: 18, lineHeight: 1.95, color: C.ink }}>
           {t.deck}
-        </p>
+        </RuleText>
 
         {/* プライバシーポリシーへの導線（上部） */}
-        <div style={{ marginTop: 28 }}>
+        <div style={{ marginTop: 40 }}>
           <PolicyLink label={t.policyLink} />
         </div>
+      </Inner>
 
+      <Inner style={{ paddingBottom: 120 }}>
         {/* ── できること ── */}
-        <SectionLabel style={{ marginTop: 80 }}>{t.featuresLabel}</SectionLabel>
-
-        <section
-          className="mob-1col"
-          style={{
-            marginTop: 24,
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
-          {t.features.map((f) => (
-            <div
-              key={f.no}
-              className="mob-pad-card"
-              style={{
-                background: C.card,
-                border: `1.5px solid ${C.line}`,
-                padding: 36,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: FONTS.display,
-                  fontSize: 32,
-                  fontWeight: 700,
-                  color: C.accent,
-                  lineHeight: 1,
-                }}
-              >
-                {f.no}
+        <section>
+          <ContentHeading title={EN.featuresLabel} sub={JA.featuresLabel} />
+          <div
+            className="mob-1col"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 24,
+              alignItems: "stretch",
+            }}
+          >
+            {t.features.map((f, i) => (
+              <div key={f.no} className="mob-pad-card" style={{ background: C.paper, padding: 40 }}>
+                <NumberDot n={f.no} tone={i === 1 ? "green" : "yellow"} size={56} />
+                <h2
+                  style={{
+                    margin: "24px 0 0",
+                    fontSize: 24,
+                    fontWeight: 700,
+                    lineHeight: 1.4,
+                    color: C.ink,
+                  }}
+                >
+                  {f.title}
+                </h2>
+                <p style={{ margin: "12px 0 0", fontSize: 15, lineHeight: 1.9, color: C.sub }}>{f.lead}</p>
+                <ul style={{ listStyle: "none", margin: "24px 0 0", padding: 0 }}>
+                  {f.items.map((item, j) => (
+                    <li
+                      key={item}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "22px 1fr",
+                        gap: 10,
+                        padding: "11px 0",
+                        borderTop: j === 0 ? `1px solid ${C.lineStrong}` : "none",
+                        borderBottom: `1px solid ${C.lineStrong}`,
+                        fontSize: 15,
+                        lineHeight: 1.6,
+                        color: C.ink,
+                      }}
+                    >
+                      <span aria-hidden>—</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h2
-                style={{
-                  margin: "14px 0 0",
-                  fontSize: 24,
-                  fontWeight: 700,
-                  color: C.ink,
-                }}
-              >
-                {f.title}
-              </h2>
-              <p
-                style={{
-                  margin: "12px 0 0",
-                  fontSize: 15,
-                  lineHeight: 1.9,
-                  color: C.sub,
-                }}
-              >
-                {f.lead}
-              </p>
-              <ul style={{ listStyle: "none", margin: "20px 0 0", padding: 0 }}>
-                {f.items.map((item, i) => (
-                  <li
-                    key={item}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "22px 1fr",
-                      gap: 10,
-                      padding: "10px 0",
-                      borderTop: i === 0 ? `1px solid ${C.line}` : "none",
-                      borderBottom: `1px solid ${C.line}`,
-                      fontSize: 15,
-                      lineHeight: 1.6,
-                      color: C.ink,
-                    }}
-                  >
-                    <span style={{ color: C.accent, fontWeight: 700 }}>—</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
         {/* ── ログインについて ── */}
-        <SectionLabel style={{ marginTop: 80 }}>{t.loginLabel}</SectionLabel>
-        <p
-          style={{
-            marginTop: 20,
-            fontSize: 16,
-            lineHeight: 1.95,
-            color: C.sub,
-          }}
-        >
-          {t.loginLead}
-        </p>
+        <section style={{ marginTop: 112 }}>
+          <ContentHeading title={EN.loginLabel} sub={JA.loginLabel} />
+          <p style={{ margin: 0, maxWidth: 860, fontSize: 16, lineHeight: 1.95, color: C.sub }}>{t.loginLead}</p>
 
-        <div
-          className="mob-1col"
-          style={{
-            marginTop: 24,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
-          {/* Google */}
           <div
-            className="mob-pad-card"
+            className="mob-1col"
             style={{
-              background: C.card,
-              border: `1.5px solid ${C.line}`,
-              padding: 36,
+              marginTop: 32,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 24,
+              alignItems: "start",
             }}
           >
-            <MethodLabel>{t.method} 01</MethodLabel>
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 24,
-                fontWeight: 700,
-                color: C.ink,
-              }}
-            >
-              {t.google.title}
-            </h3>
-            <DefList rows={t.google.rows} />
-            <p
-              style={{
-                margin: "24px 0 0",
-                fontSize: 15,
-                lineHeight: 1.9,
-                color: C.ink,
-              }}
-            >
-              {t.google.body1}
-            </p>
-            <p
-              style={{
-                margin: "16px 0 0",
-                fontSize: 15,
-                lineHeight: 1.9,
-                color: C.ink,
-              }}
-            >
-              {t.google.body2}
-            </p>
+            {/* Google */}
+            <div className="mob-pad-card" style={cardBox}>
+              <SubLabel>{t.method} 01</SubLabel>
+              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.5, color: C.ink }}>
+                {t.google.title}
+              </h3>
+              <DefList rows={t.google.rows} />
+              <p style={{ ...bodyText, margin: "24px 0 0" }}>{t.google.body1}</p>
+              <p style={{ ...bodyText, margin: "16px 0 0" }}>{t.google.body2}</p>
+            </div>
+
+            {/* Email + password */}
+            <div className="mob-pad-card" style={cardBox}>
+              <SubLabel>{t.method} 02</SubLabel>
+              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.5, color: C.ink }}>
+                {t.password.title}
+              </h3>
+              <DefList rows={t.password.rows} />
+            </div>
           </div>
 
-          {/* Email + password */}
-          <div
-            className="mob-pad-card"
-            style={{
-              background: C.card,
-              border: `1.5px solid ${C.line}`,
-              padding: 36,
-            }}
-          >
-            <MethodLabel>{t.method} 02</MethodLabel>
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 24,
-                fontWeight: 700,
-                color: C.ink,
-              }}
-            >
-              {t.password.title}
-            </h3>
-            <DefList rows={t.password.rows} />
+          {/* 削除方法 */}
+          <div className="mob-pad-card" style={{ marginTop: 24, background: C.paper, padding: 40 }}>
+            <SubLabel>{t.deleteLabel}</SubLabel>
+            <p style={{ margin: 0, fontSize: 16, lineHeight: 1.95, color: C.ink }}>{t.deleteBody}</p>
           </div>
-        </div>
-
-        {/* 削除方法 */}
-        <div
-          className="mob-pad-card-lg"
-          style={{
-            marginTop: 24,
-            background: C.card,
-            border: `1.5px solid ${C.line}`,
-            padding: 40,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.24em",
-              textTransform: "uppercase",
-              color: C.accent,
-              marginBottom: 16,
-            }}
-          >
-            ▎{t.deleteLabel}
-          </div>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 16,
-              lineHeight: 1.95,
-              color: C.ink,
-            }}
-          >
-            {t.deleteBody}
-          </p>
-        </div>
+        </section>
 
         {/* ── 取得する情報と保存先 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>{t.storageLabel}</SectionLabel>
-        <div style={{ marginTop: 24 }}>
-          {t.storage.map(([what, where], i) => (
-            <div
-              key={what}
-              className="mob-1col"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1.6fr 1fr",
-                gap: 24,
-                padding: "20px 0",
-                borderTop: i === 0 ? `1px solid ${C.line}` : "none",
-                borderBottom: `1px solid ${C.line}`,
-              }}
-            >
-              <span style={{ fontSize: 16, lineHeight: 1.7, color: C.ink }}>
-                {what}
-              </span>
-              <span
+        <section style={{ marginTop: 112 }}>
+          <ContentHeading title={EN.storageLabel} sub={JA.storageLabel} />
+          <div>
+            {t.storage.map(([what, where], i) => (
+              <div
+                key={what}
                 style={{
-                  fontFamily: FONTS.mono,
-                  fontSize: 13,
-                  lineHeight: 1.7,
-                  color: C.sub,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  columnGap: 24,
+                  rowGap: 4,
+                  padding: "20px 0",
+                  borderTop: i === 0 ? `1px solid ${C.ink}` : "none",
+                  borderBottom: `1px solid ${C.line}`,
                 }}
               >
-                {where}
-              </span>
-            </div>
-          ))}
-        </div>
-        <p
-          style={{
-            marginTop: 24,
-            fontSize: 16,
-            lineHeight: 1.95,
-            color: C.sub,
-          }}
-        >
-          {t.storageNote}
-        </p>
-        <div style={{ marginTop: 20 }}>
-          <PolicyLink label={t.policyLink} />
-        </div>
+                <span style={{ flex: "1.6 1 360px", minWidth: 0, fontSize: 16, lineHeight: 1.7, color: C.ink }}>
+                  {what}
+                </span>
+                <span
+                  style={{ flex: "1 1 240px", minWidth: 0, fontSize: 14, letterSpacing: "0.02em", lineHeight: 1.9, color: C.sub }}
+                >
+                  {where}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p style={{ margin: "28px 0 0", maxWidth: 860, fontSize: 16, lineHeight: 1.95, color: C.sub }}>
+            {t.storageNote}
+          </p>
+          <div style={{ marginTop: 28 }}>
+            <PolicyLink label={t.policyLink} />
+          </div>
+        </section>
 
         {/* ── 事業者情報 ── */}
-        <SectionLabel style={{ marginTop: 80 }}>{t.companyLabel}</SectionLabel>
-        <div style={{ marginTop: 24 }}>
-          <DefList rows={t.companyRows} />
-        </div>
+        <section style={{ marginTop: 112 }}>
+          <ContentHeading title={EN.companyLabel} sub={JA.companyLabel} />
+          <div style={{ maxWidth: 860 }}>
+            <DefList rows={t.companyRows} top={0} />
+          </div>
+        </section>
 
-        <div style={{ marginTop: 64 }}>
-          <Link
-            href="/"
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 12,
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
-              color: C.accent,
-              textDecoration: "none",
-            }}
-          >
-            {t.back}
-          </Link>
+        <div style={{ marginTop: 72 }}>
+          <TextLink href="/">{t.back}</TextLink>
         </div>
-      </div>
+      </Inner>
     </main>
   );
 }
@@ -589,80 +446,34 @@ export default async function AppPage({ params }: Props) {
 /* ─────────────────────────────────────────────────────────────
    Local parts
    ───────────────────────────────────────────────────────────── */
-function SectionLabel({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
+function DefList({ rows, top = 24 }: { rows: [string, string][]; top?: number }) {
   return (
-    <div
-      style={{
-        fontFamily: FONTS.mono,
-        fontSize: 11,
-        letterSpacing: "0.28em",
-        textTransform: "uppercase",
-        color: C.accent,
-        ...style,
-      }}
-    >
-      ▎{children}
-    </div>
-  );
-}
-
-function MethodLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontFamily: FONTS.mono,
-        fontSize: 11,
-        letterSpacing: "0.24em",
-        textTransform: "uppercase",
-        color: C.accent,
-        marginBottom: 14,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function DefList({ rows }: { rows: [string, string][] }) {
-  return (
-    <dl style={{ margin: "20px 0 0" }}>
+    <dl style={{ margin: `${top}px 0 0` }}>
       {rows.map(([k, v], i) => (
+        // Flex-wrap instead of mob-1col: on a narrow card the value drops
+        // just under its label instead of 28px away.
         <div
           key={k}
-          className="mob-1col"
           style={{
-            display: "grid",
-            gridTemplateColumns: "150px 1fr",
-            gap: 16,
+            display: "flex",
+            flexWrap: "wrap",
+            columnGap: 16,
+            rowGap: 2,
             padding: "12px 0",
             borderTop: i === 0 ? `1px solid ${C.line}` : "none",
             borderBottom: `1px solid ${C.line}`,
           }}
         >
-          <dt
-            style={{
-              fontFamily: FONTS.mono,
-              fontSize: 11,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: C.sub,
-              lineHeight: 1.9,
-            }}
-          >
-            {k}
-          </dt>
+          <dt style={{ ...labelText, flex: "0 0 150px", lineHeight: "27px", color: C.sub }}>{k}</dt>
           <dd
             style={{
               margin: 0,
+              flex: "1 1 200px",
+              minWidth: 0,
               fontSize: 15,
-              lineHeight: 1.8,
+              lineHeight: "27px",
               color: C.ink,
+              overflowWrap: "anywhere",
             }}
           >
             {v}
@@ -675,21 +486,8 @@ function DefList({ rows }: { rows: [string, string][] }) {
 
 function PolicyLink({ label }: { label: string }) {
   return (
-    <Link
-      href="/privacy"
-      style={{
-        display: "inline-block",
-        fontFamily: FONTS.mono,
-        fontSize: 12,
-        letterSpacing: "0.22em",
-        textTransform: "uppercase",
-        padding: "14px 20px",
-        border: `1px solid ${C.accent}`,
-        color: C.accent,
-        textDecoration: "none",
-      }}
-    >
+    <BrandButtonLink href="/privacy" variant="outline" arrow={false}>
       {label}
-    </Link>
+    </BrandButtonLink>
   );
 }
