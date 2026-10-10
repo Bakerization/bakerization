@@ -7,7 +7,7 @@ type Params = {
 
 const ALLOWED_PREFIXES = ["blog-assets/"];
 
-// Uploads get a unique, never-reused path (uploadBlogAsset: timestamp +
+// Uploads get a unique, never-reused path (lib/uploads.ts: timestamp +
 // addRandomSuffix), so a URL's bytes never change: browsers may keep it for a
 // year, and Vercel's CDN serves repeats without invoking this function.
 const CACHE_HEADERS = {

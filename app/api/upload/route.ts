@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-server";
-import { uploadBlogAsset } from "@/lib/blog-store";
+import { uploadAsset } from "@/lib/uploads";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = new Set([
@@ -58,15 +58,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const url = await uploadBlogAsset(
+    const url = await uploadAsset(
       file,
       sanitizePrefix(typeof prefix === "string" ? prefix : undefined)
     );
     return NextResponse.json({ url });
   } catch (error) {
-    console.error("Failed to upload blog asset.", error);
+    console.error("Failed to upload asset.", error);
     return NextResponse.json(
-      { error: "Failed to upload blog asset." },
+      { error: "Failed to upload asset." },
       { status: 502 }
     );
   }

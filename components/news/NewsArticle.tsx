@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BlogImage from "@/components/blog/BlogImage";
+import BlobImage from "@/components/BlobImage";
 import JsonLd from "@/components/JsonLd";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import NewsMarkdown from "@/components/news/NewsMarkdown";
@@ -94,7 +94,7 @@ export default function NewsArticle({ item, locale }: { item: NewsItem; locale: 
                 background: C.paper,
               }}
             >
-              <BlogImage
+              <BlobImage
                 src={item.coverImageUrl}
                 alt={localized.title}
                 priority

@@ -79,7 +79,7 @@ type Props = {
 
 // Both languages are prerendered; pages below inherit these params.
 // No `dynamicParams = false` here: Next evaluates it across every segment of a
-// route, which would 404 the on-demand children (/blog/[slug], /research/a/[id]).
+// route, which would 404 the on-demand children (/news/[slug], /research/a/[id]).
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }

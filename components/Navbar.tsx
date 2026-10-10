@@ -1,26 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Wordmark from "@/components/brand/Wordmark";
 import { NAV_HEIGHT } from "@/components/brand/ui";
 import type { Locale } from "@/lib/locale";
 import { toPublicPathname } from "@/lib/public-pathname";
+import { JOURNAL_URL } from "@/lib/links";
 import { C, FONTS } from "@/lib/theme";
 
-const LINKS: { label: string; href: string; drop?: string }[] = [
+type NavLink = {
+  label: string;
+  href: string;
+  /** Opens in a new tab (Journal on note). */
+  external?: boolean;
+  /** Hover menu under the item; kiji hub (the product) sits under Services. */
+  drop?: { label: string; href: string };
+};
+
+// Message is linked from the footer only.
+const LINKS: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "Services", href: "/#services" },
-  { label: "Product", href: "/app", drop: "kiji hub" },
+  { label: "Services", href: "/#services", drop: { label: "kiji hub", href: "/app" } },
   { label: "News", href: "/news" },
-  { label: "Journal", href: "/blog" },
+  { label: "Journal", href: JOURNAL_URL, external: true },
   { label: "Research", href: "/research" },
-  { label: "Message", href: "/message" },
   { label: "Club", href: "/club" },
 ];
+
+function NavAnchor({
+  item,
+  style,
+  onClick,
+  children,
+}: {
+  item: NavLink;
+  style: CSSProperties;
+  onClick?: () => void;
+  children: ReactNode;
+}) {
+  if (item.external) {
+    return (
+      <a href={item.href} target="_blank" rel="noopener noreferrer" style={style} onClick={onClick}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={item.href} style={style} onClick={onClick}>
+      {children}
+    </Link>
+  );
+}
 
 export default function Navbar({ locale }: { locale: Locale }) {
   const pathname = toPublicPathname(usePathname());
@@ -88,13 +122,13 @@ export default function Navbar({ locale }: { locale: Locale }) {
         >
           {LINKS.map((x) => (
             <li key={x.label} className={x.drop ? "nav-drop" : undefined}>
-              <Link href={x.href} style={linkStyle}>
+              <NavAnchor item={x} style={linkStyle}>
                 {x.label}
-              </Link>
+              </NavAnchor>
               {x.drop && (
                 <div className="nav-drop-menu">
                   <Link
-                    href={x.href}
+                    href={x.drop.href}
                     style={{
                       display: "block",
                       padding: "10px 16px",
@@ -108,7 +142,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {x.drop}
+                    {x.drop.label}
                   </Link>
                 </div>
               )}
@@ -167,14 +201,30 @@ export default function Navbar({ locale }: { locale: Locale }) {
         >
           {LINKS.map((x) => (
             <li key={x.label} style={{ borderBottom: `1px solid ${C.line}` }}>
-              <Link
-                href={x.href}
+              <NavAnchor
+                item={x}
                 onClick={() => setOpenFor(null)}
                 style={{ ...linkStyle, display: "block", padding: "14px 0" }}
               >
                 {x.label}
-                {x.drop ? <span style={{ textTransform: "none", color: C.sub }}> — {x.drop}</span> : null}
-              </Link>
+                {x.external ? <span aria-hidden> ↗</span> : null}
+              </NavAnchor>
+              {x.drop ? (
+                <Link
+                  href={x.drop.href}
+                  onClick={() => setOpenFor(null)}
+                  style={{
+                    ...linkStyle,
+                    display: "block",
+                    padding: "0 0 14px 18px",
+                    textTransform: "none",
+                    letterSpacing: "0.06em",
+                    color: C.sub,
+                  }}
+                >
+                  — {x.drop.label}
+                </Link>
+              ) : null}
             </li>
           ))}
         </ul>

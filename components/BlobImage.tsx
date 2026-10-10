@@ -19,12 +19,12 @@ type Props = {
 };
 
 /**
- * Blog images are uploads served through /api/blob/…; next/image resizes and
+ * Uploaded images (news covers) are served through /api/blob/…; next/image resizes and
  * converts them (AVIF/WebP) and Vercel caches every variant. An external URL
  * pasted by an admin isn't on the optimizer's allow-list, so it falls back to
  * a plain lazy <img>.
  */
-export default function BlogImage({ src, alt, sizes, priority, style, width, height }: Props) {
+export default function BlobImage({ src, alt, sizes, priority, style, width, height }: Props) {
   if (!src.startsWith("/api/blob/")) {
     return (
       // eslint-disable-next-line @next/next/no-img-element

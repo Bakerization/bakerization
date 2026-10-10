@@ -3,7 +3,7 @@ import Image from "next/image";
 import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
-import BlogImage from "@/components/blog/BlogImage";
+import { JOURNAL_URL } from "@/lib/links";
 import {
   BrandBar,
   BrandButtonLink,
@@ -15,19 +15,10 @@ import {
   PhotoSpread,
   RuleText,
   SectionCover,
+  SubLabel,
   TextLink,
   labelText,
 } from "@/components/brand/ui";
-
-type BlogTeaser = {
-  slug: string;
-  date: string;
-  tag: string;
-  ja: string;
-  en: string;
-  /** Journal hero image, when the post has one. */
-  image?: string;
-};
 
 type NewsTeaser = {
   slug: string;
@@ -37,7 +28,7 @@ type NewsTeaser = {
   title: string;
 };
 
-type Props = { posts?: BlogTeaser[]; news?: NewsTeaser[]; locale?: Locale };
+type Props = { news?: NewsTeaser[]; locale?: Locale };
 
 type ServiceItem = {
   num: string;
@@ -162,35 +153,13 @@ const COPY = {
       },
     ] as ProductItem[],
   },
-  blog: {
+  journal: {
     labelJa: "ジャーナル",
     labelEn: "Journal",
-    viewAll: "VIEW JOURNAL →",
-    titleJa: "",
-    titleEn: "",
-    posts: [
-      {
-        date: "2026.04.18",
-        tagJa: "現場ノート",
-        tagEn: "Field Note",
-        ja: "仕込みは「読む」もの。需要予測と発酵時間のあいだ。",
-        en: "Forecasting bread by reading the day.",
-      },
-      {
-        date: "2026.03.27",
-        tagJa: "事例",
-        tagEn: "Case Study",
-        ja: "下町の小さな店で、廃棄率を3割減らした半年の話。",
-        en: "Cutting waste by 30% at a neighborhood bakery.",
-      },
-      {
-        date: "2026.03.05",
-        tagJa: "対談",
-        tagEn: "Dialogue",
-        ja: "町のパン屋が地域インフラになるとき。",
-        en: "When the corner bakery becomes infrastructure.",
-      },
-    ],
+    bodyJa: "Bakerizationが考えていることや日々の取り組みは、noteで発信しています。",
+    bodyEn: "We write about what Bakerization is thinking and working on over on note.",
+    ctaJa: "noteで読む",
+    ctaEn: "Read on note (in Japanese)",
   },
   club: {
     labelJa: "メーリングリスト",
@@ -526,6 +495,7 @@ function Services({ locale }: { locale: Locale }) {
               </Link>
             ))}
           </div>
+          <Products locale={locale} />
         </Inner>
       </section>
     </>
@@ -533,172 +503,109 @@ function Services({ locale }: { locale: Locale }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Product — プロダクトが増えたら COPY.product.items に足すだけでよい。
+   Products — the Services section's own products (kiji hub), docked
+   under the three service cards. プロダクトが増えたら
+   COPY.product.items に足すだけでよい。
    ───────────────────────────────────────────────────────────── */
-function Product({ locale }: { locale: Locale }) {
+function Products({ locale }: { locale: Locale }) {
   const c = COPY.product;
   const en = locale === "en";
   return (
-    <section id="product" style={{ background: C.bg }}>
-      <Inner style={{ paddingBottom: 120 }}>
-        <ContentHeading title="Product" sub={c.labelJa} />
-        <div style={{ display: "grid", gap: 18 }}>
-          {c.items.map((it) => (
-            <div
-              key={it.num}
-              className="mob-1col mob-pad-card"
-              style={{
-                background: C.paper,
-                padding: 48,
-                display: "grid",
-                gridTemplateColumns: "1fr 1.2fr",
-                gap: 48,
-                alignItems: "start",
-              }}
-            >
-              <div>
-                {c.items.length > 1 && <NumberDot n={it.num} size={64} />}
-                <div
-                  style={{
-                    fontFamily: FONTS.display,
-                    fontWeight: 300,
-                    fontSize: 56,
-                    lineHeight: 1.05,
-                    letterSpacing: "-0.035em",
-                    color: C.ink,
-                  }}
-                >
-                  {it.name}
-                </div>
-              </div>
-              <div>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {(en ? it.pointsEn : it.pointsJa).map((pt, i) => (
-                    <li
-                      key={i}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "22px 1fr",
-                        gap: 10,
-                        padding: "12px 0",
-                        borderTop: i === 0 ? `1px solid ${C.lineStrong}` : "none",
-                        borderBottom: `1px solid ${C.lineStrong}`,
-                        fontSize: 15,
-                        lineHeight: 1.8,
-                        color: C.ink,
-                      }}
-                    >
-                      <span aria-hidden>—</span>
-                      <span>{pt}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div
-                  className="mob-flex-wrap"
-                  style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}
-                >
-                  <BrandButtonLink href={it.href}>{en ? it.ctaEn : it.ctaJa}</BrandButtonLink>
-                  <TextLink href={it.privacy}>{en ? c.privacyLabelEn : c.privacyLabelJa}</TextLink>
-                </div>
+    <div id="product" style={{ marginTop: 72, scrollMarginTop: NAV_HEIGHT }}>
+      <SubLabel>{en ? c.labelEn : c.labelJa}</SubLabel>
+      <div style={{ display: "grid", gap: 18 }}>
+        {c.items.map((it) => (
+          <div
+            key={it.num}
+            className="mob-1col mob-pad-card"
+            style={{
+              background: C.paper,
+              padding: 48,
+              display: "grid",
+              gridTemplateColumns: "1fr 1.2fr",
+              gap: 48,
+              alignItems: "start",
+            }}
+          >
+            <div>
+              {c.items.length > 1 && <NumberDot n={it.num} size={64} />}
+              <div
+                style={{
+                  fontFamily: FONTS.display,
+                  fontWeight: 300,
+                  fontSize: 56,
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.035em",
+                  color: C.ink,
+                }}
+              >
+                {it.name}
               </div>
             </div>
-          ))}
-        </div>
-      </Inner>
-    </section>
+            <div>
+              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                {(en ? it.pointsEn : it.pointsJa).map((pt, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "22px 1fr",
+                      gap: 10,
+                      padding: "12px 0",
+                      borderTop: i === 0 ? `1px solid ${C.lineStrong}` : "none",
+                      borderBottom: `1px solid ${C.lineStrong}`,
+                      fontSize: 15,
+                      lineHeight: 1.8,
+                      color: C.ink,
+                    }}
+                  >
+                    <span aria-hidden>—</span>
+                    <span>{pt}</span>
+                  </li>
+                ))}
+              </ul>
+              <div
+                className="mob-flex-wrap"
+                style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}
+              >
+                <BrandButtonLink href={it.href}>{en ? it.ctaEn : it.ctaJa}</BrandButtonLink>
+                <TextLink href={it.privacy}>{en ? c.privacyLabelEn : c.privacyLabelJa}</TextLink>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Journal — three latest posts with their hero images
+   Journal — written on note; the site itself no longer hosts a blog
    ───────────────────────────────────────────────────────────── */
-function Blog({ posts, locale }: { posts: BlogTeaser[]; locale: Locale }) {
-  const c = COPY.blog;
+function Journal({ locale }: { locale: Locale }) {
+  const c = COPY.journal;
   const en = locale === "en";
-
-  // Real posts arrive already localized (title in `ja`, excerpt in `en`).
-  // The built-in fallback keeps a JA/EN pairing, so swap by locale.
-  const items =
-    posts.length > 0
-      ? posts.map((p) => ({
-          key: p.slug || p.date,
-          href: p.slug ? `/blog/${p.slug}` : "/blog",
-          tag: p.tag,
-          date: p.date,
-          primary: p.ja,
-          secondary: p.en,
-          image: p.image,
-        }))
-      : c.posts.map((p, i) => ({
-          key: String(i),
-          href: "/blog",
-          tag: en ? p.tagEn : p.tagJa,
-          date: p.date,
-          primary: en ? p.en : p.ja,
-          secondary: en ? p.ja : p.en,
-          image: undefined,
-        }));
-
   return (
-    <section style={{ background: C.bg }}>
+    <section id="journal" style={{ background: C.bg }}>
       <Inner style={{ paddingBottom: 120 }}>
-        <ContentHeading title="Journal" sub={c.labelJa} aside={<TextLink href="/blog">{c.viewAll}</TextLink>} />
+        <ContentHeading title="Journal" sub={c.labelJa} />
         <div
           className="mob-1col"
           style={{
+            borderTop: `1px solid ${C.ink}`,
+            paddingTop: 40,
             display: "grid",
-            gridTemplateColumns: "1.4fr 1fr 1fr",
-            gap: 28,
-            alignItems: "start",
+            gridTemplateColumns: "1.3fr 1fr",
+            gap: 48,
+            alignItems: "center",
           }}
         >
-          {items.map((p, i) => (
-            <Link
-              key={p.key}
-              href={p.href}
-              style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: "inherit" }}
-            >
-              <div
-                style={{
-                  position: "relative",
-                  aspectRatio: "4 / 3",
-                  background: C.paper,
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {p.image ? (
-                  <BlogImage
-                    src={p.image}
-                    alt=""
-                    sizes="(max-width: 880px) 100vw, 40vw"
-                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <NumberDot n={String(i + 1).padStart(2, "0")} tone={i === 1 ? "green" : "yellow"} size={64} />
-                )}
-              </div>
-              <div style={{ ...labelText, marginTop: 20, color: C.sub }}>
-                {p.tag} · {p.date}
-              </div>
-              <div
-                style={{
-                  marginTop: 10,
-                  fontSize: i === 0 ? 24 : 19,
-                  fontWeight: 700,
-                  lineHeight: 1.45,
-                  color: C.ink,
-                }}
-              >
-                {p.primary}
-              </div>
-              {p.secondary ? (
-                <div style={{ marginTop: 10, fontSize: 13, lineHeight: 1.75, color: C.sub }}>{p.secondary}</div>
-              ) : null}
-            </Link>
-          ))}
+          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>{en ? c.bodyEn : c.bodyJa}</RuleText>
+          <div>
+            <BrandButtonLink href={JOURNAL_URL} external>
+              {en ? c.ctaEn : c.ctaJa}
+            </BrandButtonLink>
+          </div>
         </div>
       </Inner>
     </section>
@@ -823,7 +730,7 @@ function Contact({ locale }: { locale: Locale }) {
 /* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
-export default function TopPage({ posts = [], news = [], locale = "ja" }: Props) {
+export default function TopPage({ news = [], locale = "ja" }: Props) {
   return (
     <div
       style={{
@@ -840,8 +747,7 @@ export default function TopPage({ posts = [], news = [], locale = "ja" }: Props)
       <About locale={locale} />
       <Morning locale={locale} />
       <Services locale={locale} />
-      <Product locale={locale} />
-      <Blog posts={posts} locale={locale} />
+      <Journal locale={locale} />
       <Club locale={locale} />
       <Contact locale={locale} />
     </div>

@@ -31,6 +31,9 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
           <Link href="/app" style={{ ...link, textTransform: "none", letterSpacing: "0.06em" }}>
             {APP.name}
           </Link>
+          <Link href="/message" style={link}>
+            Message
+          </Link>
           <Link href="/research" style={link}>
             Research
           </Link>

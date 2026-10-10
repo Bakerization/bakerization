@@ -289,19 +289,34 @@ export function BrandButtonLink({
   href,
   variant = "green",
   arrow = true,
+  external = false,
   children,
   style,
 }: {
   href: string;
   variant?: BrandButtonVariant;
   arrow?: boolean;
+  /** Another site (e.g. note): opens in a new tab with a ↗ arrow. */
+  external?: boolean;
   children: ReactNode;
   style?: CSSProperties;
 }) {
+  const inner = (
+    <>
+      <span>{children}</span>
+      {arrow ? <span aria-hidden>{external ? "↗" : "→"}</span> : null}
+    </>
+  );
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...brandButtonStyle(variant), ...style }}>
+        {inner}
+      </a>
+    );
+  }
   return (
     <Link href={href} style={{ ...brandButtonStyle(variant), ...style }}>
-      <span>{children}</span>
-      {arrow ? <span aria-hidden>→</span> : null}
+      {inner}
     </Link>
   );
 }

@@ -2,8 +2,8 @@ import { neon } from "@neondatabase/serverless";
 import { revalidatePath } from "next/cache";
 import type { NewsItem, NewsSummary } from "@/lib/news-types";
 
-// Same shape as lib/blog-store.ts: raw SQL on Neon, DDL only on writes and in
-// `npm run ensure:tables`, reads tolerate a missing table.
+// Raw SQL on Neon. DDL runs only on writes and in `npm run ensure:tables`;
+// reads tolerate a missing table.
 
 function hasDatabaseUrl() {
   return Boolean(process.env.DATABASE_URL);

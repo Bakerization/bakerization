@@ -59,7 +59,7 @@ const components: Components = {
 
 export default function NewsMarkdown({ source }: { source: string }) {
   return (
-    <div className="blog-content-rich news-content">
+    <div className="rich-content news-content">
       <Markdown remarkPlugins={[remarkGfm]} components={components}>
         {source}
       </Markdown>

@@ -19,7 +19,7 @@ function safeCallback(path: string, fallback: string) {
   return path.startsWith("/") && !path.startsWith("//") ? path : fallback;
 }
 
-/** Blog admin gate (/admen, /blog/new, /blog/edit). */
+/** Admin gate (/admen: news management). */
 export async function requireAdmin(currentPath: string): Promise<AuthSession> {
   const session = await getAuthSession();
   if (!isAdmin(session)) {

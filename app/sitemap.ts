@@ -1,12 +1,10 @@
 import type { MetadataRoute } from "next";
-import { listPostSummaries } from "@/lib/blog-store";
 import { listNewsSummaries } from "@/lib/news-store";
-import { hasEnglishVersion } from "@/lib/blog-localize";
 import { listPublicArtifacts, listPublicProjects } from "@/lib/research-store";
 import { sitemapEntries } from "@/lib/seo";
 import { SERVICES } from "@/lib/services";
 
-// ISR: regenerated when a post or research artifact changes (revalidatePath in
+// ISR: regenerated when a news item or research artifact changes (revalidatePath in
 // the stores) and at most hourly otherwise.
 export const revalidate = 3600;
 
@@ -15,8 +13,7 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const [posts, news, artifacts, projects] = await Promise.all([
-    listPostSummaries().catch(() => []),
+  const [news, artifacts, projects] = await Promise.all([
     listNewsSummaries().catch(() => []),
     listPublicArtifacts().catch(() => []),
     listPublicProjects().catch(() => []),
@@ -33,20 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     }),
-    ...sitemapEntries("/blog", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...sitemapEntries("/research", { lastModified: researchUpdated, changeFrequency: "weekly", priority: 0.7 }),
     ...sitemapEntries("/club", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...sitemapEntries("/contact", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),
     ...sitemapEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.2, available: ["ja"] }),
     ...SERVICES.flatMap((s) => sitemapEntries(`/services/${s.slug}`, { lastModified: now, changeFrequency: "monthly", priority: 0.6 })),
-    ...posts.flatMap((p) =>
-      sitemapEntries(`/blog/${p.slug}`, {
-        lastModified: new Date(p.updatedAt),
-        changeFrequency: "monthly",
-        priority: 0.6,
-        available: hasEnglishVersion(p) ? ["ja", "en"] : ["ja"],
-      })
-    ),
     ...news.flatMap((n) =>
       sitemapEntries(`/news/${n.slug}`, {
         lastModified: new Date(n.updatedAt),

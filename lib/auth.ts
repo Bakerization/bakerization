@@ -13,7 +13,7 @@ import { inviteEmail, resetPasswordEmail } from "@/lib/research-emails";
 
 // ─────────────────────────────────────────────────────────────
 // Better Auth is the single auth system for the site:
-//   - /admen (blog admin)          → role "admin"
+//   - /admen (news admin)          → role "admin"
 //   - /research (members area)     → role "member" | "admin"
 //   - /api/mcp (Claude connector)  → OAuth 2.1 tokens issued here
 //   - REST uploads                 → per-member API keys (prefix rk_)

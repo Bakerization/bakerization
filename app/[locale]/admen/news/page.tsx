@@ -47,19 +47,17 @@ export default async function AdmenNewsPage() {
             marginBottom: 40,
           }}
         >
-          <Link
-            href="/admen"
+          <span
             style={{
               fontFamily: FONTS.mono,
               fontSize: 11,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
               color: C.accent,
-              textDecoration: "none",
             }}
           >
             ▍ADMEN — News
-          </Link>
+          </span>
           <Link
             href="/admen/news/new"
             style={{

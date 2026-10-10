@@ -25,7 +25,7 @@ async function uploadImage(file: File, prefix: string) {
   const form = new FormData();
   form.append("file", file);
   form.append("prefix", prefix);
-  const response = await fetch("/api/blog/upload", { method: "POST", body: form });
+  const response = await fetch("/api/upload", { method: "POST", body: form });
   const data = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
   if (!response.ok || !data.url) throw new Error(data.error || "画像のアップロードに失敗しました。");
   return data.url;

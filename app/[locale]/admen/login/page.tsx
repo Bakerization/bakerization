@@ -12,7 +12,7 @@ export default function AdmenLoginPage() {
       kicker="▍ADMEN — SIGN IN"
       title="管理者認証"
       defaultCallback="/admen"
-      allowedPrefixes={["/admen", "/blog"]}
+      allowedPrefixes={["/admen"]}
       forgotHref="/research/forgot"
     />
   );

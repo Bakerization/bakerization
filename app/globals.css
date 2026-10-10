@@ -58,16 +58,16 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Rich content (blog body, editor preview) — theme-aware
+   Rich content (news article bodies) — theme-aware
    ───────────────────────────────────────────────────────────── */
-.blog-content-rich {
+.rich-content {
   color: var(--sub);
   line-height: 1.95;
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 16px;
 }
 
-.blog-content-rich h2 {
+.rich-content h2 {
   margin-top: 2.6rem;
   margin-bottom: 0.9rem;
   font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
@@ -79,7 +79,7 @@ body {
   padding-top: 1.4rem;
 }
 
-.blog-content-rich h3 {
+.rich-content h3 {
   margin-top: 1.8rem;
   margin-bottom: 0.5rem;
   font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
@@ -88,11 +88,11 @@ body {
   color: var(--ink);
 }
 
-.blog-content-rich p {
+.rich-content p {
   margin: 1rem 0;
 }
 
-.blog-content-rich a {
+.rich-content a {
   color: var(--ink);
   text-decoration: underline;
   text-decoration-color: var(--main);
@@ -100,19 +100,19 @@ body {
   text-underline-offset: 3px;
 }
 
-.blog-content-rich ul,
-.blog-content-rich ol {
+.rich-content ul,
+.rich-content ol {
   margin: 1rem 0 1.2rem 1.4rem;
 }
 
-.blog-content-rich img {
+.rich-content img {
   width: 100%;
   height: auto;
   margin: 1.4rem 0;
   border: 1px solid var(--line);
 }
 
-.blog-content-rich blockquote {
+.rich-content blockquote {
   margin: 1.4rem 0;
   padding: 1rem 1.4rem;
   border-left: 4px solid var(--main);
@@ -121,7 +121,7 @@ body {
   font-size: 1.15em;
 }
 
-.blog-content-rich code {
+.rich-content code {
   background: var(--card);
   color: var(--ink);
   padding: 2px 6px;
@@ -129,7 +129,7 @@ body {
   font-size: 0.9em;
 }
 
-.blog-content-rich pre {
+.rich-content pre {
   background: var(--card);
   border: 1px solid var(--line);
   padding: 1rem;
@@ -139,28 +139,9 @@ body {
   margin: 1.4rem 0;
 }
 
-.blog-content-rich pre code {
+.rich-content pre code {
   background: transparent;
   padding: 0;
-}
-
-/* Posts pasted from another web page carry that page's inline colors and
-   fonts (e.g. beige paragraph backgrounds). Articles follow the site's
-   palette and type instead; the stored HTML is left as is. */
-.blog-content-rich [style] {
-  background-color: transparent !important;
-  border-color: var(--line) !important;
-  color: inherit !important;
-  font-family: inherit !important;
-}
-.blog-content-rich h2[style],
-.blog-content-rich h3[style] {
-  border-color: var(--ink) !important;
-  color: var(--ink) !important;
-  font-family: var(--font-display), var(--font-body), system-ui, sans-serif !important;
-}
-.blog-content-rich blockquote[style] {
-  border-color: var(--main) !important;
 }
 
 /* News bodies are Markdown (GFM): tables, rules, task lists */
@@ -217,23 +198,10 @@ body {
   }
 }
 
-/* TipTap placeholder */
-.tiptap p.is-editor-empty:first-child::before {
-  color: var(--sub);
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-
-.tiptap:focus {
-  outline: none;
-}
-
 /* ─────────────────────────────────────────────────────────────
    Responsive helpers — class-driven so inline styles can keep
    sizes for desktop, while mobile gets overrides via media query.
-   Used in TopPage, About, Blog, Contact, Admen pages.
+   Used in TopPage, About, News, Contact, Admen pages.
    ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 880px) {
@@ -380,7 +348,7 @@ body {
 /* Yomogi's Latin letters are typewriter-like, so English pages put a Latin
    hand in front. Japanese pages keep Yomogi for everything (digits included). */
 html:lang(en) .brand-hand,
-html:lang(en) .blog-content-rich blockquote {
+html:lang(en) .rich-content blockquote {
   font-family: var(--font-hand-latin), var(--font-hand), var(--font-body), system-ui, sans-serif !important;
 }
 
@@ -404,8 +372,8 @@ html:lang(en) .blog-content-rich blockquote {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Nav dropdown — Product にカーソルを合わせると kiji hub が出る。
-   ホバーが使えない端末では Product 自体が /app へのリンクになる。
+   Nav dropdown — Services にカーソルを合わせると kiji hub が出る。
+   ホバーが使えない端末では、トップの Services 欄から kiji hub へ進む。
    ───────────────────────────────────────────────────────────── */
 .nav-drop {
   position: relative;

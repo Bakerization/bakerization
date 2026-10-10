@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { JOURNAL_URL } from "./lib/links";
 
 // Next's default list of bots that get metadata in the initial <head> instead of
 // streamed, plus Googlebot, so canonical / hreflang are there on first byte.
@@ -49,6 +50,10 @@ const nextConfig: NextConfig = {
       { source: "/en/:path+", destination: "/:path+?lang=en", permanent: true },
       { source: "/m", destination: "/", permanent: false },
       { source: "/m/:path+", destination: "/:path+", permanent: false },
+      // The site's blog was removed; the journal is on note now. Old /blog
+      // links (and bookmarks) land there instead of a 404.
+      { source: "/blog", destination: JOURNAL_URL, permanent: false },
+      { source: "/blog/:path*", destination: JOURNAL_URL, permanent: false },
     ];
   },
 };

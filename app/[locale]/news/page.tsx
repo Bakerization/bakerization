@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import BlogImage from "@/components/blog/BlogImage";
+import BlobImage from "@/components/BlobImage";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { localeFromParams } from "@/lib/locale";
 import { formatNewsDate, localizeNews } from "@/lib/news-format";
@@ -105,7 +105,7 @@ export default async function NewsListPage({ params }: Props) {
                           background: C.paper,
                         }}
                       >
-                        <BlogImage
+                        <BlobImage
                           src={item.coverImageUrl}
                           alt={localized.title}
                           priority={i === 0}
