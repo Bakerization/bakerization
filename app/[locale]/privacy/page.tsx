@@ -10,6 +10,8 @@ export const dynamicParams = false;
 
 
 // Japanese only (no English translation yet): canonical, no hreflang.
+// noindex so it stops showing up as a Google sitelink; the page itself stays
+// public (linked from the footer and the kiji hub card) and not in the sitemap.
 export const metadata: Metadata = pageMetadata({
   path: "/privacy",
   locale: "ja",
@@ -17,6 +19,7 @@ export const metadata: Metadata = pageMetadata({
   title: "プライバシーポリシー",
   description:
     "Bakerizationが提供するミキシング記録アプリ kiji hub および kiji hub log において取得する情報、利用目的、保存先、第三者提供、保管期間、削除の方法について定めたプライバシーポリシー。",
+  robots: { index: false, follow: true },
 });
 
 /* ─────────────────────────────────────────────────────────────

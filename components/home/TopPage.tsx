@@ -153,6 +153,14 @@ const COPY = {
       },
     ] as ProductItem[],
   },
+  research: {
+    labelJa: "リサーチ",
+    labelEn: "Research",
+    bodyJa: "パン業界とパン屋さんにまつわる調査・分析レポートを、Bakerization Research で公開しています。",
+    bodyEn: "We publish our research and analysis on bakeries and the bread industry at Bakerization Research.",
+    ctaJa: "リサーチを見る",
+    ctaEn: "Browse research",
+  },
   journal: {
     labelJa: "ジャーナル",
     labelEn: "Journal",
@@ -580,6 +588,38 @@ function Products({ locale }: { locale: Locale }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Research — the home page's body link to /research (the strongest
+   internal-link signal for it, e.g. for Google sitelinks)
+   ───────────────────────────────────────────────────────────── */
+function Research({ locale }: { locale: Locale }) {
+  const c = COPY.research;
+  const en = locale === "en";
+  return (
+    <section id="research" style={{ background: C.bg }}>
+      <Inner style={{ paddingBottom: 120 }}>
+        <ContentHeading title="Research" sub={c.labelJa} />
+        <div
+          className="mob-1col"
+          style={{
+            borderTop: `1px solid ${C.ink}`,
+            paddingTop: 40,
+            display: "grid",
+            gridTemplateColumns: "1.3fr 1fr",
+            gap: 48,
+            alignItems: "center",
+          }}
+        >
+          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>{en ? c.bodyEn : c.bodyJa}</RuleText>
+          <div>
+            <BrandButtonLink href="/research">{en ? c.ctaEn : c.ctaJa}</BrandButtonLink>
+          </div>
+        </div>
+      </Inner>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    Journal — written on note; the site itself no longer hosts a blog
    ───────────────────────────────────────────────────────────── */
 function Journal({ locale }: { locale: Locale }) {
@@ -747,6 +787,7 @@ export default function TopPage({ news = [], locale = "ja" }: Props) {
       <About locale={locale} />
       <Morning locale={locale} />
       <Services locale={locale} />
+      <Research locale={locale} />
       <Journal locale={locale} />
       <Club locale={locale} />
       <Contact locale={locale} />

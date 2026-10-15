@@ -30,10 +30,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     }),
-    ...sitemapEntries("/research", { lastModified: researchUpdated, changeFrequency: "weekly", priority: 0.7 }),
+    ...sitemapEntries("/research", { lastModified: researchUpdated, changeFrequency: "weekly", priority: 0.9 }),
     ...sitemapEntries("/club", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...sitemapEntries("/contact", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),
-    ...sitemapEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.2, available: ["ja"] }),
+    // /privacy is noindex, so it is left out.
     ...SERVICES.flatMap((s) => sitemapEntries(`/services/${s.slug}`, { lastModified: now, changeFrequency: "monthly", priority: 0.6 })),
     ...news.flatMap((n) =>
       sitemapEntries(`/news/${n.slug}`, {
