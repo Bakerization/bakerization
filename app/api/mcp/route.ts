@@ -34,6 +34,7 @@ import {
   updateArtifact,
 } from "@/lib/research-store";
 import type { ResearchArtifactMeta, ResearchMember } from "@/lib/research-types";
+import { deleteUpload, MAX_CHUNK_CHARS, MAX_CHUNK_INDEX, putUploadChunk, readUpload } from "@/lib/research-uploads";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,24 @@ function publicArtifact(a: ResearchArtifactMeta) {
 const visibilityField = z
   .enum(["members", "public"])
   .describe('"members" (default): only signed-in members can open it. "public": anyone with the link can open it without logging in.');
+
+const uploadIdField = z
+  .string()
+  .min(1)
+  .max(64)
+  .describe("The upload_id from upload_html_chunk, once every piece is sent. Use instead of html.");
+
+/** publish_artifact / update_artifact take the document inline or as a finished chunked upload. */
+async function resolveHtml(
+  html: string | undefined,
+  uploadId: string | undefined,
+  ownerId: string
+): Promise<{ ok: true; html: string } | { ok: false; error: string }> {
+  if (html !== undefined && uploadId) return { ok: false, error: "Pass either html or upload_id, not both." };
+  if (uploadId) return readUpload(uploadId, ownerId);
+  if (html !== undefined) return { ok: true, html };
+  return { ok: false, error: "Pass html (small pages) or upload_id from upload_html_chunk (larger pages)." };
+}
 
 const projectSlugField = z
   .string()
@@ -138,7 +157,7 @@ const newsFields = {
 };
 
 function buildServer(member: ResearchMember | null) {
-  const server = new McpServer({ name: "bakerization-research", version: "1.1.0" });
+  const server = new McpServer({ name: "bakerization-research", version: "1.2.0" });
 
   async function requireMember() {
     if (!member) throw new Error("The signed-in Research member could not be resolved. Reconnect the connector.");
@@ -207,26 +226,64 @@ function buildServer(member: ResearchMember | null) {
   );
 
   server.registerTool(
+    "upload_html_chunk",
+    {
+      title: "Upload a large HTML document in pieces",
+      description:
+        "For an HTML page too large to pass in one call (over ~30 KB): split the COMPLETE document into consecutive pieces of about 30 KB " +
+        "(split at line breaks) and send them in order as index 0, 1, 2, …. The first call (index 0) omits upload_id and returns one; " +
+        "pass it on every later call. Pieces are joined exactly as sent, with nothing added between them. Re-sending an index replaces that piece. " +
+        "When every piece is sent, call publish_artifact (or update_artifact) with upload_id instead of html. Unpublished uploads expire after 24 hours.",
+      inputSchema: z.object({
+        upload_id: z.string().min(1).max(64).optional().describe("Omit for index 0; afterwards the upload_id that call returned"),
+        index: z.number().int().min(0).max(MAX_CHUNK_INDEX).describe("0-based position of this piece in the document"),
+        chunk: z.string().min(1).max(MAX_CHUNK_CHARS).describe("This piece of the HTML, verbatim"),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async ({ upload_id, index, chunk }) => {
+      const member = await requireMember();
+      const result = await putUploadChunk({ uploadId: upload_id, ownerId: member.id, index, data: chunk });
+      if (!result.ok) return text(result.error, true);
+      const p = result.progress;
+      return text({
+        upload_id: p.uploadId,
+        received_pieces: p.pieces,
+        total_bytes: p.totalBytes,
+        missing_indexes: p.missing,
+        next:
+          p.missing.length > 0
+            ? `Send the missing piece(s) ${p.missing.join(", ")}.`
+            : `Send index ${index + 1} next, or, if that was the last piece, call publish_artifact / update_artifact with upload_id "${p.uploadId}".`,
+      });
+    }
+  );
+
+  server.registerTool(
     "publish_artifact",
     {
       title: "Publish an HTML artifact",
       description:
         "Publish a self-contained HTML page (the full document, including <!doctype html>) to Bakerization Research so every member can open it. " +
-        "Pass the COMPLETE html string; inline all CSS/JS (CDN <script>/<link> tags to cdnjs/jsdelivr/unpkg/Google Fonts are fine). " +
-        `Max ${Math.round(MAX_HTML_BYTES / 1024)} KB; for pages over ~200 KB prefer the web upload on the site. ` +
+        "Inline all CSS/JS (CDN <script>/<link> tags to cdnjs/jsdelivr/unpkg/Google Fonts are fine). " +
+        "Pass the COMPLETE document as html when it is small (up to ~30 KB); for anything larger, send it first with upload_html_chunk and pass the returned upload_id instead of html. " +
+        `Never shorten a page to make it fit. Max ${Math.round(MAX_HTML_BYTES / 1024)} KB in total. ` +
         "Returns the artifact id and the URL to report back to the user. Use update_artifact to revise an existing artifact instead of publishing a duplicate.",
       inputSchema: z.object({
         title: z.string().min(1).max(MAX_TITLE_LENGTH).describe("Human-readable title shown in the gallery"),
-        html: z.string().min(1).max(MAX_HTML_BYTES).describe("The complete HTML document"),
+        html: z.string().min(1).max(MAX_HTML_BYTES).optional().describe("The complete HTML document (small pages; otherwise use upload_id)"),
+        upload_id: uploadIdField.optional(),
         project_slug: projectSlugField.optional(),
         description: z.string().max(MAX_DESCRIPTION_LENGTH).optional().describe("One or two sentences on what the page is"),
         visibility: visibilityField.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
-    async ({ title, html, project_slug, description, visibility }) => {
+    async ({ title, html, upload_id, project_slug, description, visibility }) => {
       const member = await requireMember();
-      const validation = validateArtifactHtml(html);
+      const source = await resolveHtml(html, upload_id, member.id);
+      if (!source.ok) return text(source.error, true);
+      const validation = validateArtifactHtml(source.html);
       if (!validation.ok) return text(`Invalid html: ${validation.error}`, true);
       const project = project_slug ? await getProjectBySlug(project_slug) : await getDefaultProject();
       if (!project) return text(`Project "${project_slug}" not found. Call list_projects or create_project first.`, true);
@@ -241,6 +298,7 @@ function buildServer(member: ResearchMember | null) {
         source: "mcp",
         visibility: visibility ?? "members",
       });
+      if (upload_id) await deleteUpload(upload_id);
       return text({ ...publicArtifact(artifact), message: `Published. Share this URL with the user: ${artifactUrl(artifact.id)}` });
     }
   );
@@ -250,18 +308,21 @@ function buildServer(member: ResearchMember | null) {
     {
       title: "Update an existing artifact",
       description:
-        "Replace the title, description, html and/or visibility of an artifact you published earlier (same id and URL are kept). Only the artifact's creator or an admin can replace its html or change visibility.",
+        "Replace the title, description, html and/or visibility of an artifact you published earlier (same id and URL are kept). " +
+        "Give a new document as html when it is small (up to ~30 KB), otherwise send it with upload_html_chunk and pass upload_id. " +
+        "Only the artifact's creator or an admin can replace its html or change visibility.",
       inputSchema: z.object({
         id: z.string().min(1).max(64).describe("Artifact id from publish_artifact / list_artifacts"),
         title: z.string().min(1).max(MAX_TITLE_LENGTH).optional(),
         description: z.string().max(MAX_DESCRIPTION_LENGTH).optional(),
-        html: z.string().min(1).max(MAX_HTML_BYTES).optional().describe("The complete new HTML document"),
+        html: z.string().min(1).max(MAX_HTML_BYTES).optional().describe("The complete new HTML document (small pages; otherwise use upload_id)"),
+        upload_id: uploadIdField.optional(),
         project_slug: projectSlugField.optional().describe("Move the artifact to another project"),
         visibility: visibilityField.optional(),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },
-    async ({ id, title, description, html, project_slug, visibility }) => {
+    async ({ id, title, description, html, upload_id, project_slug, visibility }) => {
       const member = await requireMember();
       const current = await getArtifactMeta(id);
       if (!current) return text(`Artifact "${id}" not found.`, true);
@@ -274,11 +335,13 @@ function buildServer(member: ResearchMember | null) {
       }
       if (title) patch.title = title.trim();
       if (description !== undefined) patch.description = normalizeDescription(description);
-      if (html !== undefined) {
+      if (html !== undefined || upload_id) {
         if (member.role !== "admin" && current.ownerId !== member.id) {
           return text("Only the artifact's creator or an admin can replace its html.", true);
         }
-        const validation = validateArtifactHtml(html);
+        const source = await resolveHtml(html, upload_id, member.id);
+        if (!source.ok) return text(source.error, true);
+        const validation = validateArtifactHtml(source.html);
         if (!validation.ok) return text(`Invalid html: ${validation.error}`, true);
         patch.html = validation.html;
       }
@@ -288,6 +351,7 @@ function buildServer(member: ResearchMember | null) {
         patch.projectId = target.id;
       }
       const updated = await updateArtifact(id, patch);
+      if (updated && upload_id) await deleteUpload(upload_id);
       return updated ? text(publicArtifact(updated)) : text("Update failed.", true);
     }
   );

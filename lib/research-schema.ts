@@ -72,6 +72,22 @@ export async function ensureResearchTables() {
         CREATE INDEX IF NOT EXISTS research_artifacts_public_project_pos
         ON research_artifacts (project_id, position, created_at) WHERE visibility = 'public'
       `;
+      // Pieces of an HTML document too large for one MCP tool call
+      // (lib/research-uploads.ts). Rows live until publish or 24 h.
+      await sql`
+        CREATE TABLE IF NOT EXISTS research_upload_chunks (
+          upload_id TEXT NOT NULL,
+          owner_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+          idx INTEGER NOT NULL,
+          data TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          PRIMARY KEY (upload_id, idx)
+        )
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS research_upload_chunks_created
+        ON research_upload_chunks (created_at)
+      `;
       await sql`
         INSERT INTO research_projects (id, slug, name, description, is_default)
         VALUES (${newId()}, ${DEFAULT_PROJECT_SLUG}, 'Inbox', 'プロジェクト未指定のアーティファクトが入ります。', TRUE)
