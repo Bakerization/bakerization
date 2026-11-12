@@ -63,7 +63,11 @@ export default async function Home({ params }: Props) {
           },
         ]}
       />
-      <TopPage news={news} locale={locale} />
+      <TopPage
+        news={news}
+        locale={locale}
+        partnershipEnabled={Boolean(process.env.OPENAI_API_KEY && process.env.DATABASE_URL)}
+      />
     </>
   );
 }
