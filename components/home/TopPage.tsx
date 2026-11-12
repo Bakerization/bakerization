@@ -4,6 +4,7 @@ import { CSSProperties, ReactNode } from "react";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
 import { JOURNAL_URL } from "@/lib/links";
+import PartnershipForm from "@/components/home/PartnershipForm";
 import {
   BrandBar,
   BrandButtonLink,
@@ -28,7 +29,7 @@ type NewsTeaser = {
   title: string;
 };
 
-type Props = { news?: NewsTeaser[]; locale?: Locale };
+type Props = { news?: NewsTeaser[]; locale?: Locale; partnershipEnabled?: boolean };
 
 type ServiceItem = {
   num: string;
@@ -201,7 +202,7 @@ const COPY = {
    shows. No z-index on the wrappers: a stacking context would
    isolate the blend.
    ───────────────────────────────────────────────────────────── */
-function Hero({ locale }: { locale: Locale }) {
+function Hero({ locale, partnershipEnabled }: { locale: Locale; partnershipEnabled: boolean }) {
   const en = locale === "en";
   return (
     <section
@@ -248,6 +249,11 @@ function Hero({ locale }: { locale: Locale }) {
           <BrandButtonLink href="#services" variant="outline" arrow={false}>
             {en ? COPY.ctaSecondaryEn : COPY.ctaSecondaryJa}
           </BrandButtonLink>
+          {partnershipEnabled && (
+            <BrandButtonLink href="#partnership" variant="outline">
+              {en ? "Explore a partnership" : "共同事業を考える"}
+            </BrandButtonLink>
+          )}
         </div>
       </Inner>
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 20px" }}>
@@ -770,7 +776,7 @@ function Contact({ locale }: { locale: Locale }) {
 /* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
-export default function TopPage({ news = [], locale = "ja" }: Props) {
+export default function TopPage({ news = [], locale = "ja", partnershipEnabled = false }: Props) {
   return (
     <div
       style={{
@@ -782,7 +788,8 @@ export default function TopPage({ news = [], locale = "ja" }: Props) {
         WebkitFontSmoothing: "antialiased",
       }}
     >
-      <Hero locale={locale} />
+      <Hero locale={locale} partnershipEnabled={partnershipEnabled} />
+      {partnershipEnabled && <PartnershipForm locale={locale} />}
       <News news={news} locale={locale} />
       <About locale={locale} />
       <Morning locale={locale} />
