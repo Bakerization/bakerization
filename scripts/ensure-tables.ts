@@ -1,14 +1,16 @@
 /**
- * One-off: create / migrate the news and research tables and indexes.
- * (The old blog_posts table is no longer managed; its rows are left in place.)
+ * One-off: create / migrate the blog, news and research tables and indexes.
  *   npm run ensure:tables            (reads .env)
  * Safe to re-run. Reads no longer run DDL on cold start, so run this once per
  * environment (and after a schema change) before the first request.
  */
 import { ensureNewsTable } from "../lib/news-store";
 import { ensureResearchTables } from "../lib/research-schema";
+import { ensureBlogTable } from "../lib/blog-store";
 
 async function main() {
+  await ensureBlogTable();
+  console.log("blog_posts: ok");
   await ensureNewsTable();
   console.log("news_posts: ok");
   await ensureResearchTables();

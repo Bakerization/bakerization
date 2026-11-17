@@ -626,7 +626,7 @@ function Research({ locale }: { locale: Locale }) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Journal — written on note; the site itself no longer hosts a blog
+   Blog archive and Journal on note
    ───────────────────────────────────────────────────────────── */
 function Journal({ locale }: { locale: Locale }) {
   const c = COPY.journal;
@@ -634,6 +634,13 @@ function Journal({ locale }: { locale: Locale }) {
   return (
     <section id="journal" style={{ background: C.bg }}>
       <Inner style={{ paddingBottom: 120 }}>
+        <ContentHeading title="Blog" sub="パンラボの記録" />
+        <div style={{ borderTop: `1px solid ${C.ink}`, paddingTop: 40, marginBottom: 64 }}>
+          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>
+            {en ? "Explore the Pan Labo archive: bread, people and places, with the original publication dates." : "パンを食べ、つくる人に会い、土地をめぐる。「パンラボ」が積み重ねてきた記事を、当時の公開日とともに。"}
+          </RuleText>
+          <div style={{ marginTop: 28 }}><BrandButtonLink href="/blog">{en ? "Read the blog" : "ブログを読む"}</BrandButtonLink></div>
+        </div>
         <ContentHeading title="Journal" sub={c.labelJa} />
         <div
           className="mob-1col"

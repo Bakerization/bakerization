@@ -26,6 +26,7 @@ const LINKS: NavLink[] = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/#services", drop: { label: "kiji hub", href: "/app" } },
   { label: "News", href: "/news" },
+  { label: "Blog", href: "/blog" },
   { label: "Journal", href: JOURNAL_URL, external: true },
   { label: "Research", href: "/research" },
   { label: "Club", href: "/club" },

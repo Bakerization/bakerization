@@ -3,7 +3,7 @@
 // database pool.
 
 function resolveSiteUrl() {
-  const explicit = process.env.BETTER_AUTH_URL?.trim();
+  const explicit = process.env.BETTER_AUTH_URL?.trim() || process.env.NEXTAUTH_URL?.trim();
   if (explicit) return explicit.replace(/\/+$/, "");
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return "http://localhost:3000";

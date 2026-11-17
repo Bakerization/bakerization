@@ -37,6 +37,9 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
           <Link href="/research" style={link}>
             Research
           </Link>
+          <Link href="/blog" style={link}>
+            Blog
+          </Link>
           <Link href="/privacy" style={link}>
             {locale === "en" ? "Privacy Policy" : "プライバシーポリシー"}
           </Link>

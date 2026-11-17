@@ -3,6 +3,7 @@ import { listNewsSummaries } from "@/lib/news-store";
 import { listPublicArtifacts, listPublicProjects } from "@/lib/research-store";
 import { sitemapEntries } from "@/lib/seo";
 import { SERVICES } from "@/lib/services";
+import { BLOG_PAGE_SIZE, listPostSummaries } from "@/lib/blog-store";
 
 // ISR: regenerated when a news item or research artifact changes (revalidatePath in
 // the stores) and at most hourly otherwise.
@@ -13,10 +14,11 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const [news, artifacts, projects] = await Promise.all([
+  const [news, artifacts, projects, posts] = await Promise.all([
     listNewsSummaries().catch(() => []),
     listPublicArtifacts().catch(() => []),
     listPublicProjects().catch(() => []),
+    listPostSummaries(),
   ]);
   const researchUpdated = artifacts[0] ? new Date(artifacts[0].updatedAt) : now;
 
@@ -30,6 +32,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     }),
+    ...sitemapEntries("/blog", { lastModified: posts[0] ? new Date(posts[0].updatedAt) : now, changeFrequency: "weekly", priority: 0.8 }),
+    ...Array.from({ length: Math.max(0, Math.ceil(posts.length / BLOG_PAGE_SIZE) - 1) }, (_, i) => i + 2)
+      .flatMap((page) => sitemapEntries(`/blog/page/${page}`, { changeFrequency: "monthly", priority: 0.4 })),
+    ...posts.flatMap((post) => sitemapEntries(`/blog/${post.slug}`, { lastModified: new Date(post.updatedAt), changeFrequency: "yearly", priority: 0.6, available: post.hasEnglish ? ["ja", "en"] : ["ja"] })),
     ...sitemapEntries("/research", { lastModified: researchUpdated, changeFrequency: "weekly", priority: 0.9 }),
     ...sitemapEntries("/club", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...sitemapEntries("/contact", { lastModified: now, changeFrequency: "yearly", priority: 0.4 }),

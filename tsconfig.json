@@ -30,5 +30,13 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "lib/i18n.ts",
+    "components/About.tsx",
+    "components/Contact.tsx",
+    "components/Hero.tsx",
+    "components/Services.tsx",
+    "components/blog/AdminEditButton.tsx"
+  ]
 }

@@ -43,6 +43,37 @@ Notes:
 - `DATABASE_URL` is required to persist blog posts. If unset, blog list/detail returns empty during runtime.
 - `BLOB_READ_WRITE_TOKEN` is required for blog image upload and `/api/blob/*` proxy reads.
 
+## ブログ・パンラボ記事アーカイブ
+
+2026-11-17に公開アーカイブ195ページから1,941記事を取り込み、元の公開日・元本文・表示本文の全件一致を確認した。公開日は2009-07-09〜2024-11-10。既存のBakerization記事1件を保持し、写真11,026点（1,393,185,201バイト）を保存した。元サイトで404の写真6点と、元から解決できない `blob:` 画像参照1点は移行レポートに記録している。
+
+- `/blog` と `/blog/page/<番号>` が公開記事の一覧、`/blog/<slug>` が本文。ヘッダー・フッター・トップページからリンクする。けんの Journal（note）は別の導線として継続する。
+- 日付の正本は `blog_posts.published_at`。表示は日本時間、並び順は公開日の降順。同じ日の記事も元の時刻を保存する。`created_at` / `updated_at` や取り込み日時から公開日を作らない。既存のBakerization記事では移行時に `created_at` を引き継ぐ。
+- 一覧のページサイズは `lib/blog-store.ts` の `BLOG_PAGE_SIZE` を共用する。サイトマップは全件を扱い、以前の1,000件の取得上限を設けない。公開ページ・公開APIは下書きを返さない。
+- パンラボの記事は `panlabo-<JUGEM記事ID>` の固定slugと、一意な `source_url` で重複を防ぐ。`source_html` に元の本文、`source_hash` にタイトル・公開日・元本文のSHA-256、`original_date` に元サイトの日付文字列を保存する。転載先の本文だけを安全化し、広告・共有ボタン・スクリプトを除く。元記事の署名を保持し、集合的な著者表記を「パンラボ」とする。
+- JUGEM写真は既存の非公開Blobストアの `blog-assets/panlabo/` に保存し、既存の `/api/blob/` 経由で配信する。第三者サイトの埋め込みは参照先を維持する。取得不能な写真は元URLを残し、移行レポートに記録する。
+- 旧YouTube Flash埋め込みは同じ動画IDの現在のプレーヤーへ変換する。元から解決不能な `blob:` 形式の写真も移行レポートに記録する。
+
+### 移行の再実行
+
+池田浩明氏の承諾済み。公開指示は2026-11-17。元サイトは `https://panlabo.jugem.jp/`。
+
+```sh
+# .env に本番接続先を設定し、最初に読み取りで接続先を照合する。
+node --import=tsx scripts/crawl-panlabo.ts
+# 収集中から --watch で写真保存を並行できる。本文取得は10秒間隔。
+node --env-file=.env --import=tsx scripts/mirror-panlabo-images.ts --watch
+# 収集済みキャッシュからの再解析。ネットワークアクセスしない。
+node --import=tsx scripts/crawl-panlabo.ts --offline
+# 書き込まずに件数・日付・ハッシュ・写真の処理完了を検証。
+node --import=tsx scripts/import-panlabo.ts
+# 検証後にDBへ登録。再実行時は既存の同一記事を増やさない。
+node --env-file=.env --import=tsx scripts/import-panlabo.ts --write
+node --import=tsx --test scripts/panlabo.test.ts
+```
+
+キャッシュ・移行前バックアップ・照合結果は `.cache/panlabo/`（Git・デプロイの対象外）に保存する。保存先は `PANLABO_CACHE_DIR` で変更可能。移行前の既存記事は `blog-posts-before-import.json`、移行後の全件照合は `import-report.json`。収集中にアーカイブのページ数が変わる、日付を認識できない、記事IDが重複する、本文の続きを取得できない場合は取り込みを中止する。DB登録後にデプロイを行い、一覧とサイトマップのISRキャッシュを新しいデプロイで生成し直す。
+
 
 ## Research（メンバー限定の HTML アーティファクト置き場）
 
