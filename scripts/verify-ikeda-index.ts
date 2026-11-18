@@ -1,3 +1,4 @@
+import { IKEDA_SOURCE_URL_PATTERNS } from "../lib/ikeda-sources";
 import { writeFile, mkdir, readFile } from "node:fs/promises";
 import { neonConfig } from "@neondatabase/serverless";
 import { ikedaSql } from "../lib/ikeda-schema";
@@ -20,7 +21,18 @@ neonConfig.fetchFunction = async (
         ...init,
         signal: AbortSignal.timeout(30_000),
       });
-      if (response.status < 500 || attempt >= 4) return response;
+      if (response.status < 500 || attempt >= 4) {
+        const bytes = await response.arrayBuffer();
+        const headers = new Headers(response.headers);
+        headers.delete("content-encoding");
+        headers.delete("content-length");
+        return new Response(bytes, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      }
+      await response.body?.cancel();
     } catch (error) {
       if (attempt >= 4) throw error;
     }
@@ -31,8 +43,8 @@ async function main() {
   const sql = ikedaSql();
   const repair = process.argv.includes("--repair");
   const rows =
-    await sql`SELECT p.slug,p.title,p.source_hash AS current_hash,d.source_hash,d.body_text,d.thought,d.index_version,d.embedding_model
-   FROM blog_posts p LEFT JOIN ikeda_documents d ON d.post_slug=p.slug WHERE p.published=TRUE AND p.source_url LIKE 'https://panlabo.jugem.jp/?eid=%' ORDER BY p.slug`;
+    await sql`SELECT p.slug,p.title,p.author_name,p.source_hash AS current_hash,d.source_hash,d.index_version,d.embedding_model
+   FROM blog_posts p LEFT JOIN ikeda_documents d ON d.post_slug=p.slug WHERE p.published=TRUE AND p.source_url LIKE ANY(${IKEDA_SOURCE_URL_PATTERNS}::text[]) ORDER BY p.slug`;
   const problems: string[] = [],
     repaired: string[] = [];
   let chunks = 0,
@@ -86,6 +98,10 @@ async function main() {
   if (!resumed) {
     for (let start = 0; start < rows.length; start += 100) {
       const group = rows.slice(start, start + 100);
+      const documents =
+        await sql`SELECT post_slug,body_text,thought FROM ikeda_documents WHERE post_slug=ANY(${group.map((r) => r.slug)})`;
+      const bySlug = new Map(documents.map((d) => [d.post_slug, d]));
+      for (const row of group) Object.assign(row, bySlug.get(row.slug));
       const passages =
         await sql`SELECT post_slug,body_text,token_count,vector_dims(embedding) AS dimensions FROM ikeda_chunks WHERE post_slug=ANY(${group.map((r) => r.slug)})`;
       for (const row of group) {
@@ -99,7 +115,10 @@ async function main() {
           continue;
         }
         const parsedThought = thoughtSchema.parse(row.thought);
-        const thought = normalizeThoughtVoices(parsedThought, row.body_text);
+        const thought = normalizeThoughtVoices(parsedThought, row.body_text, {
+          slug: row.slug,
+          authorName: row.author_name,
+        });
         if (JSON.stringify(thought) !== JSON.stringify(parsedThought)) {
           if (repair) {
             row.thought = thought;
@@ -280,8 +299,10 @@ async function main() {
     repaired,
     problems,
   };
-  if (thoughtFixes.length)
-    await sql`UPDATE ikeda_documents d SET thought=x.thought FROM jsonb_to_recordset(${JSON.stringify(thoughtFixes)}::jsonb) AS x(slug text,thought jsonb) WHERE d.post_slug=x.slug`;
+  for (let offset = 0; offset < thoughtFixes.length; offset += 10) {
+    const batch = thoughtFixes.slice(offset, offset + 10);
+    await sql`UPDATE ikeda_documents d SET thought=x.thought FROM jsonb_to_recordset(${JSON.stringify(batch)}::jsonb) AS x(slug text,thought jsonb) WHERE d.post_slug=x.slug`;
+  }
   await mkdir(".cache/ikeda", { recursive: true });
   await writeFile(
     ".cache/ikeda/verification.json",

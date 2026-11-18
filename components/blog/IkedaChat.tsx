@@ -1,4 +1,5 @@
 "use client";
+import { IKEDA_ARTICLE_SLUG } from "@/lib/ikeda-sources";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -71,7 +72,7 @@ function safeSource(s: unknown): s is IkedaSource {
   return (
     typeof x.title === "string" &&
     typeof x.excerpt === "string" &&
-    /^panlabo-\d+$/.test(x.slug) &&
+    IKEDA_ARTICLE_SLUG.test(x.slug) &&
     x.url === `/blog/${x.slug}` &&
     Number.isInteger(x.number) &&
     Number.isFinite(Date.parse(x.date))
@@ -306,7 +307,7 @@ export default function IkedaChat({
           pending.year <= 2100
         )
           scope.year = pending.year;
-        if (/^panlabo-\d+$/.test(pending.article || ""))
+        if (IKEDA_ARTICLE_SLUG.test(pending.article || ""))
           scope.article = pending.article;
         const base = { ...emptyThread(), id: crypto.randomUUID(), scope };
         setThread(base);
@@ -425,7 +426,7 @@ export default function IkedaChat({
           ))}
         </nav>
         <div className={styles.sideFooter}>
-          パンラボの文章から、考えのつながりへ。
+          公開記事から、考えのつながりへ。
           <br />
           <span>IKEDA AI / BAKERIZATION</span>
           <br />
@@ -447,7 +448,7 @@ export default function IkedaChat({
               <Icon name="menu" />
             </button>
             <span className={styles.avatar}>✳</span>池田AI
-            <small>WITH PAN LABO</small>
+            <small>BAKERIZATION</small>
           </div>
           <div className={styles.headerActions}>
             <Link href="/blog">記事アーカイブ ↗</Link>
@@ -482,7 +483,7 @@ export default function IkedaChat({
               <p>
                 パン、小麦、職人、土地、そして文化。
                 <br />
-                パンラボの記事を行き来しながら、気になる問いを掘り下げてみませんか。
+                記事を行き来しながら、気になる問いを掘り下げてみませんか。
               </p>
               <div className={styles.suggestions}>
                 {[
@@ -765,7 +766,7 @@ export default function IkedaChat({
               </div>
             </form>
             <p className={styles.disclaimer}>
-              パンラボの記事に基づくAI。池田浩明本人の回答ではありません。履歴はこのブラウザに保存されます。
+              公開記事に基づくAI。池田浩明本人の回答ではありません。履歴はこのブラウザに保存されます。
             </p>
           </div>
         </footer>

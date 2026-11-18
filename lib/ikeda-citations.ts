@@ -4,8 +4,25 @@ import type { Thought } from "./ikeda-types";
 export function normalizeThoughtVoices(
   thought: Thought,
   text: string,
+  source?: { slug: string; authorName: string },
 ): Thought {
   const compact = (s: string) => s.replace(/\s+/g, "");
+  const byline = "文：池田浩明";
+  if (
+    source?.slug.startsWith("asahi-konopan-") &&
+    source.authorName === "池田浩明" &&
+    compact(text).includes(byline)
+  ) {
+    // The source's creator link and copied visible byline outweigh model inference.
+    thought = {
+      ...thought,
+      authorship: "ikeda_explicit",
+      authorshipEvidence: byline,
+      claims: thought.claims.map((c) =>
+        c.voice === "other_author" ? { ...c, voice: "unclear" } : c,
+      ),
+    };
+  }
   const interview = /[－―—-]{2}/.test(text);
   const quoted = interview
     ? [...text.matchAll(/「([^」]{20,})」/g)].map((m) => compact(m[1]))

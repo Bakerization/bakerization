@@ -18,9 +18,9 @@ export async function generateMetadata({
   return pageMetadata({
     path: "/blog",
     locale,
-    title: "Blog — パンラボの記録",
+    title: "Blog",
     description:
-      "池田浩明が主宰するパンラボの記事アーカイブ。パン、パン屋、小麦、人と土地の記録を、当時の公開日とともに掲載しています。",
+      "パンラボと朝日新聞「このパンがすごい！」の記事を、元の公開日・年代・テーマから読むアーカイブ。",
     robots: {
       index: !f.year && !f.theme && !f.q && f.order === "desc" && f.page === 1,
       follow: true,

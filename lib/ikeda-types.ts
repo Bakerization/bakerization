@@ -1,3 +1,4 @@
+import { IKEDA_ARTICLE_SLUG } from "@/lib/ikeda-sources";
 import { z } from "zod";
 import { IKEDA, IKEDA_THEMES } from "@/lib/ikeda-config";
 
@@ -52,10 +53,7 @@ export const chatRequestSchema = z.strictObject({
     .default([]),
   theme: z.string().max(30).optional(),
   year: z.number().int().min(2009).max(2100).optional(),
-  article: z
-    .string()
-    .regex(/^panlabo-\d+$/)
-    .optional(),
+  article: z.string().regex(IKEDA_ARTICLE_SLUG).optional(),
 });
 export type ChatEvent =
   | { type: "sources"; sources: IkedaSource[] }

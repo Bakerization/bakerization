@@ -255,9 +255,21 @@ export default async function BlogIndex({
               )}
             </nav>
             <p className={styles.credit}>
-              パンラボの承諾を得て転載しています。公開日と記事中の署名は原文を保持しています。
-              <br />
-              AIによる読み解きは記事の事実と区別し、根拠となる記事へつなぎます。
+              <a
+                href="https://panlabo.jugem.jp/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                パンラボ
+              </a>
+              {" · "}
+              <a
+                href="https://www.asahi.com/and/w/serialstory/konopan"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                朝日新聞「このパンがすごい！」
+              </a>
             </p>
           </div>
         </section>

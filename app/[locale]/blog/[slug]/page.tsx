@@ -1,3 +1,4 @@
+import { articleSourceLabel } from "@/lib/ikeda-sources";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -72,7 +73,10 @@ export default async function Page({ params }: Props) {
           description: localized.excerpt,
           datePublished: post.publishedAt,
           dateModified: post.updatedAt,
-          author: { "@type": "Organization", name: post.authorName },
+          author: {
+            "@type": post.authorName === "池田浩明" ? "Person" : "Organization",
+            name: post.authorName,
+          },
           publisher: {
             "@type": "Organization",
             name: "Bakerization",
@@ -137,7 +141,7 @@ export default async function Page({ params }: Props) {
                     rel="noopener noreferrer"
                     style={{ color: "inherit" }}
                   >
-                    パンラボ
+                    {articleSourceLabel(post.sourceUrl)}
                   </a>
                   {en
                     ? ". Republished with permission; original publication date retained."
