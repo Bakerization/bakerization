@@ -36,23 +36,17 @@ export default function BlogAsk({
         }
       }}
     >
-      <label
-        className={styles.srOnly}
-        htmlFor={compact ? "article-ai-question" : "archive-ai-question"}
-      >
-        池田AIへの質問
-      </label>
       <textarea
         id={compact ? "article-ai-question" : "archive-ai-question"}
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         maxLength={IKEDA.questionCharacters}
-        rows={compact ? 2 : 3}
-        placeholder="パンを通じて、何を考えてきたのだろう？"
+        rows={compact ? 1 : 2}
+        aria-label="質問"
+        placeholder="質問する"
         required
       />
       <div className={styles.askBottom}>
-        <span>パンラボの記事から考える</span>
         <button
           type="submit"
           disabled={!question.trim()}

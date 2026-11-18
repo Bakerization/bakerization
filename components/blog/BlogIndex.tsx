@@ -42,68 +42,15 @@ export default async function BlogIndex({
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <section className={styles.hero} aria-labelledby="archive-title">
-          <div>
-            <div className={styles.eyebrow}>
-              PAN LABO JOURNAL · BAKERIZATION
-            </div>
-            <h1 id="archive-title" className={styles.title}>
-              {en ? "Bread, people,\nand ideas." : "パンから、\n世界を読む。"}
-            </h1>
-            <p className={styles.lead}>
-              {en
-                ? "A record of bread, people and places. Follow the years and explore the questions behind the words."
-                : "パンを食べる。つくる人に会う。土地をめぐる。\n積み重なった言葉を、年代と問いからたどるアーカイブです。"}
-            </p>
-            <div className={styles.stats}>
-              <strong>{overview.total.toLocaleString()}</strong>
-              <span>{en ? "articles" : "記事"}</span>
-              <span>／</span>
-              <span>
-                {overview.years.at(-1)?.year}—{overview.years[0]?.year}
-              </span>
-            </div>
-          </div>
-          <div className={styles.aiCard}>
-            <div className={styles.aiBrand}>
-              <span className={styles.spark} aria-hidden>
-                ✳
-              </span>
-              IKEDA AI
-            </div>
-            <h2>
-              {en ? (
-                "Start with a question."
-              ) : (
-                <>
-                  パンのことから、
-                  <br />
-                  その先のことまで。
-                </>
-              )}
-            </h2>
-            <BlogAsk year={f.year} theme={f.theme} />
-            <div className={styles.suggestions}>
-              {[IKEDA_THEMES[0], IKEDA_THEMES[1], IKEDA_THEMES[7]].map((t) => (
-                <Link
-                  key={t.id}
-                  href={`/blog/chat?q=${encodeURIComponent(t.question)}`}
-                >
-                  {t.label}を掘る ↗
-                </Link>
-              ))}
-            </div>
-            <p className={styles.aiNote}>
-              パンラボの記事に基づくAIです。池田浩明本人の回答ではありません。
-            </p>
-          </div>
+        <section className={styles.intro} aria-label={en ? "Ask" : "質問"}>
+          <h1 className={styles.srOnly}>{en ? "Blog" : "ブログ"}</h1>
+          <BlogAsk year={f.year} theme={f.theme} compact />
         </section>
         <section
           className={styles.archive}
           aria-label={en ? "Article archive" : "記事アーカイブ"}
         >
           <aside className={styles.rail}>
-            <p className={styles.railLabel}>FOLLOW THE YEARS</p>
             <nav className={styles.years} aria-label="年代から読む">
               <Link
                 className={`${styles.year} ${!f.year ? styles.yearActive : ""}`}
@@ -270,7 +217,6 @@ export default async function BlogIndex({
                         className={styles.thoughtLink}
                         href={`/blog/chat?q=${encodeURIComponent(post.thoughtQuestion)}&article=${post.slug}`}
                       >
-                        <span>IKEDA AI</span>
                         {post.thoughtQuestion} ↗
                       </Link>
                     )}

@@ -5,121 +5,39 @@
   min-height: 100vh;
 }
 .container {
+  --archive-rail: 170px;
+  --archive-gap: 58px;
   max-width: 1280px;
   margin: auto;
   padding: 0 56px;
 }
-.hero {
+.intro {
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 80px;
-  padding: 78px 0 64px;
-  align-items: center;
-  border-bottom: 1px solid var(--ink);
+  grid-template-columns: var(--archive-rail) minmax(0, 1fr);
+  gap: var(--archive-gap);
+  padding-top: 28px;
 }
-.eyebrow {
-  font-family: var(--font-label), sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.eyebrow:before {
-  content: "";
-  height: 6px;
-  width: 6px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.title {
-  font-size: clamp(40px, 4.2vw, 62px);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.5;
-  margin: 22px 0 24px;
-  white-space: pre-line;
-}
-.lead {
-  font-size: 15px;
-  line-height: 2.05;
-  max-width: 470px;
-  color: var(--sub);
-  margin: 0;
-  white-space: pre-line;
-}
-.stats {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-top: 34px;
-  font-size: 12px;
-  color: var(--sub);
-}
-.stats strong {
-  font-family: var(--font-label), sans-serif;
-  font-size: 29px;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  color: var(--ink);
-}
-.aiCard {
-  background: var(--slab);
-  color: white;
-  border-radius: 22px;
-  padding: 30px 30px 22px;
-  box-shadow: 0 16px 40px -25px #2f534055;
-}
-.aiBrand {
-  color: var(--main);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  font-family: var(--font-label), sans-serif;
-}
-.spark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #fbd26b66;
-  border-radius: 50%;
-  font-size: 21px;
-}
-.aiCard h2 {
-  font-size: 24px;
-  line-height: 1.65;
-  letter-spacing: -0.025em;
-  margin: 20px 0 18px;
-  font-weight: 500;
-}
-.aiNote {
-  font-size: 11px;
-  color: #e1e9e2;
-  line-height: 1.8;
-  margin: 14px 2px 0;
+.intro > form {
+  grid-column: 2;
 }
 .askForm {
-  background: white;
+  position: relative;
+  background: #fafbf9;
   border: 1px solid #dbe1da;
   border-radius: 16px;
   overflow: hidden;
   color: var(--ink);
-  box-shadow: 0 4px 12px #14301a0d;
 }
 .askForm textarea {
   display: block;
   resize: vertical;
   width: 100%;
   box-sizing: border-box;
-  min-height: 82px;
+  min-height: 80px;
   max-height: 190px;
   border: 0;
   outline: none;
-  padding: 17px 18px 4px;
+  padding: 17px 64px 17px 18px;
   background: transparent;
   font-size: 14px;
   line-height: 1.8;
@@ -134,13 +52,10 @@
   outline-offset: 3px;
 }
 .askBottom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 11px 11px 18px;
-  font-size: 10px;
-  color: var(--sub);
 }
 .askBottom button {
   border: 0;
@@ -159,44 +74,18 @@
   cursor: default;
 }
 .askCompact textarea {
-  min-height: 68px;
-}
-.suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 15px;
-}
-.suggestions a {
-  font-size: 11px;
-  line-height: 1.6;
-  text-decoration: none;
-  color: #f5f7f2;
-  border: 1px solid #ffffff38;
-  border-radius: 999px;
-  padding: 7px 11px;
-  transition: background 0.15s;
-}
-.suggestions a:hover {
-  background: #ffffff17;
+  min-height: 60px;
 }
 .archive {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
-  gap: 58px;
-  padding: 48px 0 92px;
+  grid-template-columns: var(--archive-rail) minmax(0, 1fr);
+  gap: var(--archive-gap);
+  padding: 32px 0 92px;
 }
 .rail {
   position: sticky;
   top: 94px;
   align-self: start;
-}
-.railLabel {
-  font-size: 10px;
-  font-family: var(--font-label), sans-serif;
-  letter-spacing: 0.16em;
-  margin: 0 0 18px;
-  color: var(--sub);
 }
 .years {
   display: flex;
@@ -395,16 +284,6 @@
   line-height: 1.7;
   color: var(--ink);
 }
-.thoughtLink span {
-  display: inline-block;
-  background: var(--paper);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-family: var(--font-label), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
 .pagination {
   display: flex;
   align-items: center;
@@ -507,18 +386,9 @@
 }
 @media (max-width: 1000px) {
   .container {
+    --archive-rail: 125px;
+    --archive-gap: 30px;
     padding: 0 30px;
-  }
-  .hero {
-    gap: 35px;
-    padding-top: 54px;
-  }
-  .archive {
-    grid-template-columns: 125px 1fr;
-    gap: 30px;
-  }
-  .aiCard {
-    padding: 23px;
   }
   .entryLink {
     grid-template-columns: 45px 1fr 115px;
@@ -535,27 +405,12 @@
   .container {
     padding: 0 20px;
   }
-  .hero {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 38px 0;
+  .intro {
+    display: block;
+    padding-top: 20px;
   }
-  .title {
-    font-size: 39px;
-    margin: 18px 0;
-  }
-  .lead {
-    font-size: 14px;
-  }
-  .stats {
-    margin-top: 23px;
-  }
-  .aiCard h2 {
-    font-size: 21px;
-    margin: 16px 0;
-  }
-  .aiCard {
-    padding: 23px 20px 19px;
+  .askForm textarea {
+    font-size: 16px;
   }
   .archive {
     display: block;
@@ -564,9 +419,6 @@
   .rail {
     position: static;
     margin-bottom: 26px;
-  }
-  .railLabel {
-    margin-bottom: 10px;
   }
   .years {
     flex-direction: row;
@@ -632,10 +484,5 @@
   }
   .thoughtQuestion {
     font-size: 18px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .suggestions a {
-    transition: none;
   }
 }
