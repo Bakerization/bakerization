@@ -61,6 +61,14 @@ const addressRow: [string, string][] = COMPANY_ADDRESS
 
 const ARTICLES: Article[] = [
   {
+    no: "AI",
+    title: "ウェブサイトの池田AIについて",
+    blocks: [
+      { t: "p", text: "池田AIでは、質問、直近の会話の一部、検索した公開記事の抜粋を、回答生成と意味検索のためVercel AI Gatewayを通じてOpenAIおよびGoogleのAIサービスへ送信します。" },
+      { t: "p", text: "会話履歴は利用者のブラウザに保存します。当サイトのデータベースに会話本文は保存しません。履歴はブラウザのサイトデータを削除すると消去できます。利用上限の管理には、IPアドレスをハッシュ化した識別子と利用回数を使用します。池田AIは記事に基づくAIであり、池田浩明本人の回答ではありません。" },
+    ],
+  },
+  {
     no: "01",
     title: "事業者情報",
     blocks: [

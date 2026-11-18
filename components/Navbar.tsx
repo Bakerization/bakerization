@@ -64,7 +64,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
   const open = openFor === pathname;
 
   // /research has its own header (ResearchShell).
-  if (pathname === "/research" || pathname.startsWith("/research/")) return null;
+  if (pathname === "/research" || pathname.startsWith("/research/") || pathname === "/blog/chat") return null;
 
   const linkStyle = { color: "inherit", textDecoration: "none" } as const;
   const contactStyle = {

@@ -31,7 +31,7 @@ export async function ensureBlogTable() {
   await sql`CREATE INDEX IF NOT EXISTS blog_posts_published_date_idx ON blog_posts (published, published_at DESC, slug)`;
 }
 
-type DbRow = {
+export type DbRow = {
   slug: string; title: string; title_en: string; excerpt: string; excerpt_en: string;
   hero_image_url: string; content_html?: string; content_html_en?: string; published: boolean;
   published_at: string | Date; created_at: string | Date; updated_at: string | Date;
@@ -49,7 +49,7 @@ function mapRow(row: DbRow): BlogPost {
     sourceUrl: row.source_url || "", authorName: row.author_name || "Bakerization", category: row.category || "",
   };
 }
-function summary(row: DbRow): BlogPostSummary {
+export function mapBlogSummary(row: DbRow): BlogPostSummary {
   const { contentHtml: _body, contentHtmlEn: _bodyEn, ...post } = mapRow(row);
   return { ...post, hasEnglish: Boolean(row.has_en) };
 }
@@ -61,7 +61,7 @@ export async function listPostSummaries(): Promise<BlogPostSummary[]> {
     published, published_at, created_at, updated_at, source_url, author_name, category,
     (btrim(title_en) <> '' AND btrim(content_html_en) <> '') AS has_en
     FROM blog_posts WHERE published = TRUE ORDER BY published_at DESC, slug DESC`;
-  return (rows as DbRow[]).map(summary);
+  return (rows as DbRow[]).map(mapBlogSummary);
 }
 
 export async function getBlogPage(page = 1) {
@@ -77,7 +77,7 @@ export async function getBlogPage(page = 1) {
       LIMIT ${BLOG_PAGE_SIZE} OFFSET ${(page - 1) * BLOG_PAGE_SIZE}`,
   ]);
   const total = Number(counts[0].count);
-  return { posts: (rows as DbRow[]).map(summary), total, pageCount: Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE)) };
+  return { posts: (rows as DbRow[]).map(mapBlogSummary), total, pageCount: Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE)) };
 }
 
 /** Public reads always exclude drafts, including the legacy /api/blog/post route. */
