@@ -58,7 +58,7 @@ export default async function Home({ params }: Props) {
             "@id": `${home}#website`,
             name: "Bakerization",
             url: home,
-            inLanguage: ["ja", "en"],
+            inLanguage: ["ja", "en", "zh-Hans", "ko"],
             publisher: { "@id": `${home}#organization` },
           },
         ]}

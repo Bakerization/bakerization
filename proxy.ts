@@ -86,7 +86,7 @@ export const config = {
     // 2. sticky English: cookie says en, URL has no ?lang
     {
       source:
-        "/((?!api/|_next/|\\.well-known/|research/raw/|ja(?:/|$)|en(?:/|$)|m(?:/|$)|(?:.*/)?opengraph-image$|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|txt|xml|webmanifest|js|css|map|woff2?)$).*)",
+        "/((?!api/|_next/|\\.well-known/|research/raw/|ja(?:/|$)|en(?:/|$)|zh(?:/|$)|ko(?:/|$)|m(?:/|$)|(?:.*/)?opengraph-image$|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|txt|xml|webmanifest|js|css|map|woff2?)$).*)",
       has: [{ type: "cookie", key: "lang", value: "en" }],
       missing: [{ type: "query", key: "lang" }],
     },

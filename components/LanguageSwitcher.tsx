@@ -55,6 +55,8 @@ export default function LanguageSwitcher({ locale }: Props) {
       >
         EN
       </button>
+      <a href="/zh" hrefLang="zh-Hans" lang="zh-Hans" aria-label="简体中文介绍" style={{ ...btnBase, color: C.sub, textDecoration: "none", display: "inline-flex", alignItems: "center" }}>中文</a>
+      <a href="/ko" hrefLang="ko" lang="ko" aria-label="한국어 소개" style={{ ...btnBase, color: C.sub, textDecoration: "none", display: "inline-flex", alignItems: "center" }}>한국어</a>
     </div>
   );
 }

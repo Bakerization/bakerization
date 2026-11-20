@@ -1,6 +1,7 @@
 import type { Metadata, MetadataRoute } from "next";
 import { LOCALES, withLang, type Locale } from "@/lib/locale";
 import { SITE_URL } from "@/lib/site";
+import { HOME_VARIANTS } from "@/lib/international";
 
 // Canonical / hreflang / Open Graph in one place.
 // URL policy: Japanese is the clean path, English is `path?lang=en`.
@@ -25,11 +26,12 @@ export function buildAlternates(path: string, locale: Locale, available: readonl
   if (available.length < 2) return { canonical };
   return {
     canonical,
-    languages: {
-      ja: absoluteUrl(localizedPath(path, "ja")),
-      en: absoluteUrl(localizedPath(path, "en")),
-      "x-default": absoluteUrl(localizedPath(path, "ja")),
-    },
+    languages: Object.fromEntries([
+      ...(path === "/" && available.length === LOCALES.length
+        ? HOME_VARIANTS.map((v) => [v.language, absoluteUrl(v.path)])
+        : available.map((l) => [l, absoluteUrl(localizedPath(path, l))])),
+      ["x-default", absoluteUrl(localizedPath(path, available[0]))],
+    ]),
   };
 }
 
@@ -92,6 +94,14 @@ export function sitemapEntries(
   } = {}
 ): MetadataRoute.Sitemap {
   const available = opts.available ?? LOCALES;
+  if (path === "/" && !opts.available) {
+    const languages = Object.fromEntries(HOME_VARIANTS.map((v) => [v.language, absoluteUrl(v.path)]));
+    return HOME_VARIANTS.map((v) => ({
+      url: absoluteUrl(v.path), lastModified: opts.lastModified,
+      changeFrequency: opts.changeFrequency, priority: opts.priority,
+      alternates: { languages },
+    }));
+  }
   const languages =
     available.length > 1
       ? Object.fromEntries(available.map((l) => [l, absoluteUrl(localizedPath(path, l))]))

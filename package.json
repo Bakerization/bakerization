@@ -11,6 +11,7 @@
     "seed:news": "node --env-file=.env --import=tsx scripts/seed-news.ts",
     "rotate:admin": "node --env-file=.env --import=tsx scripts/rotate-admin-password.ts",
     "test:ikeda": "vitest run",
+    "test:seo": "node --import=tsx --test scripts/seo-international.test.ts",
     "index:ikeda": "node --env-file=.env.local --import=tsx scripts/index-ikeda.ts",
     "verify:ikeda": "node --env-file=.env.local --import=tsx scripts/verify-ikeda-index.ts"
   },
