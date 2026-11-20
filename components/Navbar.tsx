@@ -111,7 +111,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
             margin: 0,
             padding: 0,
             display: "flex",
-            gap: 24,
+            gap: 16,
             alignItems: "center",
             fontFamily: FONTS.label,
             fontSize: 12,

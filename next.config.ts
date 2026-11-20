@@ -17,7 +17,7 @@ const HTML_LIMITED_BOTS =
 // already internal, and must not be folded.
 // ─────────────────────────────────────────────────────────────
 const NOT_LOCALIZED =
-  "api/|_next/|\\.well-known/|research/raw/|ja(?:/|$)|en(?:/|$)|m(?:/|$)|(?:.*/)?opengraph-image$";
+  "api/|_next/|\\.well-known/|research/raw/|ja(?:/|$)|en(?:/|$)|zh(?:/|$)|ko(?:/|$)|m(?:/|$)|(?:.*/)?opengraph-image$";
 const LANG_EN = [{ type: "query" as const, key: "lang", value: "en" }];
 
 const nextConfig: NextConfig = {

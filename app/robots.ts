@@ -9,7 +9,9 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: [{ userAgent: "*", disallow: "/" }] };
   }
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/api/"] }],
+    // Public article/news images are served by this API proxy. The longer
+    // Allow rule takes precedence over /api/; other API routes stay excluded.
+    rules: [{ userAgent: "*", allow: ["/", "/api/blob/blog-assets/"], disallow: ["/api/"] }],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

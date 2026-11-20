@@ -45,6 +45,12 @@ Notes:
 
 ## ブログ・パンラボ記事アーカイブ
 
+### 中国語・韓国語の検索向け紹介ページ
+
+`/zh`（簡体字中国語）と `/ko`（韓国語）は、団体・活動・kiji hub・公開資料を紹介する翻訳済みのページ。日本語・英語のトップページと相互に `hreflang` を指定し、サイトマップにも同じ4言語のURLを掲載する。通常のページ・記事は実際に用意した言語だけを代替URLとして扱う。中国語・韓国語ページから原文の記事・製品ページへ移るリンクには、リンク先の言語を表示する。
+
+公開ブログ・ニュース画像の `/api/blob/blog-assets/` は `robots.txt` の個別の `Allow` でクロールを許可し、他の `/api/` は従来どおり除外する。SEOの回帰チェックは `npm run test:seo`。
+
 朝日新聞デジタルマガジン＆の連載「このパンがすごい！」も、転載許可取得済みとして同じブログに掲載する。取得・写真保存・本文と公開日の照合は [docs/asahi-konopan.md](docs/asahi-konopan.md)。媒体の出典表記と池田AIの対象記事・IDは [lib/ikeda-sources.ts](lib/ikeda-sources.ts) を共用する。
 
 年代・テーマ・語句検索と池田AIの構成・運用は [docs/ikeda-ai.md](docs/ikeda-ai.md) を参照する。検索件数・モデル・トークン予算・利用上限の正本は [lib/ikeda-config.ts](lib/ikeda-config.ts)。`/blog/chat` は専用チャット画面で、記事の問い・主張・原文引用を確認しながら質問できる。Vercelの自動OIDC認証を使うため、池田AI用のOpenAIキー追加は不要。

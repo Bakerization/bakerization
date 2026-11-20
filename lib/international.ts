@@ -1,0 +1,91 @@
+/** Only real, translated home pages belong in this list. Article locales
+ * continue to be determined by the translations actually stored per article. */
+export const HOME_VARIANTS = [
+  { language: "ja", path: "/", label: "日本語" },
+  { language: "en", path: "/?lang=en", label: "English" },
+  { language: "zh-Hans", path: "/zh", label: "中文" },
+  { language: "ko", path: "/ko", label: "한국어" },
+] as const;
+
+export type InternationalLanguage = "zh" | "ko";
+
+export const INTERNATIONAL_COPY = {
+  zh: {
+    language: "zh-Hans",
+    ogLocale: "zh_CN",
+    title: "Bakerization｜日本面包文化、面包店运营与烘焙技术",
+    description: "Bakerization由东京大学面包研究会与「パンラボ」池田浩明相遇而起，致力于传承日本面包文化。了解面包店运营支持、烘焙数据记录工具kiji hub，以及面包、小麦与工匠的文章和研究。",
+    nav: ["关于我们", "活动与产品", "文章与研究", "联系我们"],
+    heading: "让日本面包文化走向未来。",
+    intro: "Bakerization致力于解决面包店面临的社会问题，通过研究、技术与社区活动，探索日本面包文化能够延续到22世纪的方式。",
+    action: "了解我们的活动",
+    imageAlt: "金色的麦田与天空",
+    aboutHeading: "从面包店的现场出发",
+    about: [
+      "Bakerization起源于东京大学面包研究会与「パンラボ」（Pan Labo）池田浩明的相遇，由畑中健司与池田浩明共同推动。我们关注面包师的工作、面包店的经营，以及小麦、土地与食文化之间的联系。",
+      "原料成本上涨、人手不足、技艺传承与气候变化，正在影响面包店的日常。我们希望结合现场经验、数据与技术，让匠人的工作能够持续，让各地独有的面包文化传承下去。",
+    ],
+    aboutLink: "了解共同代表（日语）",
+    servicesHeading: "面包店运营、烘焙数据与文化传承",
+    services: [
+      { title: "面包店运营支持", text: "从备料、制作到收店，梳理工作流程，将依赖个人经验的段落整理为团队可以共享的步骤，协助面包店的运营与门店开发。", href: "/services/store-operations?lang=ja" },
+      { title: "烘焙数据的记录与可视化", text: "开发面向面包店的工具，把制作过程中的条件记录下来，再通过列表与图表回顾，为改进工作方式提供依据。", href: "/services/data-visibility?lang=ja" },
+      { title: "面包文化的未来", text: "关注地方与工匠的独特魅力，通过研究、交流与活动，探索下一代面包店的形态。", href: "/services/future-of-bakery-culture?lang=ja" },
+    ],
+    detailLink: "查看介绍（日语）",
+    productHeading: "kiji hub：记录搅拌与备料条件",
+    product: "kiji hub是Bakerization正在开发的面包店工具，用于记录面团搅拌与批次制作条件，并以列表和图表回顾记录。我们的目标是减轻面包师的记录负担，让每天的制作经验可以积累、比较与分享。",
+    productStatus: "产品仍在开发与验证中。功能与提供方式请以产品页面的最新说明为准。",
+    productLink: "了解kiji hub（日语）",
+    resourcesHeading: "阅读面包的现场记录与研究",
+    resources: [
+      { title: "パンラボ文章档案", text: "阅读关于日本各地面包店、小麦、面包师与食文化的文章。档案收录经许可转载的「パンラボ」与朝日新闻「このパンがすごい！」文章，保留原始发布日期和出处。", href: "/blog?lang=ja", label: "阅读文章（日语）" },
+      { title: "Bakerization Research", text: "查阅面包与食品行业、企业经营和技术相关的公开研究报告。每份资料以其原文语言发布，具体内容与依据请参见报告。", href: "/research?lang=ja", label: "浏览公开研究（原文）" },
+      { title: "Journal与最新消息", text: "我们通过note分享Bakerization的想法与日常活动，并在官网发布产品与活动消息。", href: "/news?lang=ja", label: "查看最新消息（日语）" },
+    ],
+    languageNote: "本页提供简体中文介绍；文章、研究报告及其他链接页面使用各自标注的原文语言。",
+    contactHeading: "一起探索面包店的未来",
+    contact: "如果您对日本面包文化、面包店运营、烘焙技术或合作项目感兴趣，欢迎联系我们。",
+    contactLink: "联系表单（英语）",
+    privacy: "隐私政策（日语）",
+  },
+  ko: {
+    language: "ko",
+    ogLocale: "ko_KR",
+    title: "Bakerization｜일본 빵 문화·베이커리 운영·제빵 기술",
+    description: "Bakerization은 도쿄대학교 빵 연구회와 판라보의 이케다 히로아키의 만남에서 시작되었습니다. 일본 빵 문화, 베이커리 운영 지원, 제빵 기록 도구 kiji hub, 빵과 밀·장인에 관한 기사와 연구를 소개합니다.",
+    nav: ["소개", "활동과 제품", "기사와 연구", "문의"],
+    heading: "일본의 빵 문화를 미래로 잇습니다.",
+    intro: "Bakerization은 빵집이 마주한 사회적 과제를 해결하기 위해 시작되었습니다. 연구와 기술, 커뮤니티를 통해 일본의 빵 문화가 22세기에도 이어질 수 있는 길을 찾습니다.",
+    action: "활동 살펴보기",
+    imageAlt: "황금빛 밀밭과 하늘",
+    aboutHeading: "빵집의 현장에서 시작합니다",
+    about: [
+      "Bakerization은 도쿄대학교 빵 연구회와 「パンラボ」(판라보)를 운영하는 이케다 히로아키의 만남에서 시작되었으며, 하타나카 겐지와 이케다 히로아키가 함께 이끌고 있습니다. 제빵사의 일과 빵집의 운영, 밀과 지역, 음식 문화가 맺는 관계에 주목합니다.",
+      "원재료 가격 상승, 인력 부족, 기술 전수와 기후 변화는 빵집의 일상에 영향을 미치고 있습니다. 현장의 경험에 데이터와 기술을 더해 장인의 일이 지속되고, 지역마다 다른 빵 문화가 다음 세대로 이어지도록 돕고자 합니다.",
+    ],
+    aboutLink: "공동대표 소개 보기 (일본어)",
+    servicesHeading: "베이커리 운영, 제빵 데이터, 문화의 계승",
+    services: [
+      { title: "베이커리 운영 지원", text: "재료 준비부터 생산과 마감까지 업무 흐름을 살펴봅니다. 개인의 경험에 의존하던 작업을 팀이 공유할 수 있는 절차로 정리하며 빵집의 운영과 매장 개발을 지원합니다.", href: "/services/store-operations?lang=ja" },
+      { title: "제빵 데이터 기록과 시각화", text: "빵집을 위한 도구를 개발하고, 제조 과정의 조건을 기록해 목록과 그래프로 돌아볼 수 있도록 합니다. 현장의 개선에 필요한 근거를 쌓는 일입니다.", href: "/services/data-visibility?lang=ja" },
+      { title: "빵 문화의 미래", text: "지역과 장인이 지닌 고유한 매력에 주목하며, 연구와 교류, 활동을 통해 다음 세대의 빵집을 구상합니다.", href: "/services/future-of-bakery-culture?lang=ja" },
+    ],
+    detailLink: "자세히 보기 (일본어)",
+    productHeading: "kiji hub: 믹싱과 반죽 준비 조건을 기록합니다",
+    product: "kiji hub는 Bakerization이 개발 중인 베이커리 도구입니다. 반죽 믹싱과 배치별 제조 조건을 기록하고 목록과 그래프로 확인할 수 있도록 합니다. 제빵사의 기록 부담을 줄이고 매일의 경험을 축적하고 비교하며 공유하는 것을 목표로 합니다.",
+    productStatus: "현재 개발 및 검증 중입니다. 기능과 제공 방식은 제품 페이지의 최신 안내를 확인해 주세요.",
+    productLink: "kiji hub 알아보기 (일본어)",
+    resourcesHeading: "빵의 현장 기록과 연구를 읽어 보세요",
+    resources: [
+      { title: "판라보 기사 아카이브", text: "일본 각지의 빵집과 밀, 제빵사, 음식 문화에 관한 기사를 읽을 수 있습니다. 허가를 받아 전재한 판라보와 아사히신문 「このパンがすごい！」 기사를 원래의 발행일과 출처와 함께 제공합니다.", href: "/blog?lang=ja", label: "기사 읽기 (일본어)" },
+      { title: "Bakerization Research", text: "빵과 식품 산업, 기업 경영, 기술에 관한 공개 연구 보고서를 제공합니다. 자료는 각각의 원문 언어로 공개하며, 구체적인 내용과 근거는 각 보고서에서 확인할 수 있습니다.", href: "/research?lang=ja", label: "공개 연구 보기 (원문)" },
+      { title: "Journal과 새 소식", text: "note에서 Bakerization의 생각과 일상을 공유하고, 공식 사이트에서 제품과 행사 소식을 전합니다.", href: "/news?lang=ja", label: "새 소식 보기 (일본어)" },
+    ],
+    languageNote: "이 페이지는 한국어 소개 페이지입니다. 기사와 연구 보고서, 그 밖의 연결된 페이지는 각각 표시된 원문 언어로 제공됩니다.",
+    contactHeading: "빵집의 미래를 함께 만들어 갑니다",
+    contact: "일본의 빵 문화, 베이커리 운영, 제빵 기술이나 협업에 관심이 있으시다면 연락해 주세요.",
+    contactLink: "문의 양식 (영어)",
+    privacy: "개인정보 처리방침 (일본어)",
+  },
+} as const;
