@@ -2,11 +2,7 @@ import { blogText } from "@/lib/blog-copy";
 import { isIP } from "node:net";
 import { IKEDA } from "@/lib/ikeda-config";
 import { chatRequestSchema, type ChatEvent } from "@/lib/ikeda-types";
-import {
-  retrieve,
-  buildAnswerInput,
-  IKEDA_INSTRUCTIONS,
-} from "@/lib/ikeda-retrieval";
+import { retrieve, buildAnswerInput } from "@/lib/ikeda-retrieval";
 import { aiFetch, AiProviderError } from "@/lib/ikeda-provider";
 import { reserveIkedaRequest, recordIkedaUsage } from "@/lib/ikeda-quota";
 import { readSse } from "@/lib/ikeda-stream";
@@ -130,13 +126,14 @@ export async function POST(request: Request) {
           input.history,
           context.context,
           input.article,
+          input.locale,
         );
         const response = await aiFetch(
           "responses",
           {
             model: IKEDA.answerModel,
             store: false,
-            instructions: IKEDA_INSTRUCTIONS,
+            instructions: prompt.instructions,
             input: prompt.input,
             reasoning: { effort: "none" },
             max_output_tokens: IKEDA.answerTokens,

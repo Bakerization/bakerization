@@ -57,15 +57,17 @@ async function main() {
     texts: string[];
     previous: number;
   }[] = [];
-  const signature = JSON.stringify(
-    rows.map((r) => [
+  const signature = JSON.stringify([
+    IKEDA.embeddingModel,
+    IKEDA.embeddingDimensions,
+    ...rows.map((r) => [
       r.slug,
       r.current_hash,
       r.source_hash,
       r.index_version,
       r.embedding_model,
     ]),
-  );
+  ]);
   let resumed = false;
   if (repair && process.argv.includes("--resume")) {
     try {
@@ -74,7 +76,7 @@ async function main() {
       );
       if (plan.signature === signature) {
         const remaining =
-          await sql`SELECT DISTINCT d.post_slug FROM ikeda_documents d JOIN blog_posts p ON p.slug=d.post_slug LEFT JOIN ikeda_chunks c ON c.post_slug=d.post_slug WHERE c.id IS NULL OR position(c.body_text in coalesce(nullif(d.body_text,''),p.title))=0 OR c.token_count>${IKEDA.chunkTokens} OR vector_dims(c.embedding)<>${IKEDA.embeddingDimensions}`;
+          await sql`SELECT DISTINCT d.post_slug FROM ikeda_documents d JOIN blog_posts p ON p.slug=d.post_slug LEFT JOIN ikeda_chunks c ON c.post_slug=d.post_slug WHERE c.id IS NULL OR position(c.body_text in coalesce(nullif(d.body_text,''),p.title))=0 OR c.token_count>${IKEDA.chunkTokens} OR NOT EXISTS(SELECT 1 FROM ikeda_chunk_embeddings e WHERE e.chunk_id=c.id AND e.embedding_model=${IKEDA.embeddingModel} AND e.source_hash=d.source_hash AND vector_dims(e.embedding)=${IKEDA.embeddingDimensions})`;
         const slugs = new Set(remaining.map((r) => r.post_slug));
         fixes.push(
           ...plan.fixes.filter((f: (typeof fixes)[number]) =>
@@ -103,13 +105,12 @@ async function main() {
       const bySlug = new Map(documents.map((d) => [d.post_slug, d]));
       for (const row of group) Object.assign(row, bySlug.get(row.slug));
       const passages =
-        await sql`SELECT post_slug,body_text,token_count,vector_dims(embedding) AS dimensions FROM ikeda_chunks WHERE post_slug=ANY(${group.map((r) => r.slug)})`;
+        await sql`SELECT c.post_slug,c.body_text,c.token_count,vector_dims(e.embedding) AS dimensions FROM ikeda_chunks c JOIN ikeda_documents d ON d.post_slug=c.post_slug LEFT JOIN ikeda_chunk_embeddings e ON e.chunk_id=c.id AND e.embedding_model=${IKEDA.embeddingModel} AND e.source_hash=d.source_hash WHERE c.post_slug=ANY(${group.map((r) => r.slug)})`;
       for (const row of group) {
         if (
           !row.source_hash ||
           row.current_hash !== row.source_hash ||
-          row.index_version !== IKEDA.version ||
-          row.embedding_model !== IKEDA.embeddingModel
+          row.index_version !== IKEDA.version
         ) {
           problems.push(`${row.slug}: stale or missing index`);
           continue;
@@ -189,7 +190,7 @@ async function main() {
       .slice(start, start + 100)
       .map((fix) => ({ ...fix, embeddings: [] as number[][] }));
     const old =
-      await sql`SELECT post_slug,body_text,embedding::text AS vector FROM ikeda_chunks WHERE post_slug=ANY(${group.map((f) => f.row.slug)})`;
+      await sql`SELECT c.post_slug,c.body_text,e.embedding::text AS vector FROM ikeda_chunks c JOIN ikeda_documents d ON d.post_slug=c.post_slug JOIN ikeda_chunk_embeddings e ON e.chunk_id=c.id AND e.embedding_model=${IKEDA.embeddingModel} AND e.source_hash=d.source_hash WHERE c.post_slug=ANY(${group.map((f) => f.row.slug)})`;
     const reusable = new Map<string, number[]>(
       old.map((c) => [
         `${c.post_slug}:${whitespaceKey(c.body_text)}`,
@@ -248,6 +249,7 @@ async function main() {
         texts.map((text, i) => ({
           id: `${row.slug}:${i}`,
           post_slug: row.slug,
+          source_hash: row.source_hash,
           ordinal: i,
           body_text: text,
           token_count: tokenCount(text),
@@ -257,6 +259,8 @@ async function main() {
       await sql.transaction([
         sql`DELETE FROM ikeda_chunks WHERE post_slug=ANY(${batch.map((f) => f.row.slug)})`,
         sql`INSERT INTO ikeda_chunks(id,post_slug,ordinal,body_text,token_count,embedding) SELECT x.id,x.post_slug,x.ordinal,x.body_text,x.token_count,x.embedding::vector FROM jsonb_to_recordset(${JSON.stringify(payload)}::jsonb) AS x(id text,post_slug text,ordinal int,body_text text,token_count int,embedding text)`,
+        sql`INSERT INTO ikeda_chunk_embeddings(chunk_id,embedding_model,source_hash,embedding) SELECT x.id,${IKEDA.embeddingModel},x.source_hash,x.embedding::vector FROM jsonb_to_recordset(${JSON.stringify(payload)}::jsonb) AS x(id text,source_hash text,embedding text)`,
+        sql`UPDATE ikeda_documents SET embedding_model=${IKEDA.embeddingModel} WHERE post_slug=ANY(${batch.map((f) => f.row.slug)})`,
       ]);
     }
     for (const { row, texts, embeddings, previous } of group) {
