@@ -196,3 +196,39 @@ test("article questions identify the anchor separately from related evidence", (
   expect(data.documents[0].slug).toBe("panlabo-1");
   expect(prompt.estimatedInputTokens).toBeLessThanOrEqual(IKEDA.promptTokens);
 });
+
+for (const question of [
+  "How has Ikeda’s view changed over time?",
+  "池田对面包文化的看法如何变化？",
+  "이케다의 생각은 시대에 따라 어떻게 변화했나요?",
+]) {
+  test(`timeline evidence includes early and recent sources: ${question}`, () => {
+    const data = Array.from({ length: 12 }, (_, i) =>
+      candidate(i + 1, `${2026 - i}-01-01T00:00:00Z`),
+    );
+    data.push(candidate(99, "2009-01-01T00:00:00Z"));
+    const found = selectContext(data, question).sources.map((s) => s.slug);
+    expect(found).toContain("panlabo-99");
+    expect(found).toContain("panlabo-1");
+  });
+}
+test("explicit reader language constrains the answer and is included in the real prompt budget", () => {
+  const context = selectContext(
+    Array.from({ length: 12 }, (_, i) =>
+      candidate(i + 1, "2025-01-01T00:00:00Z", "小麦とパン。".repeat(100)),
+    ),
+    "小麦",
+  );
+  const prompt = buildAnswerInput(
+    "这篇文章的观点是什么？",
+    [],
+    context.context,
+    "panlabo-1",
+    "zh",
+  );
+  expect(prompt.instructions).toContain(
+    "Required response language: Simplified Chinese",
+  );
+  expect(JSON.parse(prompt.input).answerLanguage).toBe("zh");
+  expect(prompt.estimatedInputTokens).toBeLessThanOrEqual(IKEDA.promptTokens);
+});
