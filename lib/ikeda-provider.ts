@@ -1,4 +1,3 @@
-import { getVercelOidcToken } from "@vercel/oidc";
 import { IKEDA } from "@/lib/ikeda-config";
 
 export class AiProviderError extends Error {
@@ -11,31 +10,42 @@ export class AiProviderError extends Error {
   }
 }
 
-export async function gatewayToken() {
-  if (process.env.AI_GATEWAY_API_KEY?.trim())
-    return process.env.AI_GATEWAY_API_KEY.trim();
-  return getVercelOidcToken();
-}
+/** The key must belong to the organization receiving the ChatGPT subscription
+ * API grant. Never fall back to Vercel or another account. */
 export async function aiFetch(
   path: "responses" | "embeddings",
   body: Record<string, unknown>,
   signal?: AbortSignal,
 ) {
-  const token = await gatewayToken();
-  const response = await fetch(`https://ai-gateway.vercel.sh/v1/${path}`, {
+  const token = process.env.OPENAI_API_KEY?.trim();
+  if (!token) throw new AiProviderError(503);
+  const organization = process.env.OPENAI_ORG_ID?.trim();
+  const project = process.env.OPENAI_PROJECT_ID?.trim();
+  const response = await fetch(`https://api.openai.com/v1/${path}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      ...(organization ? { "OpenAI-Organization": organization } : {}),
+      ...(project ? { "OpenAI-Project": project } : {}),
     },
     body: JSON.stringify(body),
     signal: signal ?? AbortSignal.timeout(90_000),
   });
   if (!response.ok) {
     // Provider bodies can contain input. Never log or return them to visitors.
+    const seconds = Number(response.headers.get("retry-after") || 0) * 1000;
+    const milliseconds = Number(response.headers.get("retry-after-ms") || 0);
     throw new AiProviderError(
       response.status,
-      Math.min(60_000, Number(response.headers.get("retry-after") || 0) * 1000),
+      Math.min(
+        60_000,
+        Math.max(
+          0,
+          Number.isFinite(seconds) ? seconds : 0,
+          Number.isFinite(milliseconds) ? milliseconds : 0,
+        ),
+      ),
     );
   }
   return response;
@@ -61,7 +71,8 @@ export async function embedTexts(
   if (
     rows?.length !== texts.length ||
     rows.some(
-      (r: { embedding: number[] }) =>
+      (r: { index: number; embedding: number[] }, i: number) =>
+        r.index !== i ||
         r.embedding?.length !== IKEDA.embeddingDimensions ||
         r.embedding.some((x: number) => !Number.isFinite(x)),
     )

@@ -1,6 +1,6 @@
 /** Translation settings shared by the on-demand API and archive backfill. */
 export const BLOG_TRANSLATION = {
-  model: "openai/gpt-5.4-nano",
+  model: "gpt-5.4-mini",
   batchCharacters: 6000,
   koreanBatchCharacters: 3000,
   segmentCharacters: 3000,

@@ -23,6 +23,7 @@ export async function ensureIkedaTables() {
     embedding VECTOR(${IKEDA.embeddingDimensions}) NOT NULL,
     UNIQUE(post_slug, ordinal)
   )`);
+  await ensureIkedaEmbeddingTable();
   await sql`CREATE INDEX IF NOT EXISTS ikeda_chunks_vector_idx ON ikeda_chunks USING hnsw (embedding vector_cosine_ops)`;
   await sql`CREATE INDEX IF NOT EXISTS ikeda_chunks_text_idx ON ikeda_chunks USING gin (body_text gin_trgm_ops)`;
   await sql`CREATE INDEX IF NOT EXISTS ikeda_documents_themes_idx ON ikeda_documents USING gin (themes)`;
@@ -30,4 +31,15 @@ export async function ensureIkedaTables() {
     day DATE PRIMARY KEY, request_count INT NOT NULL DEFAULT 0, visitors JSONB NOT NULL DEFAULT '{}',
     input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0
   )`;
+}
+
+export async function ensureIkedaEmbeddingTable() {
+  const sql = ikedaSql();
+  await sql.query(`CREATE TABLE IF NOT EXISTS ikeda_chunk_embeddings (
+    chunk_id TEXT NOT NULL REFERENCES ikeda_chunks(id) ON DELETE CASCADE,
+    embedding_model TEXT NOT NULL,source_hash TEXT NOT NULL,
+    embedding VECTOR(${IKEDA.embeddingDimensions}) NOT NULL,
+    PRIMARY KEY(chunk_id,embedding_model)
+  )`);
+  await sql`CREATE INDEX IF NOT EXISTS ikeda_chunk_embeddings_vector_idx ON ikeda_chunk_embeddings USING hnsw(embedding vector_cosine_ops)`;
 }

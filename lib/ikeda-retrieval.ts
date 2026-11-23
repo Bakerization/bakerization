@@ -180,7 +180,8 @@ export async function retrieve(
     "p.published = TRUE",
     "d.source_hash = p.source_hash",
     "d.index_version = $2",
-    "d.embedding_model = $3",
+    "e.embedding_model = $3",
+    "e.source_hash = d.source_hash",
   ];
   if (scope.year)
     predicates.push(
@@ -188,15 +189,15 @@ export async function retrieve(
     );
   if (scope.theme && IKEDA_THEMES.some((t) => t.id === scope.theme))
     predicates.push(`${param(scope.theme)} = ANY(d.themes)`);
-  const from = `FROM ikeda_chunks c JOIN ikeda_documents d ON d.post_slug=c.post_slug JOIN blog_posts p ON p.slug=c.post_slug WHERE ${predicates.join(" AND ")}`;
+  const from = `FROM ikeda_chunks c JOIN ikeda_chunk_embeddings e ON e.chunk_id=c.id JOIN ikeda_documents d ON d.post_slug=c.post_slug JOIN blog_posts p ON p.slug=c.post_slug WHERE ${predicates.join(" AND ")}`;
   const columns =
-    "c.id,c.post_slug,c.ordinal,c.body_text,p.title,p.published_at,d.themes,d.thought,1-(c.embedding <=> $1::vector) AS score";
+    "c.id,c.post_slug,c.ordinal,c.body_text,p.title,p.published_at,d.themes,d.thought,1-(e.embedding <=> $1::vector) AS score";
   const sql = ikedaSql();
   const terms = searchTerms(question);
   const patterns = terms.map((t) => `%${t.replace(/[\\%_]/g, "\\$&")}%`);
   const [dense, lexical, eras, anchored] = await Promise.all([
     sql.query(
-      `SELECT ${columns} ${from} ORDER BY c.embedding <=> $1::vector LIMIT 28`,
+      `SELECT ${columns} ${from} ORDER BY e.embedding <=> $1::vector LIMIT 28`,
       values,
     ),
     patterns.length
@@ -207,13 +208,13 @@ export async function retrieve(
       : Promise.resolve([]),
     isTimelineQuestion(question) && !scope.year && !scope.article
       ? sql.query(
-          `SELECT * FROM (SELECT ${columns},row_number() OVER (PARTITION BY EXTRACT(YEAR FROM p.published_at AT TIME ZONE 'Asia/Tokyo') ORDER BY c.embedding <=> $1::vector) AS year_rank ${from}) ranked WHERE year_rank=1 ORDER BY published_at`,
+          `SELECT * FROM (SELECT ${columns},row_number() OVER (PARTITION BY EXTRACT(YEAR FROM p.published_at AT TIME ZONE 'Asia/Tokyo') ORDER BY e.embedding <=> $1::vector) AS year_rank ${from}) ranked WHERE year_rank=1 ORDER BY published_at`,
           values,
         )
       : Promise.resolve([]),
     scope.article
       ? sql.query(
-          `SELECT ${columns} ${from} AND p.slug=$${values.length + 1} ORDER BY c.embedding <=> $1::vector LIMIT 2`,
+          `SELECT ${columns} ${from} AND p.slug=$${values.length + 1} ORDER BY e.embedding <=> $1::vector LIMIT 2`,
           [...values, scope.article],
         )
       : Promise.resolve([]),
@@ -231,7 +232,7 @@ export async function retrieve(
   const ranked = [...merged.values()]
     .sort((a, b) => b.rank - a.rank)
     .map((x) => x.candidate);
-  ranked.unshift(...(anchored as Candidate[]));
+  ranked.unshift(...(anchored as Candidate[]).map((c) => ({ ...c, score: 1 })));
   for (const row of eras)
     if (!merged.has(row.id)) ranked.push(row as Candidate);
   return selectContext(ranked, question);

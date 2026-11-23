@@ -19,6 +19,7 @@ type Article = {
   source_hash: string;
   content_html: string;
   text: string;
+  prior_thought?: Thought;
 };
 type Cached = {
   version: number;
@@ -197,10 +198,10 @@ async function main() {
   await ensureIkedaTables();
   const sql = ikedaSql();
   const all =
-    await sql`SELECT p.slug, p.title, p.author_name, p.category, p.published_at, p.source_hash, p.content_html
+    await sql`SELECT p.slug, p.title, p.author_name, p.category, p.published_at, p.source_hash, p.content_html,CASE WHEN d.source_hash=p.source_hash AND d.index_version=${IKEDA.version} THEN d.thought END AS prior_thought
     FROM blog_posts p LEFT JOIN ikeda_documents d ON d.post_slug = p.slug
     WHERE p.published = TRUE AND p.source_url LIKE ANY(${IKEDA_SOURCE_URL_PATTERNS}::text[])
-      AND (d.post_slug IS NULL OR d.source_hash <> p.source_hash OR d.index_version <> ${IKEDA.version} OR d.embedding_model <> ${IKEDA.embeddingModel})
+      AND (d.post_slug IS NULL OR d.source_hash <> p.source_hash OR d.index_version <> ${IKEDA.version} OR NOT EXISTS(SELECT 1 FROM ikeda_chunks c WHERE c.post_slug=p.slug) OR EXISTS(SELECT 1 FROM ikeda_chunks c LEFT JOIN ikeda_chunk_embeddings e ON e.chunk_id=c.id AND e.embedding_model=${IKEDA.embeddingModel} AND e.source_hash=d.source_hash WHERE c.post_slug=p.slug AND e.chunk_id IS NULL))
     ORDER BY p.published_at DESC`;
   const limitArg = process.argv.find((x) => x.startsWith("--limit="));
   const articles = (
@@ -235,6 +236,11 @@ async function main() {
             const records = new Map<string, Cached>();
             const cachedThoughts = new Map<string, Thought>();
             for (const a of batch) {
+              if (a.prior_thought)
+                cachedThoughts.set(
+                  a.slug,
+                  thoughtSchema.parse(a.prior_thought),
+                );
               try {
                 const prior = JSON.parse(
                   await readFile(join(cache, `thought-${a.slug}.json`), "utf8"),
@@ -346,6 +352,10 @@ async function main() {
                       i,
                     ) => sql`INSERT INTO ikeda_chunks (id, post_slug, ordinal, body_text, token_count, embedding)
               VALUES (${`${a.slug}:${i}`}, ${a.slug}, ${i}, ${c.text}, ${c.tokens}, ${JSON.stringify(c.embedding)}::vector)`,
+                  ),
+                  ...r.chunks.map(
+                    (c, i) =>
+                      sql`INSERT INTO ikeda_chunk_embeddings(chunk_id,embedding_model,source_hash,embedding) VALUES(${`${a.slug}:${i}`},${IKEDA.embeddingModel},${a.source_hash},${JSON.stringify(c.embedding)}::vector)`,
                   ),
                 ]),
               );
