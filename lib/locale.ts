@@ -19,7 +19,7 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 export function normalizeLocale(value: string | null | undefined): Locale {
-  return value === "en" ? "en" : "ja";
+  return ["en", "zh", "ko"].includes(value || "") ? "en" : "ja";
 }
 
 /**
@@ -27,12 +27,16 @@ export function normalizeLocale(value: string | null | undefined): Locale {
  * Case-sensitive on purpose: the rewrite rule in next.config.ts matches
  * `lang=en` exactly, and the site only ever emits lowercase.
  */
-export function parseLocaleParam(value: string | null | undefined): Locale | null {
+export function parseLocaleParam(
+  value: string | null | undefined,
+): Locale | null {
   return isLocale(value) ? value : null;
 }
 
 /** Locale from the `[locale]` route param. Internal paths only ever carry ja/en. */
-export async function localeFromParams(params: Promise<{ locale: string }>): Promise<Locale> {
+export async function localeFromParams(
+  params: Promise<{ locale: string }>,
+): Promise<Locale> {
   return normalizeLocale((await params).locale);
 }
 
@@ -48,7 +52,9 @@ export function withLang(href: string, locale: Locale): string {
   const beforeHash = hashAt >= 0 ? href.slice(0, hashAt) : href;
   const queryAt = beforeHash.indexOf("?");
   const path = queryAt >= 0 ? beforeHash.slice(0, queryAt) : beforeHash;
-  const params = new URLSearchParams(queryAt >= 0 ? beforeHash.slice(queryAt + 1) : "");
+  const params = new URLSearchParams(
+    queryAt >= 0 ? beforeHash.slice(queryAt + 1) : "",
+  );
   params.delete(LANG_PARAM);
   if (locale !== DEFAULT_LOCALE) params.set(LANG_PARAM, locale);
   const query = params.toString();

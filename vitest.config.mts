@@ -3,7 +3,11 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL(".", import.meta.url)) } },
   test: {
-    include: ["scripts/ikeda*.test.ts", "scripts/ikeda*.test.tsx"],
+    include: [
+      "scripts/ikeda*.test.ts",
+      "scripts/ikeda*.test.tsx",
+      "scripts/home.test.tsx",
+    ],
     environment: "node",
     environmentOptions: { jsdom: { url: "http://localhost" } },
   },

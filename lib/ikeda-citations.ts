@@ -7,6 +7,35 @@ export function normalizeThoughtVoices(
   source?: { slug: string; authorName: string },
 ): Thought {
   const compact = (s: string) => s.replace(/\s+/g, "");
+  if (source?.slug.startsWith("ikeda-") && source.authorName !== "池田浩明") {
+    // A coauthored excerpt cannot establish which coauthor supplied a claim.
+    thought = {
+      ...thought,
+      authorship: "collective_unknown",
+      authorshipEvidence: "",
+      claims: thought.claims.map((c) =>
+        c.voice === "narrator" ? { ...c, voice: "unclear" } : c,
+      ),
+    };
+  }
+  if (source?.slug.startsWith("ikeda-") && source.authorName === "池田浩明") {
+    const evidence = [
+      "写真と文：池田浩明",
+      "text by Hiroaki Ikeda",
+      "text：Hiroaki Ikeda",
+      "HIROAKI IKEDA",
+      "池田浩明",
+    ].find((s) => compact(text).includes(compact(s)));
+    if (evidence)
+      thought = {
+        ...thought,
+        authorship: "ikeda_explicit",
+        authorshipEvidence: evidence,
+        claims: thought.claims.map((c) =>
+          c.voice === "other_author" ? { ...c, voice: "unclear" } : c,
+        ),
+      };
+  }
   const byline = "文：池田浩明";
   if (
     source?.slug.startsWith("asahi-konopan-") &&
@@ -23,7 +52,8 @@ export function normalizeThoughtVoices(
       ),
     };
   }
-  const interview = /[－―—-]{2}/.test(text);
+  const interview =
+    source?.slug.startsWith("ikeda-") || /[－―—-]{2}/.test(text);
   const quoted = interview
     ? [...text.matchAll(/「([^」]{20,})」/g)].map((m) => compact(m[1]))
     : [];

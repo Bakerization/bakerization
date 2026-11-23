@@ -1,80 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
+import BlogLanguageSwitcher from "@/components/blog/BlogLanguageSwitcher";
+import { withBlogLanguage, type BlogLanguage } from "@/lib/blog-language";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Wordmark from "@/components/brand/Wordmark";
 import { NAV_HEIGHT } from "@/components/brand/ui";
 import type { Locale } from "@/lib/locale";
+import { withLang } from "@/lib/locale";
 import { toPublicPathname } from "@/lib/public-pathname";
-import { JOURNAL_URL } from "@/lib/links";
 import { C, FONTS } from "@/lib/theme";
+import { PUBLIC_NAV_LINKS as LINKS } from "@/lib/navigation";
 
-type NavLink = {
-  label: string;
-  href: string;
-  /** Opens in a new tab (Journal on note). */
-  external?: boolean;
-  /** Hover menu under the item; kiji hub (the product) sits under Services. */
-  drop?: { label: string; href: string };
-};
-
-// Message is linked from the footer only.
-const LINKS: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Services", href: "/#services", drop: { label: "kiji hub", href: "/app" } },
-  { label: "News", href: "/news" },
-  { label: "Blog", href: "/blog" },
-  { label: "Journal", href: JOURNAL_URL, external: true },
-  { label: "Research", href: "/research" },
-  { label: "Club", href: "/club" },
-];
-
-function NavAnchor({
-  item,
-  style,
-  onClick,
-  children,
+export default function Navbar({
+  locale,
+  readerLanguage = locale,
 }: {
-  item: NavLink;
-  style: CSSProperties;
-  onClick?: () => void;
-  children: ReactNode;
+  locale: Locale;
+  readerLanguage?: BlogLanguage;
 }) {
-  if (item.external) {
-    return (
-      <a href={item.href} target="_blank" rel="noopener noreferrer" style={style} onClick={onClick}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <Link href={item.href} style={style} onClick={onClick}>
-      {children}
-    </Link>
-  );
-}
-
-export default function Navbar({ locale }: { locale: Locale }) {
   const pathname = toPublicPathname(usePathname());
+  const blog = pathname === "/blog" || pathname.startsWith("/blog/");
   const [openFor, setOpenFor] = useState<string | null>(null);
-  // The mobile panel belongs to the page it was opened on; navigating closes it.
   const open = openFor === pathname;
-
-  // /research has its own header (ResearchShell).
-  if (pathname === "/research" || pathname.startsWith("/research/") || pathname === "/blog/chat") return null;
-
+  if (
+    pathname === "/research" ||
+    pathname.startsWith("/research/") ||
+    pathname === "/blog/chat"
+  )
+    return null;
   const linkStyle = { color: "inherit", textDecoration: "none" } as const;
-  const contactStyle = {
-    padding: "9px 18px",
-    borderRadius: 999,
-    background: C.main,
-    color: C.onMain,
-    textDecoration: "none",
-  } as const;
-
   return (
     <header
       style={{
@@ -89,6 +46,7 @@ export default function Navbar({ locale }: { locale: Locale }) {
     >
       <nav
         className="mob-pad"
+        aria-label="Main"
         style={{
           maxWidth: 1280,
           height: NAV_HEIGHT,
@@ -101,7 +59,11 @@ export default function Navbar({ locale }: { locale: Locale }) {
           boxSizing: "border-box",
         }}
       >
-        <Link href="/" aria-label="Bakerization — Home" style={{ color: C.ink }}>
+        <Link
+          href={withLang("/", locale)}
+          aria-label="Bakerization — Home"
+          style={{ color: C.ink }}
+        >
           <Wordmark height={15} />
         </Link>
         <ul
@@ -117,45 +79,34 @@ export default function Navbar({ locale }: { locale: Locale }) {
             fontSize: 12,
             fontWeight: 500,
             letterSpacing: "0.12em",
-            textTransform: "uppercase",
             color: C.ink,
           }}
         >
           {LINKS.map((x) => (
-            <li key={x.label} className={x.drop ? "nav-drop" : undefined}>
-              <NavAnchor item={x} style={linkStyle}>
+            <li key={x.label}>
+              <Link
+                href={
+                  blog && x.href === "/blog"
+                    ? withBlogLanguage(x.href, readerLanguage)
+                    : withLang(x.href, locale)
+                }
+                style={linkStyle}
+                aria-current={
+                  pathname === x.href || pathname.startsWith(x.href + "/")
+                    ? "page"
+                    : undefined
+                }
+              >
                 {x.label}
-              </NavAnchor>
-              {x.drop && (
-                <div className="nav-drop-menu">
-                  <Link
-                    href={x.drop.href}
-                    style={{
-                      display: "block",
-                      padding: "10px 16px",
-                      background: C.card,
-                      border: `1px solid ${C.line}`,
-                      color: C.ink,
-                      textDecoration: "none",
-                      textTransform: "none",
-                      letterSpacing: "0.06em",
-                      fontSize: 13,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {x.drop.label}
-                  </Link>
-                </div>
-              )}
+              </Link>
             </li>
           ))}
           <li>
-            <Link href="/contact" style={contactStyle}>
-              Contact
-            </Link>
-          </li>
-          <li>
-            <LanguageSwitcher locale={locale} />
+            {blog ? (
+              <BlogLanguageSwitcher language={readerLanguage} />
+            ) : (
+              <LanguageSwitcher locale={locale} />
+            )}
           </li>
         </ul>
         <button
@@ -185,7 +136,11 @@ export default function Navbar({ locale }: { locale: Locale }) {
         id="site-nav-panel"
         className="nav-panel"
         data-open={open}
-        style={{ background: C.bg, borderTop: `1px solid ${C.line}`, padding: "8px 20px 24px" }}
+        style={{
+          background: C.bg,
+          borderTop: `1px solid ${C.line}`,
+          padding: "8px 20px 24px",
+        }}
       >
         <ul
           style={{
@@ -196,54 +151,31 @@ export default function Navbar({ locale }: { locale: Locale }) {
             fontSize: 15,
             fontWeight: 500,
             letterSpacing: "0.12em",
-            textTransform: "uppercase",
             color: C.ink,
           }}
         >
           {LINKS.map((x) => (
             <li key={x.label} style={{ borderBottom: `1px solid ${C.line}` }}>
-              <NavAnchor
-                item={x}
+              <Link
+                href={
+                  blog && x.href === "/blog"
+                    ? withBlogLanguage(x.href, readerLanguage)
+                    : withLang(x.href, locale)
+                }
                 onClick={() => setOpenFor(null)}
                 style={{ ...linkStyle, display: "block", padding: "14px 0" }}
               >
                 {x.label}
-                {x.external ? <span aria-hidden> ↗</span> : null}
-              </NavAnchor>
-              {x.drop ? (
-                <Link
-                  href={x.drop.href}
-                  onClick={() => setOpenFor(null)}
-                  style={{
-                    ...linkStyle,
-                    display: "block",
-                    padding: "0 0 14px 18px",
-                    textTransform: "none",
-                    letterSpacing: "0.06em",
-                    color: C.sub,
-                  }}
-                >
-                  — {x.drop.label}
-                </Link>
-              ) : null}
+              </Link>
             </li>
           ))}
         </ul>
-        <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <Link
-            href="/contact"
-            onClick={() => setOpenFor(null)}
-            style={{
-              ...contactStyle,
-              fontFamily: FONTS.label,
-              fontSize: 13,
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-            }}
-          >
-            CONTACT
-          </Link>
-          <LanguageSwitcher locale={locale} />
+        <div style={{ marginTop: 20 }}>
+          {blog ? (
+            <BlogLanguageSwitcher language={readerLanguage} />
+          ) : (
+            <LanguageSwitcher locale={locale} />
+          )}
         </div>
       </div>
     </header>

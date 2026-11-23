@@ -1,3 +1,4 @@
+import { blogLanguage, BLOG_LANGUAGES, blogFont } from "@/lib/blog-language";
 import type { Metadata } from "next";
 import {
   Indie_Flower,
@@ -86,7 +87,9 @@ export function generateStaticParams() {
 
 // Site-wide defaults. No `alternates` here: every page would inherit the root
 // canonical. Pages set canonical / hreflang / OG through lib/seo.ts pageMetadata().
-export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: Pick<Props, "params">): Promise<Metadata> {
   const locale = await localeFromParams(params);
   const description =
     locale === "en"
@@ -95,7 +98,10 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
   const verification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: "Bakerization — We Bake the Future", template: `%s | ${SITE_NAME}` },
+    title: {
+      default: "Bakerization — We Bake the Future",
+      template: `%s | ${SITE_NAME}`,
+    },
     description,
     applicationName: SITE_NAME,
     openGraph: {
@@ -112,16 +118,22 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
 
 export default async function RootLayout({ children, params }: Props) {
   const locale = await localeFromParams(params);
+  const readerLanguage = blogLanguage((await params).locale);
 
   return (
     <html
-      lang={locale}
+      lang={BLOG_LANGUAGES[readerLanguage].html}
+      style={
+        blogFont(readerLanguage)
+          ? ({ "--font-body": blogFont(readerLanguage) } as React.CSSProperties)
+          : undefined
+      }
       data-scroll-behavior="smooth"
       className={`${fontDisplay.variable} ${fontLabel.variable} ${fontHandLatin.variable} ${fontHand.variable} ${fontBody.variable} ${fontMono.variable}`}
     >
       <body className="antialiased">
         <Providers>
-          <Navbar locale={locale} />
+          <Navbar locale={locale} readerLanguage={readerLanguage} />
           {children}
           <HideOnResearch>
             <SiteFooter locale={locale} />

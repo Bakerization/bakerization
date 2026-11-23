@@ -5,11 +5,19 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { C, FONTS } from "@/lib/theme";
 import type { Locale } from "@/lib/locale";
+import { withLang } from "@/lib/locale";
+import { PUBLIC_NAV_LINKS } from "@/lib/navigation";
 import { toPublicPathname } from "@/lib/public-pathname";
 import { useCrumbs } from "@/components/research/crumbs";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-export type ResearchHeaderLabels = { projects: string; settings: string; members: string; logout: string; menu: string };
+export type ResearchHeaderLabels = {
+  projects: string;
+  settings: string;
+  members: string;
+  logout: string;
+  menu: string;
+};
 
 type Props = {
   user: { name: string; email: string; role: string } | null;
@@ -32,7 +40,8 @@ export default function ResearchHeader({ user, locale, labels: t }: Props) {
   const pathname = toPublicPathname(usePathname());
   const router = useRouter();
   const crumbs = useCrumbs();
-  const minimal = pathname === "/research/login" || pathname === "/research/consent";
+  const minimal =
+    pathname === "/research/login" || pathname === "/research/consent";
   // Phones: member links fold into a menu so the language switcher always fits.
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => setMenuOpen(false), [pathname]);
@@ -47,7 +56,13 @@ export default function ResearchHeader({ user, locale, labels: t }: Props) {
     router.refresh();
   }
 
-  const signOutStyle: React.CSSProperties = { ...navLink, background: "transparent", border: `1px solid ${C.line}`, padding: "6px 10px", cursor: "pointer" };
+  const signOutStyle: React.CSSProperties = {
+    ...navLink,
+    background: "transparent",
+    border: `1px solid ${C.line}`,
+    padding: "6px 10px",
+    cursor: "pointer",
+  };
 
   // The artifact viewer is full-viewport; its ⋯ panel carries the brand link and language switch.
   if (pathname.startsWith("/research/a/")) return null;
@@ -80,19 +95,72 @@ export default function ResearchHeader({ user, locale, labels: t }: Props) {
           gap: 16,
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 14, minWidth: 0 }}>
-          <Link href="/research" style={{ textDecoration: "none", color: C.ink, fontFamily: FONTS.display, fontWeight: 700, fontSize: 16, letterSpacing: -0.3, whiteSpace: "nowrap" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 14,
+            minWidth: 0,
+          }}
+        >
+          <Link
+            href={withLang(user ? "/research" : "/", locale)}
+            style={{
+              textDecoration: "none",
+              color: C.ink,
+              fontFamily: FONTS.display,
+              fontWeight: 700,
+              fontSize: 16,
+              letterSpacing: -0.3,
+              whiteSpace: "nowrap",
+            }}
+          >
             Bakerization<span style={{ color: C.accent }}> / </span>Research
           </Link>
           {!minimal && crumbs.length > 0 ? (
-            <nav className="mob-hide" aria-label="breadcrumb" style={{ display: "flex", gap: 8, minWidth: 0, ...navLink, textTransform: "none", letterSpacing: "0.06em", fontSize: 12 }}>
+            <nav
+              className="mob-hide"
+              aria-label="breadcrumb"
+              style={{
+                display: "flex",
+                gap: 8,
+                minWidth: 0,
+                ...navLink,
+                textTransform: "none",
+                letterSpacing: "0.06em",
+                fontSize: 12,
+              }}
+            >
               {crumbs.map((c, i) => (
-                <span key={`${c.label}-${i}`} style={{ display: "flex", gap: 8, minWidth: 0 }}>
+                <span
+                  key={`${c.label}-${i}`}
+                  style={{ display: "flex", gap: 8, minWidth: 0 }}
+                >
                   <span aria-hidden>›</span>
                   {c.href ? (
-                    <Link href={c.href} style={{ ...navLink, textTransform: "none", letterSpacing: "0.06em", fontSize: 12 }}>{c.label}</Link>
+                    <Link
+                      href={c.href}
+                      style={{
+                        ...navLink,
+                        textTransform: "none",
+                        letterSpacing: "0.06em",
+                        fontSize: 12,
+                      }}
+                    >
+                      {c.label}
+                    </Link>
                   ) : (
-                    <span style={{ color: C.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 320 }}>{c.label}</span>
+                    <span
+                      style={{
+                        color: C.ink,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 320,
+                      }}
+                    >
+                      {c.label}
+                    </span>
                   )}
                 </span>
               ))}
@@ -100,43 +168,152 @@ export default function ResearchHeader({ user, locale, labels: t }: Props) {
           ) : null}
         </div>
 
-        <nav style={{ display: "flex", alignItems: "center", gap: 18, flexShrink: 0 }}>
+        <nav
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 18,
+            flexShrink: 0,
+          }}
+        >
           {member ? (
-            <span className="mob-hide" style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <Link href="/research" style={navLink}>{t.projects}</Link>
-              <Link href="/research/settings" style={navLink}>{t.settings}</Link>
-              {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.members}</Link> : null}
-              <span style={{ ...navLink, textTransform: "none", letterSpacing: 0, color: C.ink }}>{member.name}</span>
-              <button type="button" onClick={() => void signOut()} style={signOutStyle}>
+            <span
+              className="mob-hide"
+              style={{ display: "flex", alignItems: "center", gap: 18 }}
+            >
+              <Link href="/research" style={navLink}>
+                {t.projects}
+              </Link>
+              <Link href="/research/settings" style={navLink}>
+                {t.settings}
+              </Link>
+              {member.role === "admin" ? (
+                <Link href="/research/members" style={navLink}>
+                  {t.members}
+                </Link>
+              ) : null}
+              <span
+                style={{
+                  ...navLink,
+                  textTransform: "none",
+                  letterSpacing: 0,
+                  color: C.ink,
+                }}
+              >
+                {member.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                style={signOutStyle}
+              >
                 {t.logout}
               </button>
             </span>
+          ) : !minimal ? (
+            <span className="mob-hide" style={{ display: "flex", gap: 18 }}>
+              {PUBLIC_NAV_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={withLang(item.href, locale)}
+                  style={{ ...navLink, textTransform: "none" }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </span>
           ) : null}
           <LanguageSwitcher locale={locale} />
-          {member ? (
+          {member || !minimal ? (
             <button
               type="button"
               className="mob-only"
               aria-expanded={menuOpen}
               aria-label={t.menu}
               onClick={() => setMenuOpen((o) => !o)}
-              style={{ ...signOutStyle, fontSize: 14, letterSpacing: 0, padding: "4px 10px" }}
+              style={{
+                ...signOutStyle,
+                fontSize: 14,
+                letterSpacing: 0,
+                padding: "4px 10px",
+              }}
             >
               {menuOpen ? "✕" : "≡"}
             </button>
           ) : null}
         </nav>
       </div>
+      {!member && !minimal && menuOpen ? (
+        <div
+          className="mob-only mob-pad"
+          style={{
+            position: "absolute",
+            top: 56,
+            left: 0,
+            right: 0,
+            background: C.bg,
+            borderBottom: `1px solid ${C.line}`,
+            padding: "12px 20px",
+          }}
+        >
+          {PUBLIC_NAV_LINKS.map((item) => (
+            <Link
+              key={item.href}
+              href={withLang(item.href, locale)}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                ...navLink,
+                display: "block",
+                padding: "12px 0",
+                textTransform: "none",
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
       {member && menuOpen ? (
         <div
           className="mob-only mob-pad"
-          style={{ position: "absolute", top: 56, left: 0, right: 0, flexDirection: "column", gap: 14, padding: "16px 20px 20px", background: C.bg, borderBottom: `1px solid ${C.line}` }}
+          style={{
+            position: "absolute",
+            top: 56,
+            left: 0,
+            right: 0,
+            flexDirection: "column",
+            gap: 14,
+            padding: "16px 20px 20px",
+            background: C.bg,
+            borderBottom: `1px solid ${C.line}`,
+          }}
         >
-          <Link href="/research" style={navLink}>{t.projects}</Link>
-          <Link href="/research/settings" style={navLink}>{t.settings}</Link>
-          {member.role === "admin" ? <Link href="/research/members" style={navLink}>{t.members}</Link> : null}
-          <span style={{ ...navLink, textTransform: "none", letterSpacing: 0, color: C.ink }}>{member.name}</span>
-          <button type="button" onClick={() => void signOut()} style={{ ...signOutStyle, alignSelf: "flex-start" }}>
+          <Link href="/research" style={navLink}>
+            {t.projects}
+          </Link>
+          <Link href="/research/settings" style={navLink}>
+            {t.settings}
+          </Link>
+          {member.role === "admin" ? (
+            <Link href="/research/members" style={navLink}>
+              {t.members}
+            </Link>
+          ) : null}
+          <span
+            style={{
+              ...navLink,
+              textTransform: "none",
+              letterSpacing: 0,
+              color: C.ink,
+            }}
+          >
+            {member.name}
+          </span>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            style={{ ...signOutStyle, alignSelf: "flex-start" }}
+          >
             {t.logout}
           </button>
         </div>

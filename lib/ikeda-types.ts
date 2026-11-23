@@ -41,6 +41,7 @@ export type ChatMessage = {
   sources?: IkedaSource[];
 };
 export const chatRequestSchema = z.strictObject({
+  locale: z.enum(["ja", "en", "zh", "ko"]).default("ja"),
   question: z.string().trim().min(1).max(IKEDA.questionCharacters),
   history: z
     .array(

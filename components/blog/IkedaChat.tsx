@@ -10,6 +10,13 @@ import { IKEDA, IKEDA_THEMES, IKEDA_PENDING_KEY } from "@/lib/ikeda-config";
 import { readSse } from "@/lib/ikeda-stream";
 import { formatBlogDate } from "@/lib/blog-format";
 import type { ChatMessage, IkedaSource, Thought } from "@/lib/ikeda-types";
+import {
+  withBlogLanguage as withLang,
+  type BlogLanguage as Locale,
+  blogFont,
+} from "@/lib/blog-language";
+import { blogText, blogTheme, conceptQuestion } from "@/lib/blog-copy";
+import BlogLanguageSwitcher from "./BlogLanguageSwitcher";
 import styles from "./IkedaChat.module.css";
 
 type Scope = { theme?: string; year?: number; article?: string };
@@ -109,11 +116,14 @@ function restoredThreads(value: unknown): Thread[] {
 export default function IkedaChat({
   initialQuestion = "",
   initialScope = {},
+  locale = "ja",
 }: {
   initialQuestion?: string;
   initialScope?: Scope;
+  locale?: Locale;
 }) {
   const router = useRouter();
+  const tr = (ja: string, en: string) => blogText(locale, ja, en);
   const [ready, setReady] = useState(false);
   const [thread, setThread] = useState<Thread>(emptyThread);
   const [history, setHistory] = useState<Thread[]>([]);
@@ -148,7 +158,7 @@ export default function IkedaChat({
     setDraft("");
     setPanel(null);
     setSidebar(false);
-    router.replace("/blog/chat");
+    router.replace(withLang("/blog/chat", locale));
     inputRef.current?.focus();
   }
   async function openSource(source: IkedaSource) {
@@ -227,6 +237,7 @@ export default function IkedaChat({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          locale,
           question: q,
           history: prior
             .slice(-IKEDA.historyMessages)
@@ -238,11 +249,25 @@ export default function IkedaChat({
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(
-          data.error || "回答を作れませんでした。もう一度お試しください。",
+          (response.status === 429
+            ? tr(
+                "少し待ってからお試しください。",
+                "Please wait a little before trying again.",
+              )
+            : "") ||
+            tr(
+              "回答を作れませんでした。もう一度お試しください。",
+              "Could not generate an answer. Please try again.",
+            ),
         );
       }
       if (!response.body)
-        throw new Error("接続が切れました。もう一度お試しください。");
+        throw new Error(
+          tr(
+            "接続が切れました。もう一度お試しください。",
+            "Connection lost. Please try again.",
+          ),
+        );
       let done = false;
       for await (const event of readSse(response.body)) {
         if (sequence.current !== requestId) break;
@@ -261,13 +286,20 @@ export default function IkedaChat({
         if (event.type === "error") throw new Error(String(event.message));
       }
       if (!done && !abort.signal.aborted)
-        throw new Error("接続が途中で切れました。もう一度お試しください。");
+        throw new Error(
+          tr(
+            "接続が途中で切れました。もう一度お試しください。",
+            "The connection ended before the answer was complete. Please try again.",
+          ),
+        );
     } catch (error) {
       if (!abort.signal.aborted)
         edit({
           state: "error",
           error:
-            error instanceof Error ? error.message : "接続できませんでした。",
+            error instanceof Error
+              ? error.message
+              : tr("接続できませんでした。", "Could not connect."),
         });
     } finally {
       if (sequence.current === requestId) setLoading(false);
@@ -383,11 +415,11 @@ export default function IkedaChat({
     [],
   );
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} style={{ fontFamily: blogFont(locale) }}>
       {sidebar && (
         <button
           className={`${styles.backdrop} ${styles.sideBackdrop}`}
-          aria-label="メニューを閉じる"
+          aria-label={tr("メニューを閉じる", "Close menu")}
           onClick={() => setSidebar(false)}
         />
       )}
@@ -396,19 +428,27 @@ export default function IkedaChat({
         className={`${styles.sidebar} ${sidebar ? styles.sidebarOpen : ""}`}
         inert={narrow && !sidebar}
       >
-        <Link href="/" className={styles.sideLogo}>
+        <Link
+          href={withLang("/", locale === "ja" ? "ja" : "en")}
+          className={styles.sideLogo}
+        >
           <Wordmark height={15} />
         </Link>
         <button className={styles.newChat} onClick={newChat}>
           <Icon name="plus" />
-          新しいチャット
+          {tr("新しいチャット", "New chat")}
         </button>
-        <Link href="/blog" className={styles.sideLink}>
+        <Link href={withLang("/blog", locale)} className={styles.sideLink}>
           <Icon name="book" />
-          ブログを読む
+          {tr("ブログを読む", "Read the blog")}
         </Link>
-        <p className={styles.historyLabel}>このブラウザの履歴</p>
-        <nav className={styles.history} aria-label="会話の履歴">
+        <p className={styles.historyLabel}>
+          {tr("このブラウザの履歴", "History on this browser")}
+        </p>
+        <nav
+          className={styles.history}
+          aria-label={tr("会話の履歴", "Chat history")}
+        >
           {history.map((t) => (
             <button
               className={`${styles.historyButton} ${t.id === thread.id ? styles.historyActive : ""}`}
@@ -426,12 +466,18 @@ export default function IkedaChat({
           ))}
         </nav>
         <div className={styles.sideFooter}>
-          公開記事から、考えのつながりへ。
+          {tr(
+            "公開記事から、考えのつながりへ。",
+            "Explore connections across the articles.",
+          )}
           <br />
           <span>IKEDA AI / BAKERIZATION</span>
           <br />
-          <Link href="/privacy" style={{ color: "inherit", fontSize: 10 }}>
-            プライバシー
+          <Link
+            href={withLang("/privacy", locale === "ja" ? "ja" : "en")}
+            style={{ color: "inherit", fontSize: 10 }}
+          >
+            {tr("プライバシー", "Privacy")}
           </Link>
         </div>
       </aside>
@@ -440,22 +486,26 @@ export default function IkedaChat({
           <div className={styles.headerTitle}>
             <button
               className={`${styles.iconButton} ${styles.menuButton}`}
-              aria-label="メニューを開く"
+              aria-label={tr("メニューを開く", "Open menu")}
               aria-expanded={sidebar}
               aria-controls="ikeda-sidebar"
               onClick={() => setSidebar(!sidebar)}
             >
               <Icon name="menu" />
             </button>
-            <span className={styles.avatar}>✳</span>池田AI
+            <span className={styles.avatar}>✳</span>
+            {tr("池田AI", "Ikeda AI")}
             <small>BAKERIZATION</small>
           </div>
           <div className={styles.headerActions}>
-            <Link href="/blog">記事アーカイブ ↗</Link>
+            <BlogLanguageSwitcher language={locale} />
+            <Link href={withLang("/blog", locale)}>
+              {tr("記事アーカイブ ↗", "Article archive ↗")}
+            </Link>
             <button
               className={styles.iconButton}
               onClick={newChat}
-              aria-label="新しいチャット"
+              aria-label={tr("新しいチャット", "New chat")}
             >
               <Icon name="plus" />
             </button>
@@ -472,19 +522,7 @@ export default function IkedaChat({
         >
           {!thread.messages.length ? (
             <section className={styles.welcome}>
-              <div className={styles.welcomeBrand}>
-                PAN LABO · A CONVERSATION WITH IDEAS
-              </div>
-              <h1>
-                パンのことから、
-                <br />
-                もう少し先のことまで。
-              </h1>
-              <p>
-                パン、小麦、職人、土地、そして文化。
-                <br />
-                記事を行き来しながら、気になる問いを掘り下げてみませんか。
-              </p>
+              <h1>{tr("池田AIに質問する", "Ask Ikeda AI")}</h1>
               <div className={styles.suggestions}>
                 {[
                   IKEDA_THEMES[0],
@@ -496,10 +534,12 @@ export default function IkedaChat({
                     key={t.id}
                     className={styles.suggestion}
                     disabled={!ready}
-                    onClick={() => void send(t.question)}
+                    onClick={() =>
+                      void send(blogTheme(t.id, locale, "question"))
+                    }
                   >
-                    <small>{t.label}</small>
-                    {t.question}
+                    <small>{blogTheme(t.id, locale)}</small>
+                    {blogTheme(t.id, locale, "question")}
                   </button>
                 ))}
               </div>
@@ -515,19 +555,26 @@ export default function IkedaChat({
                   <section
                     key={i}
                     className={styles.assistantMessage}
-                    aria-label="池田AIの回答"
+                    aria-label={tr("池田AIの回答", "Ikeda AI response")}
                   >
                     <span className={styles.avatar} aria-hidden>
                       ✳
                     </span>
                     <div className={styles.assistantBody}>
-                      <div className={styles.assistantLabel}>池田AI</div>
+                      <div className={styles.assistantLabel}>
+                        {tr("池田AI", "Ikeda AI")}
+                      </div>
                       {!m.content && m.state === "streaming" ? (
                         <div className={styles.loading} role="status">
                           <i />
                           <i />
                           <i />
-                          <span>記事を読み解いています</span>
+                          <span>
+                            {tr(
+                              "記事を読み解いています",
+                              "Reading the articles",
+                            )}
+                          </span>
                         </div>
                       ) : (
                         <div className={styles.answer}>
@@ -544,7 +591,11 @@ export default function IkedaChat({
                                     <button
                                       className={styles.citation}
                                       onClick={() => void openSource(source)}
-                                      aria-label={`参照記事${source.number}：${source.title}`}
+                                      aria-label={
+                                        locale === "ja"
+                                          ? `参照記事${source.number}：${source.title}`
+                                          : `${tr("", "Sources")} ${source.number}: ${source.title}`
+                                      }
                                     >
                                       {source.number}
                                     </button>
@@ -557,7 +608,7 @@ export default function IkedaChat({
                                 );
                                 return source ? (
                                   <Link
-                                    href={source.url}
+                                    href={withLang(source.url, locale)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
@@ -581,8 +632,8 @@ export default function IkedaChat({
                         <details className={styles.sourceList}>
                           <summary>
                             {m.state === "done"
-                              ? "参照した記事"
-                              : "参照記事の候補"}{" "}
+                              ? tr("参照した記事", "Sources")
+                              : tr("参照記事の候補", "Possible sources")}{" "}
                             · {m.sources.length}
                           </summary>
                           <div className={styles.sourceCards}>
@@ -593,7 +644,7 @@ export default function IkedaChat({
                                 onClick={() => void openSource(s)}
                               >
                                 <small>
-                                  <span>{s.number} · PAN LABO</span>
+                                  <span>{s.number} · SOURCE</span>
                                   <time dateTime={s.date}>
                                     {formatBlogDate(s.date)}
                                   </time>
@@ -606,7 +657,7 @@ export default function IkedaChat({
                       )}
                       {m.state === "stopped" && !m.content && (
                         <p style={{ fontSize: 11, color: "var(--sub)" }}>
-                          生成を停止しました
+                          {tr("生成を停止しました", "Generation stopped")}
                         </p>
                       )}
                       {m.error && (
@@ -623,7 +674,7 @@ export default function IkedaChat({
                                 )
                               }
                             >
-                              もう一度試す
+                              {tr("もう一度試す", "Try again")}
                             </button>
                           )}
                         </div>
@@ -641,7 +692,9 @@ export default function IkedaChat({
                                 .catch(() => undefined);
                             }}
                           >
-                            {copied === i ? "コピーしました" : "コピー"}
+                            {copied === i
+                              ? tr("コピーしました", "Copied")
+                              : tr("コピー", "Copy")}
                           </button>
                           {m.state === "stopped" && (
                             <span
@@ -651,7 +704,7 @@ export default function IkedaChat({
                                 padding: 4,
                               }}
                             >
-                              生成を停止しました
+                              {tr("生成を停止しました", "Generation stopped")}
                             </span>
                           )}
                         </div>
@@ -675,7 +728,8 @@ export default function IkedaChat({
                     }))
                   }
                 >
-                  {thread.scope.year}年 ×
+                  {thread.scope.year}
+                  {locale === "ja" ? "年" : ""} ×
                 </button>
               )}
               {thread.scope.theme && (
@@ -687,8 +741,7 @@ export default function IkedaChat({
                     }))
                   }
                 >
-                  {IKEDA_THEMES.find((t) => t.id === thread.scope.theme)?.label}{" "}
-                  ×
+                  {blogTheme(thread.scope.theme, locale)} ×
                 </button>
               )}
               {thread.scope.article && (
@@ -700,7 +753,7 @@ export default function IkedaChat({
                     }))
                   }
                 >
-                  この記事を起点に ×
+                  {tr("この記事を起点に ×", "Starting from this article ×")}
                 </button>
               )}
             </div>
@@ -712,7 +765,7 @@ export default function IkedaChat({
               }}
             >
               <label className={styles.srOnly} htmlFor="ikeda-message">
-                池田AIに質問する
+                {tr("池田AIに質問する", "Ask Ikeda AI")}
               </label>
               <textarea
                 id="ikeda-message"
@@ -721,7 +774,7 @@ export default function IkedaChat({
                 value={draft}
                 rows={1}
                 maxLength={IKEDA.questionCharacters}
-                placeholder="池田AIに聞いてみる"
+                placeholder={tr("池田AIに聞いてみる", "Ask Ikeda AI")}
                 onChange={(e) => {
                   setDraft(e.target.value);
                   e.target.style.height = "auto";
@@ -742,14 +795,17 @@ export default function IkedaChat({
               />
               <div className={styles.composerBottom}>
                 <span className={styles.composerHint}>
-                  記事を根拠に、考えをたどる
+                  {tr(
+                    "記事を根拠に、考えをたどる",
+                    "Explore ideas through their sources",
+                  )}
                 </span>
                 {loading ? (
                   <button
                     type="button"
                     className={styles.send}
                     onClick={stop}
-                    aria-label="生成を停止"
+                    aria-label={tr("生成を停止", "Stop generating")}
                   >
                     <Icon name="square" />
                   </button>
@@ -758,7 +814,7 @@ export default function IkedaChat({
                     className={styles.send}
                     type="submit"
                     disabled={!ready || !draft.trim()}
-                    aria-label="質問を送信"
+                    aria-label={tr("質問を送信", "Send question")}
                   >
                     <Icon name="arrow" />
                   </button>
@@ -766,7 +822,10 @@ export default function IkedaChat({
               </div>
             </form>
             <p className={styles.disclaimer}>
-              公開記事に基づくAI。池田浩明本人の回答ではありません。履歴はこのブラウザに保存されます。
+              {tr(
+                "公開記事に基づくAI。池田浩明本人の回答ではありません。履歴はこのブラウザに保存されます。",
+                "AI grounded in published articles, not Hiroaki Ikeda himself. History stays in this browser.",
+              )}
             </p>
           </div>
         </footer>
@@ -775,16 +834,19 @@ export default function IkedaChat({
         <>
           <button
             className={`${styles.backdrop} ${styles.panelBackdrop}`}
-            aria-label="参照記事を閉じる"
+            aria-label={tr("参照記事を閉じる", "Close source")}
             onClick={() => setPanel(null)}
           />
-          <aside className={styles.panel} aria-label="参照記事を読み解く">
+          <aside
+            className={styles.panel}
+            aria-label={tr("参照記事を読み解く", "Explore the source")}
+          >
             <div className={styles.panelHeader}>
               SOURCE {panel.number}
               <button
                 className={styles.iconButton}
                 onClick={() => setPanel(null)}
-                aria-label="参照記事を閉じる"
+                aria-label={tr("参照記事を閉じる", "Close source")}
               >
                 <Icon name="close" />
               </button>
@@ -792,18 +854,25 @@ export default function IkedaChat({
             <time dateTime={panel.date}>{formatBlogDate(panel.date)}</time>
             <h2>{panel.title}</h2>
             <Link
-              href={panel.url}
+              href={withLang(panel.url, locale)}
               className={styles.readArticle}
               target="_blank"
               rel="noopener noreferrer"
             >
-              原文を読む ↗
+              {tr("原文を読む ↗", "Read the article ↗")}
             </Link>
             {panel.thought ? (
               <>
-                <p className={styles.panelSub}>この記事の問い</p>
+                <p className={styles.panelSub}>
+                  {tr("この記事の問い", "The article’s question (Japanese)")}
+                </p>
                 <p className={styles.panelQuestion}>{panel.thought.question}</p>
-                <p className={styles.panelSub}>AIによる読み解きと、その根拠</p>
+                <p className={styles.panelSub}>
+                  {tr(
+                    "AIによる読み解きと、その根拠",
+                    "Source notes and evidence (Japanese)",
+                  )}
+                </p>
                 {panel.thought.claims.map((c, i) => (
                   <div key={i} className={styles.panelClaim}>
                     <strong>{c.statement}</strong>
@@ -811,28 +880,36 @@ export default function IkedaChat({
                     <blockquote>{c.quote}</blockquote>
                     <small>
                       {c.voice === "interviewee"
-                        ? "取材相手の発言"
+                        ? tr("取材相手の発言", "Interviewee’s words")
                         : c.voice === "unclear"
-                          ? "引用文（話者未確認）"
+                          ? tr(
+                              "引用文（話者未確認）",
+                              "Quotation; speaker unconfirmed",
+                            )
                           : c.voice === "other_author"
-                            ? "他筆者の文章"
+                            ? tr("他筆者の文章", "Another writer’s words")
                             : panel.thought?.authorship === "ikeda_explicit"
-                              ? "池田浩明の文章"
-                              : "記事中の文章（署名未確認）"}
+                              ? tr("池田浩明の文章", "Hiroaki Ikeda’s words")
+                              : tr(
+                                  "記事中の文章（署名未確認）",
+                                  "Article text; byline unconfirmed",
+                                )}
                     </small>
                   </div>
                 ))}
-                <p className={styles.panelSub}>つながる言葉</p>
+                <p className={styles.panelSub}>
+                  {tr("つながる言葉", "Related concepts")}
+                </p>
                 <div className={styles.panelThemes}>
                   {panel.thought.concepts.map((concept) => (
                     <button
                       key={concept}
                       disabled={loading}
                       onClick={() => {
-                        void send(
-                          `「${concept}」は、ほかの記事でどんな考えにつながっている？`,
-                          { ...thread.scope, article: panel.slug },
-                        );
+                        void send(conceptQuestion(concept, locale), {
+                          ...thread.scope,
+                          article: panel.slug,
+                        });
                         setPanel(null);
                       }}
                     >
@@ -842,8 +919,8 @@ export default function IkedaChat({
                 </div>
                 <div className={styles.panelThemes}>
                   {panel.themes.map((id) => (
-                    <Link href={`/blog?theme=${id}`} key={id}>
-                      {IKEDA_THEMES.find((t) => t.id === id)?.label || id} →
+                    <Link href={withLang(`/blog?theme=${id}`, locale)} key={id}>
+                      {blogTheme(id, locale)} →
                     </Link>
                   ))}
                 </div>

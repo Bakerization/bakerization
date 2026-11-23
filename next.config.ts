@@ -31,9 +31,20 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       afterFiles: [
+        ...["zh", "ko"].flatMap((language) => [
+          {
+            source: "/blog/:path*",
+            has: [{ type: "query" as const, key: "lang", value: language }],
+            destination: `/${language}/blog/:path*`,
+          },
+        ]),
         { source: "/", has: LANG_EN, destination: "/en" },
         { source: "/", destination: "/ja" },
-        { source: `/:path((?!${NOT_LOCALIZED}).+)`, has: LANG_EN, destination: "/en/:path" },
+        {
+          source: `/:path((?!${NOT_LOCALIZED}).+)`,
+          has: LANG_EN,
+          destination: "/en/:path",
+        },
         { source: `/:path((?!${NOT_LOCALIZED}).+)`, destination: "/ja/:path" },
       ],
     };
@@ -43,6 +54,11 @@ const nextConfig: NextConfig = {
     // matched on the incoming URL only, before rewrites, so the rewritten
     // internal paths above never loop back here.
     return [
+      ...["zh", "ko"].map((language) => ({
+        source: `/${language}/:path+`,
+        destination: `/:path+?lang=${language}`,
+        permanent: true,
+      })),
       { source: "/ja", destination: "/", permanent: true },
       { source: "/ja/:path+", destination: "/:path+", permanent: true },
       { source: "/en", destination: "/?lang=en", permanent: true },

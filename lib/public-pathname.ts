@@ -8,7 +8,7 @@
 export function toPublicPathname(pathname: string): string {
   return (
     pathname
-      .replace(/^\/(?:ja|en)(?=\/|$)/, "")
+      .replace(/^\/(?:ja|en|zh|ko)(?=\/|$)/, "")
       .replace(/^\/m(?=\/|$)/, "") || "/"
   );
 }

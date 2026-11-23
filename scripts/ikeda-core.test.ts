@@ -176,3 +176,23 @@ test("quoted interview passages never become confirmed narrator statements", () 
   expect(result.claims[0].voice).toBe("unclear");
   expect(normalizeThoughtVoices(input, quote).claims[0].voice).toBe("narrator");
 });
+
+test("article questions identify the anchor separately from related evidence", () => {
+  const context = selectContext(
+    [
+      candidate(1, "2026-01-01T00:00:00Z"),
+      candidate(2, "2025-01-01T00:00:00Z"),
+    ],
+    "この記事の考えは？",
+  );
+  const prompt = buildAnswerInput(
+    "이 글의 핵심 생각을 설명해 주세요.",
+    [],
+    context.context,
+    "panlabo-1",
+  );
+  const data = JSON.parse(prompt.input);
+  expect(data.anchorArticle).toBe("panlabo-1");
+  expect(data.documents[0].slug).toBe("panlabo-1");
+  expect(prompt.estimatedInputTokens).toBeLessThanOrEqual(IKEDA.promptTokens);
+});

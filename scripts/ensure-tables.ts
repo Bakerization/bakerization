@@ -8,10 +8,12 @@ import { ensureNewsTable } from "../lib/news-store";
 import { ensureResearchTables } from "../lib/research-schema";
 import { ensureBlogTable } from "../lib/blog-store";
 import { ensureIkedaTables } from "../lib/ikeda-schema";
+import { ensureBlogTranslations } from "../lib/blog-translations";
 
 async function main() {
   await ensureBlogTable();
   await ensureIkedaTables();
+  await ensureBlogTranslations();
   console.log("blog_posts: ok");
   await ensureNewsTable();
   console.log("news_posts: ok");

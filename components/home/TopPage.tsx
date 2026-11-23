@@ -29,7 +29,11 @@ type NewsTeaser = {
   title: string;
 };
 
-type Props = { news?: NewsTeaser[]; locale?: Locale; partnershipEnabled?: boolean };
+type Props = {
+  news?: NewsTeaser[];
+  locale?: Locale;
+  partnershipEnabled?: boolean;
+};
 
 type ServiceItem = {
   num: string;
@@ -57,16 +61,9 @@ const COPY = {
   brand: "Bakerization",
   issue: "ISSUE 01 — 2026",
   heroTitle: "We Bake the Future.",
-  heroSubJa:
-    "Bakerizationはパン屋の社会問題を解決するために生まれた団体です。",
+  heroSubJa: "Bakerizationはパン屋の社会問題を解決するために生まれた団体です。",
   heroSubEn:
     "Bakerization was founded to solve the social challenges facing the bakery industry.",
-  ctaPrimaryJa: "団体情報を見る",
-  ctaPrimaryEn: "About Us",
-  ctaSecondaryJa: "活動を見る",
-  ctaSecondaryEn: "Our Work",
-  heroCaptionJa: "朝の店頭 · The morning counter",
-  heroCaptionEn: "The morning counter",
   about: {
     labelJa: "Bakerizationとは何か？",
     labelEn: "What is Bakerization?",
@@ -157,16 +154,20 @@ const COPY = {
   research: {
     labelJa: "リサーチ",
     labelEn: "Research",
-    bodyJa: "パン業界とパン屋さんにまつわる調査・分析レポートを、Bakerization Research で公開しています。",
-    bodyEn: "We publish our research and analysis on bakeries and the bread industry at Bakerization Research.",
+    bodyJa:
+      "パン業界とパン屋さんにまつわる調査・分析レポートを、Bakerization Research で公開しています。",
+    bodyEn:
+      "We publish our research and analysis on bakeries and the bread industry at Bakerization Research.",
     ctaJa: "リサーチを見る",
     ctaEn: "Browse research",
   },
   journal: {
     labelJa: "ジャーナル",
     labelEn: "Journal",
-    bodyJa: "Bakerizationが考えていることや日々の取り組みは、noteで発信しています。",
-    bodyEn: "We write about what Bakerization is thinking and working on over on note.",
+    bodyJa:
+      "Bakerizationが考えていることや日々の取り組みは、noteで発信しています。",
+    bodyEn:
+      "We write about what Bakerization is thinking and working on over on note.",
     ctaJa: "noteで読む",
     ctaEn: "Read on note (in Japanese)",
   },
@@ -202,7 +203,13 @@ const COPY = {
    shows. No z-index on the wrappers: a stacking context would
    isolate the blend.
    ───────────────────────────────────────────────────────────── */
-function Hero({ locale, partnershipEnabled }: { locale: Locale; partnershipEnabled: boolean }) {
+function Hero({
+  locale,
+  partnershipEnabled,
+}: {
+  locale: Locale;
+  partnershipEnabled: boolean;
+}) {
   const en = locale === "en";
   return (
     <section
@@ -242,19 +249,16 @@ function Hero({ locale, partnershipEnabled }: { locale: Locale; partnershipEnabl
         >
           {en ? COPY.heroSubEn : COPY.heroSubJa}
         </p>
-        <div className="mob-flex-wrap" style={{ marginTop: 36, display: "flex", gap: 12 }}>
-          <BrandButtonLink href="/about">
-            {en ? COPY.ctaPrimaryEn : COPY.ctaPrimaryJa}
-          </BrandButtonLink>
-          <BrandButtonLink href="#services" variant="outline" arrow={false}>
-            {en ? COPY.ctaSecondaryEn : COPY.ctaSecondaryJa}
-          </BrandButtonLink>
-          {partnershipEnabled && (
+        {partnershipEnabled && (
+          <div
+            className="mob-flex-wrap"
+            style={{ marginTop: 36, display: "flex", gap: 12 }}
+          >
             <BrandButtonLink href="#partnership" variant="outline">
               {en ? "Explore a partnership" : "共同事業を考える"}
             </BrandButtonLink>
-          )}
-        </div>
+          </div>
+        )}
       </Inner>
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 20px" }}>
         <Image
@@ -264,7 +268,12 @@ function Hero({ locale, partnershipEnabled }: { locale: Locale; partnershipEnabl
           height={440}
           priority
           sizes="(max-width: 1040px) 100vw, 1000px"
-          style={{ display: "block", width: "100%", height: "auto", mixBlendMode: "darken" }}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "auto",
+            mixBlendMode: "darken",
+          }}
         />
       </div>
     </section>
@@ -279,13 +288,27 @@ function News({ news, locale }: { news: NewsTeaser[]; locale: Locale }) {
   const en = locale === "en";
   return (
     <section style={{ background: C.bg }}>
-      <Inner className="mob-pad-v-sm" style={{ paddingTop: 88, paddingBottom: 96 }}>
+      <Inner
+        className="mob-pad-v-sm"
+        style={{ paddingTop: 88, paddingBottom: 96 }}
+      >
         <ContentHeading
           title="News"
           sub="お知らせ"
-          aside={<TextLink href="/news">{en ? "View all news →" : "ニュース一覧 →"}</TextLink>}
+          aside={
+            <TextLink href="/news">
+              {en ? "View all news →" : "ニュース一覧 →"}
+            </TextLink>
+          }
         />
-        <ul style={{ listStyle: "none", margin: 0, padding: 0, borderTop: `1px solid ${C.ink}` }}>
+        <ul
+          style={{
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            borderTop: `1px solid ${C.ink}`,
+          }}
+        >
           {news.map((n) => (
             <li key={n.slug} style={{ borderBottom: `1px solid ${C.line}` }}>
               <Link
@@ -304,8 +327,25 @@ function News({ news, locale }: { news: NewsTeaser[]; locale: Locale }) {
                 <time dateTime={n.iso} style={{ ...labelText, color: C.sub }}>
                   {n.date}
                 </time>
-                <span style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.6, color: C.ink }}>{n.title}</span>
-                <span aria-hidden className="news-row-arrow" style={{ fontFamily: FONTS.label, fontSize: 14, color: C.ink }}>
+                <span
+                  style={{
+                    fontSize: 17,
+                    fontWeight: 700,
+                    lineHeight: 1.6,
+                    color: C.ink,
+                  }}
+                >
+                  {n.title}
+                </span>
+                <span
+                  aria-hidden
+                  className="news-row-arrow"
+                  style={{
+                    fontFamily: FONTS.label,
+                    fontSize: 14,
+                    color: C.ink,
+                  }}
+                >
                   →
                 </span>
               </Link>
@@ -329,7 +369,10 @@ function About({ locale }: { locale: Locale }) {
     <>
       <SectionCover id="about" title="About" sub={c.labelJa} no="02" />
       <section style={{ background: C.bg }}>
-        <Inner className="mob-pad-v-sm" style={{ paddingTop: 104, paddingBottom: 120 }}>
+        <Inner
+          className="mob-pad-v-sm"
+          style={{ paddingTop: 104, paddingBottom: 120 }}
+        >
           <HandQuote as="h2" size={en ? 34 : 44}>
             {en ? (
               <>
@@ -359,7 +402,9 @@ function About({ locale }: { locale: Locale }) {
               alignItems: "start",
             }}
           >
-            <RuleText style={{ color: C.ink, fontSize: 18, lineHeight: 1.95 }}>{lead}</RuleText>
+            <RuleText style={{ color: C.ink, fontSize: 18, lineHeight: 1.95 }}>
+              {lead}
+            </RuleText>
             <div>
               <p style={pStyle()}>{paragraphs[0]}</p>
               <p style={pStyle(true)}>{paragraphs[1]}</p>
@@ -381,9 +426,11 @@ function About({ locale }: { locale: Locale }) {
               <p style={pStyle(true, true)}>
                 {en ? (
                   <>
-                    <span className="mk">For every bread lover in the universe</span>
-                    , <span className="mk">Bakerization</span> keeps weaving culture
-                    today.
+                    <span className="mk">
+                      For every bread lover in the universe
+                    </span>
+                    , <span className="mk">Bakerization</span> keeps weaving
+                    culture today.
                   </>
                 ) : (
                   <>
@@ -399,8 +446,8 @@ function About({ locale }: { locale: Locale }) {
               <p style={pStyle(true, true)}>
                 {en ? (
                   <>
-                    <span className="mk">Bakerization</span> will carry Japan&apos;s bread
-                    culture to the world and create the{" "}
+                    <span className="mk">Bakerization</span> will carry
+                    Japan&apos;s bread culture to the world and create the{" "}
                     <span className="mk">bakery of the 22nd century</span>.
                   </>
                 ) : (
@@ -432,13 +479,8 @@ function pStyle(spaced = false, strong = false): CSSProperties {
 /* ─────────────────────────────────────────────────────────────
    Photo spread — placeholder photo until the real shoot arrives
    ───────────────────────────────────────────────────────────── */
-function Morning({ locale }: { locale: Locale }) {
-  const en = locale === "en";
-  return (
-    <PhotoSpread src="/top.webp">
-      <span style={labelText}>{en ? COPY.heroCaptionEn : COPY.heroCaptionJa}</span>
-    </PhotoSpread>
-  );
+function Morning() {
+  return <PhotoSpread src="/top.webp" />;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -451,7 +493,10 @@ function Services({ locale }: { locale: Locale }) {
     <>
       <SectionCover id="services" title="Service" sub={c.labelJa} no="03" />
       <section style={{ background: C.bg }}>
-        <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 120 }}>
+        <Inner
+          className="mob-pad-v-sm"
+          style={{ paddingTop: 96, paddingBottom: 120 }}
+        >
           <div
             className="mob-1col"
             style={{
@@ -485,11 +530,26 @@ function Services({ locale }: { locale: Locale }) {
                 >
                   {en ? it.en : it.ja}
                 </div>
-                <p style={{ margin: "14px 0 0", fontSize: 15, lineHeight: 1.9, color: C.sub }}>
+                <p
+                  style={{
+                    margin: "14px 0 0",
+                    fontSize: 15,
+                    lineHeight: 1.9,
+                    color: C.sub,
+                  }}
+                >
                   {en ? it.bodyEn : it.bodyJa}
                 </p>
                 {(en ? it.noteEn : it.noteJa) && (
-                  <p style={{ margin: "12px 0 0", fontSize: 15, lineHeight: 1.9, fontWeight: 700, color: C.ink }}>
+                  <p
+                    style={{
+                      margin: "12px 0 0",
+                      fontSize: 15,
+                      lineHeight: 1.9,
+                      fontWeight: 700,
+                      color: C.ink,
+                    }}
+                  >
                     {en ? it.noteEn : it.noteJa}
                   </p>
                 )}
@@ -580,10 +640,20 @@ function Products({ locale }: { locale: Locale }) {
               </ul>
               <div
                 className="mob-flex-wrap"
-                style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}
+                style={{
+                  marginTop: 32,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 24,
+                  flexWrap: "wrap",
+                }}
               >
-                <BrandButtonLink href={it.href}>{en ? it.ctaEn : it.ctaJa}</BrandButtonLink>
-                <TextLink href={it.privacy}>{en ? c.privacyLabelEn : c.privacyLabelJa}</TextLink>
+                <BrandButtonLink href={it.href}>
+                  {en ? it.ctaEn : it.ctaJa}
+                </BrandButtonLink>
+                <TextLink href={it.privacy}>
+                  {en ? c.privacyLabelEn : c.privacyLabelJa}
+                </TextLink>
               </div>
             </div>
           </div>
@@ -615,9 +685,13 @@ function Research({ locale }: { locale: Locale }) {
             alignItems: "center",
           }}
         >
-          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>{en ? c.bodyEn : c.bodyJa}</RuleText>
+          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>
+            {en ? c.bodyEn : c.bodyJa}
+          </RuleText>
           <div>
-            <BrandButtonLink href="/research">{en ? c.ctaEn : c.ctaJa}</BrandButtonLink>
+            <BrandButtonLink href="/research">
+              {en ? c.ctaEn : c.ctaJa}
+            </BrandButtonLink>
           </div>
         </div>
       </Inner>
@@ -635,11 +709,23 @@ function Journal({ locale }: { locale: Locale }) {
     <section id="journal" style={{ background: C.bg }}>
       <Inner style={{ paddingBottom: 120 }}>
         <ContentHeading title="Blog" sub="パンラボの記録" />
-        <div style={{ borderTop: `1px solid ${C.ink}`, paddingTop: 40, marginBottom: 64 }}>
+        <div
+          style={{
+            borderTop: `1px solid ${C.ink}`,
+            paddingTop: 40,
+            marginBottom: 64,
+          }}
+        >
           <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>
-            {en ? "Explore the Pan Labo archive: bread, people and places, with the original publication dates." : "パンを食べ、つくる人に会い、土地をめぐる。「パンラボ」が積み重ねてきた記事を、当時の公開日とともに。"}
+            {en
+              ? "Explore the Pan Labo archive: bread, people and places, with the original publication dates."
+              : "パンを食べ、つくる人に会い、土地をめぐる。「パンラボ」が積み重ねてきた記事を、当時の公開日とともに。"}
           </RuleText>
-          <div style={{ marginTop: 28 }}><BrandButtonLink href="/blog">{en ? "Read the blog" : "ブログを読む"}</BrandButtonLink></div>
+          <div style={{ marginTop: 28 }}>
+            <BrandButtonLink href="/blog">
+              {en ? "Read the blog" : "ブログを読む"}
+            </BrandButtonLink>
+          </div>
         </div>
         <ContentHeading title="Journal" sub={c.labelJa} />
         <div
@@ -653,7 +739,9 @@ function Journal({ locale }: { locale: Locale }) {
             alignItems: "center",
           }}
         >
-          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>{en ? c.bodyEn : c.bodyJa}</RuleText>
+          <RuleText style={{ color: C.ink, fontSize: 17, lineHeight: 1.95 }}>
+            {en ? c.bodyEn : c.bodyJa}
+          </RuleText>
           <div>
             <BrandButtonLink href={JOURNAL_URL} external>
               {en ? c.ctaEn : c.ctaJa}
@@ -673,7 +761,10 @@ function Club({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section id="club" style={{ background: C.main, color: C.onMain }}>
-      <Inner className="mob-pad-v-sm" style={{ paddingTop: 96, paddingBottom: 96 }}>
+      <Inner
+        className="mob-pad-v-sm"
+        style={{ paddingTop: 96, paddingBottom: 96 }}
+      >
         <div
           className="mob-1col"
           style={{
@@ -684,7 +775,16 @@ function Club({ locale }: { locale: Locale }) {
           }}
         >
           <div>
-            <p lang="ja" style={{ margin: 0, display: "flex", gap: 18, fontSize: 14, letterSpacing: "0.04em" }}>
+            <p
+              lang="ja"
+              style={{
+                margin: 0,
+                display: "flex",
+                gap: 18,
+                fontSize: 14,
+                letterSpacing: "0.04em",
+              }}
+            >
               <span aria-hidden>-</span>
               <span>{c.labelJa}</span>
             </p>
@@ -702,11 +802,22 @@ function Club({ locale }: { locale: Locale }) {
             >
               {c.title}
             </h2>
-            <p style={{ margin: "24px 0 0", fontSize: 17, lineHeight: 1.95, maxWidth: 540 }}>
+            <p
+              style={{
+                margin: "24px 0 0",
+                fontSize: 17,
+                lineHeight: 1.95,
+                maxWidth: 540,
+              }}
+            >
               {en ? c.bodyEn : c.bodyJa}
             </p>
           </div>
-          <BrandButtonLink href="/club" arrow={false} style={{ width: "100%", padding: "22px 28px", fontSize: 15 }}>
+          <BrandButtonLink
+            href="/club"
+            arrow={false}
+            style={{ width: "100%", padding: "22px 28px", fontSize: 15 }}
+          >
             {en ? c.ctaEn : c.ctaJa}
           </BrandButtonLink>
         </div>
@@ -723,7 +834,10 @@ function Contact({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section id="contact" style={{ background: C.slab, color: C.onSlabSoft }}>
-      <Inner className="mob-pad-v-sm" style={{ paddingTop: 112, paddingBottom: 112 }}>
+      <Inner
+        className="mob-pad-v-sm"
+        style={{ paddingTop: 112, paddingBottom: 112 }}
+      >
         <div
           className="mob-1col"
           style={{
@@ -748,22 +862,50 @@ function Contact({ locale }: { locale: Locale }) {
             >
               Contact
             </h2>
-            <p lang="ja" style={{ margin: "18px 0 0", display: "flex", gap: 18, fontSize: 14, color: C.onSlab }}>
+            <p
+              lang="ja"
+              style={{
+                margin: "18px 0 0",
+                display: "flex",
+                gap: 18,
+                fontSize: 14,
+                color: C.onSlab,
+              }}
+            >
               <span aria-hidden>-</span>
               <span>{c.labelJa}</span>
             </p>
-            <p style={{ margin: "28px 0 0", fontSize: 17, lineHeight: 1.95, maxWidth: 540 }}>
+            <p
+              style={{
+                margin: "28px 0 0",
+                fontSize: 17,
+                lineHeight: 1.95,
+                maxWidth: 540,
+              }}
+            >
               {en ? c.bodyEn : c.bodyJa}
             </p>
           </div>
           <div>
             <div style={{ ...labelText, color: C.onSlab }}>Email</div>
-            <div style={{ marginTop: 10, fontSize: 26, fontWeight: 500, letterSpacing: "0.01em" }}>
+            <div
+              style={{
+                marginTop: 10,
+                fontSize: 26,
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+              }}
+            >
               info@bakerization.com
             </div>
             <div
               aria-hidden
-              style={{ height: 1, margin: "28px 0", background: "color-mix(in srgb, var(--on-slab) 35%, transparent)" }}
+              style={{
+                height: 1,
+                margin: "28px 0",
+                background:
+                  "color-mix(in srgb, var(--on-slab) 35%, transparent)",
+              }}
             />
             <BrandButtonLink
               href="/contact"
@@ -783,7 +925,11 @@ function Contact({ locale }: { locale: Locale }) {
 /* ─────────────────────────────────────────────────────────────
    TopPage — composed page
    ───────────────────────────────────────────────────────────── */
-export default function TopPage({ news = [], locale = "ja", partnershipEnabled = false }: Props) {
+export default function TopPage({
+  news = [],
+  locale = "ja",
+  partnershipEnabled = false,
+}: Props) {
   return (
     <div
       style={{
@@ -799,7 +945,7 @@ export default function TopPage({ news = [], locale = "ja", partnershipEnabled =
       {partnershipEnabled && <PartnershipForm locale={locale} />}
       <News news={news} locale={locale} />
       <About locale={locale} />
-      <Morning locale={locale} />
+      <Morning />
       <Services locale={locale} />
       <Research locale={locale} />
       <Journal locale={locale} />

@@ -10,6 +10,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
+トップページの共同事業の企業例は [lib/partnership-companies.ts](lib/partnership-companies.ts) の世界300社が正本。ブラウザで表示ごとに3社を均等に抽出し、同じタブの直前の3社は候補から外す。ISRのキャッシュでも例示が固定されないよう初期HTMLに特定企業を置かない。
+
 Use `.env.example` as the source of truth.  
 For Vercel, register the same keys in Project Settings -> Environment Variables.
 
@@ -50,6 +52,10 @@ Notes:
 `/zh`（簡体字中国語）と `/ko`（韓国語）は、団体・活動・kiji hub・公開資料を紹介する翻訳済みのページ。日本語・英語のトップページと相互に `hreflang` を指定し、サイトマップにも同じ4言語のURLを掲載する。通常のページ・記事は実際に用意した言語だけを代替URLとして扱う。中国語・韓国語ページから原文の記事・製品ページへ移るリンクには、リンク先の言語を表示する。
 
 公開ブログ・ニュース画像の `/api/blob/blog-assets/` は `robots.txt` の個別の `Allow` でクロールを許可し、他の `/api/` は従来どおり除外する。SEOの回帰チェックは `npm run test:seo`。
+
+池田浩明氏の他媒体の許可済み執筆記事も、出典・元の公開日・共著者を保持して同じブログと池田AIへ追加する。対象・再実行・照合手順は [docs/ikeda-publications.md](docs/ikeda-publications.md)。
+
+ブログの英語・簡体字中国語・韓国語対応（全記事の各言語タイトル・紹介文、全文の翻訳保存、原文切り替え、検索と池田AI）は [docs/blog-english.md](docs/blog-english.md)。翻訳モデル・分割・速度の正本は [lib/blog-translation-config.ts](lib/blog-translation-config.ts)。
 
 朝日新聞デジタルマガジン＆の連載「このパンがすごい！」も、転載許可取得済みとして同じブログに掲載する。取得・写真保存・本文と公開日の照合は [docs/asahi-konopan.md](docs/asahi-konopan.md)。媒体の出典表記と池田AIの対象記事・IDは [lib/ikeda-sources.ts](lib/ikeda-sources.ts) を共用する。
 

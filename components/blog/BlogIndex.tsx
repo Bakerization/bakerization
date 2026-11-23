@@ -10,7 +10,12 @@ import {
   type ArchiveFilter,
 } from "@/lib/blog-archive";
 import { IKEDA_THEMES } from "@/lib/ikeda-config";
-import { withLang, type Locale } from "@/lib/locale";
+import {
+  withBlogLanguage as withLang,
+  type BlogLanguage as Locale,
+  blogFont,
+} from "@/lib/blog-language";
+import { blogText, blogTheme } from "@/lib/blog-copy";
 import styles from "./BlogArchive.module.css";
 export function blogPagePath(page: number) {
   return page === 1 ? "/blog" : `/blog/page/${page}`;
@@ -26,11 +31,12 @@ export default async function BlogIndex({
 }) {
   const f = filters || { q: "", order: "desc" as const, page };
   const [data, overview] = await Promise.all([
-    getArchivePage(f),
+    getArchivePage(f, locale),
     getArchiveOverview(),
   ]);
   if (f.page > data.pageCount) notFound();
-  const en = locale === "en";
+  const tr = (ja: string, en: string) => blogText(locale, ja, en);
+  const en = locale !== "ja";
   const href = (patch: Partial<ArchiveFilter>) =>
     withLang(archiveHref(f, patch), locale);
   const pages = [
@@ -40,24 +46,28 @@ export default async function BlogIndex({
     .sort((a, b) => a - b);
   let lastMonth = "";
   return (
-    <main className={styles.page}>
+    <main className={styles.page} style={{ fontFamily: blogFont(locale) }}>
       <div className={styles.container}>
-        <section className={styles.intro} aria-label={en ? "Ask" : "質問"}>
-          <h1 className={styles.srOnly}>{en ? "Blog" : "ブログ"}</h1>
-          <BlogAsk year={f.year} theme={f.theme} compact />
+        <section className={styles.intro} aria-label={tr("質問", "Ask")}>
+          <h1 className={styles.srOnly}>{tr("ブログ", "Blog")}</h1>
+          <BlogAsk year={f.year} theme={f.theme} locale={locale} compact />
         </section>
         <section
           className={styles.archive}
-          aria-label={en ? "Article archive" : "記事アーカイブ"}
+          aria-label={tr("記事アーカイブ", "Article archive")}
         >
           <aside className={styles.rail}>
-            <nav className={styles.years} aria-label="年代から読む">
+            <nav
+              className={styles.years}
+              aria-label={tr("年代から読む", "Browse by year")}
+            >
               <Link
                 className={`${styles.year} ${!f.year ? styles.yearActive : ""}`}
                 href={href({ year: undefined, page: 1 })}
                 aria-current={!f.year ? "page" : undefined}
               >
-                すべて<small>{overview.total}</small>
+                {tr("すべて", "All")}
+                <small>{overview.total}</small>
               </Link>
               {overview.years.map((y) => (
                 <Link
@@ -74,12 +84,15 @@ export default async function BlogIndex({
           </aside>
           <div>
             <div className={styles.tools}>
-              <nav className={styles.themes} aria-label="テーマから読む">
+              <nav
+                className={styles.themes}
+                aria-label={tr("テーマから読む", "Browse by theme")}
+              >
                 <Link
                   className={`${styles.theme} ${!f.theme ? styles.themeActive : ""}`}
                   href={href({ theme: undefined, page: 1 })}
                 >
-                  すべてのテーマ
+                  {tr("すべてのテーマ", "All themes")}
                 </Link>
                 {IKEDA_THEMES.map((t) => (
                   <Link
@@ -87,7 +100,7 @@ export default async function BlogIndex({
                     key={t.id}
                     href={href({ theme: t.id, page: 1 })}
                   >
-                    {t.label}
+                    {blogTheme(t.id, locale)}
                   </Link>
                 ))}
               </nav>
@@ -96,7 +109,7 @@ export default async function BlogIndex({
                 {f.theme && (
                   <input type="hidden" name="theme" value={f.theme} />
                 )}{" "}
-                {en && <input type="hidden" name="lang" value="en" />}
+                {en && <input type="hidden" name="lang" value={locale} />}
                 <label className={styles.searchBox}>
                   <svg
                     width="16"
@@ -118,45 +131,59 @@ export default async function BlogIndex({
                       strokeWidth="1.5"
                     />
                   </svg>
-                  <span className={styles.srOnly}>記事を検索</span>
+                  <span className={styles.srOnly}>
+                    {tr("記事を検索", "Search articles")}
+                  </span>
                   <input
                     name="q"
                     defaultValue={f.q}
                     key={f.q}
-                    placeholder="小麦、パン屋、人の名前…"
+                    placeholder={tr(
+                      "小麦、パン屋、人の名前…",
+                      "Wheat, bakeries, people…",
+                    )}
                     maxLength={100}
                   />
                 </label>
                 <label>
-                  <span className={styles.srOnly}>表示順</span>
+                  <span className={styles.srOnly}>
+                    {tr("表示順", "Sort order")}
+                  </span>
                   <select name="order" defaultValue={f.order} key={f.order}>
-                    <option value="desc">新しい順</option>
-                    <option value="asc">古い順</option>
+                    <option value="desc">
+                      {tr("新しい順", "Newest first")}
+                    </option>
+                    <option value="asc">{tr("古い順", "Oldest first")}</option>
                   </select>
                 </label>
-                <button type="submit">絞り込む</button>
+                <button type="submit">{tr("絞り込む", "Search")}</button>
               </form>
             </div>
             <div className={styles.resultMeta}>
               <span>
-                {f.year ? `${f.year}年 · ` : ""}
-                {f.theme
-                  ? `${IKEDA_THEMES.find((t) => t.id === f.theme)?.label} · `
-                  : ""}
-                {data.total.toLocaleString()}記事 ／{" "}
-                {f.order === "asc" ? "古い記事から" : "新しい記事から"}
+                {f.year ? `${f.year}${tr("年", "")} · ` : ""}
+                {f.theme ? `${blogTheme(f.theme, locale)} · ` : ""}
+                {data.total.toLocaleString()} {tr("記事 ／", "articles /")}{" "}
+                {f.order === "asc"
+                  ? tr("古い記事から", "Oldest first")
+                  : tr("新しい記事から", "Newest first")}
               </span>
               {(f.year || f.theme || f.q) && (
-                <Link href="/blog" className={styles.reset}>
-                  絞り込みを解除
+                <Link href={withLang("/blog", locale)} className={styles.reset}>
+                  {tr("絞り込みを解除", "Clear filters")}
                 </Link>
               )}
             </div>
             {!data.posts.length && (
               <div className={styles.empty}>
-                この条件の記事は見つかりませんでした。
+                {tr(
+                  "この条件の記事は見つかりませんでした。",
+                  "No articles found.",
+                )}
                 <br />
-                <Link href="/blog">年代やテーマを変えて探す</Link>
+                <Link href={withLang("/blog", locale)}>
+                  {tr("年代やテーマを変えて探す", "Try another year or theme")}
+                </Link>
               </div>
             )}
             {data.posts.map((post, i) => {
@@ -183,15 +210,38 @@ export default async function BlogIndex({
                         {date.slice(5).replace("/", ".")}
                       </time>
                       <div>
-                        <h3 className={styles.entryTitle}>
-                          {en && post.hasEnglish ? post.titleEn : post.title}
+                        <h3
+                          className={styles.entryTitle}
+                          lang={
+                            en && post.translatedTitle
+                              ? locale === "zh"
+                                ? "zh-Hans"
+                                : locale
+                              : "ja"
+                          }
+                        >
+                          {en && post.translatedTitle?.trim()
+                            ? post.translatedTitle
+                            : post.title}
                         </h3>
-                        <p className={styles.excerpt}>
-                          {en && post.hasEnglish
-                            ? post.excerptEn
+                        <p
+                          className={styles.excerpt}
+                          lang={
+                            en && post.translatedTitle
+                              ? locale === "zh"
+                                ? "zh-Hans"
+                                : locale
+                              : "ja"
+                          }
+                        >
+                          {en && post.translatedTitle?.trim()
+                            ? post.translatedExcerpt
                             : post.excerpt}
                         </p>
                         <p className={styles.entryAuthor}>
+                          {en && !post.translatedTitle && (
+                            <>{tr("日本語原文", "Japanese original")} · </>
+                          )}
                           {post.authorName}
                           {post.category ? ` / ${post.category}` : ""}
                         </p>
@@ -215,18 +265,30 @@ export default async function BlogIndex({
                     {post.thoughtQuestion && (
                       <Link
                         className={styles.thoughtLink}
-                        href={`/blog/chat?q=${encodeURIComponent(post.thoughtQuestion)}&article=${post.slug}`}
+                        href={withLang(
+                          `/blog/chat?q=${encodeURIComponent(en ? tr("", "Explain the main ideas in this article with evidence.") : post.thoughtQuestion)}&article=${post.slug}`,
+                          locale,
+                        )}
                       >
-                        {post.thoughtQuestion} ↗
+                        {en
+                          ? tr("", "Discuss this article")
+                          : post.thoughtQuestion}{" "}
+                        ↗
                       </Link>
                     )}
                   </article>
                 </div>
               );
             })}
-            <nav className={styles.pagination} aria-label="記事のページ送り">
+            <nav
+              className={styles.pagination}
+              aria-label={tr("記事のページ送り", "Pagination")}
+            >
               {f.page > 1 && (
-                <Link href={href({ page: f.page - 1 })} aria-label="前のページ">
+                <Link
+                  href={href({ page: f.page - 1 })}
+                  aria-label={tr("前のページ", "Previous page")}
+                >
                   ←
                 </Link>
               )}
@@ -249,7 +311,10 @@ export default async function BlogIndex({
                 </span>
               ))}
               {f.page < data.pageCount && (
-                <Link href={href({ page: f.page + 1 })} aria-label="次のページ">
+                <Link
+                  href={href({ page: f.page + 1 })}
+                  aria-label={tr("次のページ", "Next page")}
+                >
                   →
                 </Link>
               )}

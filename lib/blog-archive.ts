@@ -1,3 +1,4 @@
+import type { BlogLanguage } from "./blog-language";
 import { cache } from "react";
 import { BLOG_PAGE_SIZE, mapBlogSummary, type DbRow } from "@/lib/blog-store";
 import { ikedaSql } from "@/lib/ikeda-schema";
@@ -59,7 +60,10 @@ export const getArchiveOverview = cache(async () => {
   };
 });
 
-export async function getArchivePage(filter: ArchiveFilter) {
+export async function getArchivePage(
+  filter: ArchiveFilter,
+  language: BlogLanguage = "ja",
+) {
   const sql = ikedaSql();
   const values: unknown[] = [];
   const value = (input: unknown) => {
@@ -76,10 +80,11 @@ export async function getArchivePage(filter: ArchiveFilter) {
   if (filter.q) {
     const pattern = value(`%${filter.q.replace(/[\\%_]/g, "\\$&")}%`);
     where.push(
-      `(p.title ILIKE ${pattern} OR COALESCE(d.body_text,p.excerpt) ILIKE ${pattern})`,
+      `(p.title ILIKE ${pattern} OR COALESCE(d.body_text,p.excerpt) ILIKE ${pattern} OR t.title ILIKE ${pattern} OR t.excerpt ILIKE ${pattern} OR p.title_en ILIKE ${pattern} OR p.excerpt_en ILIKE ${pattern})`,
     );
   }
-  const from = `FROM blog_posts p LEFT JOIN ikeda_documents d ON d.post_slug = p.slug AND d.source_hash = p.source_hash AND d.index_version = ${IKEDA.version} WHERE ${where.join(" AND ")}`;
+  const translationLanguage = value(language === "ja" ? "en" : language);
+  const from = `FROM blog_posts p LEFT JOIN ikeda_documents d ON d.post_slug = p.slug AND d.source_hash = p.source_hash AND d.index_version = ${IKEDA.version} LEFT JOIN blog_translations t ON t.post_slug=p.slug AND t.language=${translationLanguage} AND t.source_hash=COALESCE(NULLIF(p.source_hash,''),md5(p.title||p.content_html)) WHERE ${where.join(" AND ")}`;
   const counts = await sql.query(
     `SELECT count(*)::int AS count ${from}`,
     values,
@@ -92,15 +97,27 @@ export async function getArchivePage(filter: ArchiveFilter) {
     (filter.page - 1) * BLOG_PAGE_SIZE,
   ];
   const rows = await sql.query(
-    `SELECT p.slug,p.title,p.title_en,p.excerpt,p.excerpt_en,p.hero_image_url,p.published,p.published_at,p.created_at,p.updated_at,p.source_url,p.author_name,p.category,
-    (btrim(p.title_en)<>'' AND btrim(p.content_html_en)<>'') AS has_en,
-    d.thought->>'question' AS thought_question ${from}
+    `SELECT p.slug,p.title,COALESCE(NULLIF(p.title_en,''),t.title,'') AS title_en,p.excerpt,COALESCE(NULLIF(p.excerpt_en,''),t.excerpt,'') AS excerpt_en,p.hero_image_url,p.published,p.published_at,p.created_at,p.updated_at,p.source_url,p.author_name,p.category,
+    ((btrim(p.title_en)<>'' AND btrim(p.content_html_en)<>'') OR (btrim(COALESCE(t.title,''))<>'' AND btrim(COALESCE(t.content_html,''))<>'')) AS has_en,
+    t.title AS translated_title,t.excerpt AS translated_excerpt,d.thought->>'question' AS thought_question ${from}
     ORDER BY p.published_at ${sort},p.slug ${sort} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
     queryValues,
   );
   return {
     posts: rows.map((r) => ({
       ...mapBlogSummary(r as DbRow),
+      translatedTitle:
+        language === "ja"
+          ? ""
+          : language === "en"
+            ? String(r.title_en || "")
+            : String(r.translated_title || ""),
+      translatedExcerpt:
+        language === "ja"
+          ? ""
+          : language === "en"
+            ? String(r.excerpt_en || "")
+            : String(r.translated_excerpt || ""),
       thoughtQuestion: String(r.thought_question || ""),
     })),
     total,

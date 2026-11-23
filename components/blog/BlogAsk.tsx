@@ -2,18 +2,26 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IKEDA, IKEDA_PENDING_KEY } from "@/lib/ikeda-config";
+import {
+  withBlogLanguage as withLang,
+  type BlogLanguage as Locale,
+} from "@/lib/blog-language";
+import { blogText } from "@/lib/blog-copy";
 import styles from "./BlogArchive.module.css";
 export default function BlogAsk({
   year,
   theme,
   article,
   compact = false,
+  locale = "ja",
 }: {
   year?: number;
   theme?: string;
   article?: string;
   compact?: boolean;
+  locale?: Locale;
 }) {
+  const tr = (ja: string, en: string) => blogText(locale, ja, en);
   const [question, setQuestion] = useState("");
   const router = useRouter();
   return (
@@ -28,10 +36,13 @@ export default function BlogAsk({
             IKEDA_PENDING_KEY,
             JSON.stringify({ question: q, year, theme, article }),
           );
-          router.push("/blog/chat");
+          router.push(withLang("/blog/chat", locale));
         } catch {
           router.push(
-            `/blog/chat?q=${encodeURIComponent(q)}${article ? `&article=${article}` : ""}`,
+            withLang(
+              `/blog/chat?q=${encodeURIComponent(q)}${article ? `&article=${article}` : ""}`,
+              locale,
+            ),
           );
         }
       }}
@@ -42,15 +53,15 @@ export default function BlogAsk({
         onChange={(e) => setQuestion(e.target.value)}
         maxLength={IKEDA.questionCharacters}
         rows={compact ? 1 : 2}
-        aria-label="質問"
-        placeholder="質問する"
+        aria-label={tr("質問", "Question")}
+        placeholder={tr("質問する", "Ask Ikeda AI")}
         required
       />
       <div className={styles.askBottom}>
         <button
           type="submit"
           disabled={!question.trim()}
-          aria-label="池田AIに質問する"
+          aria-label={tr("池田AIに質問する", "Ask Ikeda AI")}
         >
           <svg
             width="20"

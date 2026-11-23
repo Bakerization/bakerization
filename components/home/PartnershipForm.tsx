@@ -6,6 +6,10 @@ import { ContentHeading, Inner } from "@/components/brand/ui";
 import { withLang, type Locale } from "@/lib/locale";
 import type { PartnershipError, PartnershipResult } from "@/lib/partnership";
 import styles from "./PartnershipForm.module.css";
+import {
+  PARTNERSHIP_EXAMPLES_STORAGE_KEY,
+  selectPartnershipExamples,
+} from "@/lib/partnership-companies";
 
 const copy = {
   ja: {
@@ -16,7 +20,6 @@ const copy = {
     website: "公式サイトを追加（任意）",
     submit: "共同事業案をつくる",
     loading: "公開情報を調べ、事業案を作成しています。",
-    examples: ["ドトールコーヒー", "レオン自動機", "Adjust"],
     newChat: "新しいチャット",
     you: "あなた",
     sources: "企業情報の出典",
@@ -28,20 +31,22 @@ const copy = {
     note: "AIが作成した検討用のアイデアです。",
     errors: {
       invalid_input: "社名または公式サイトの入力を確認してください。",
-      needs_website: "企業を特定できませんでした。公式サイトを追加して、もう一度お試しください。",
+      needs_website:
+        "企業を特定できませんでした。公式サイトを追加して、もう一度お試しください。",
       rate_limited: "本日の利用上限に達しました。明日またお試しください。",
-      unavailable: "事業案を作成できませんでした。時間をおいてもう一度お試しください。",
+      unavailable:
+        "事業案を作成できませんでした。時間をおいてもう一度お試しください。",
     },
   },
   en: {
     title: "Explore a partnership",
-    intro: "Enter a company name to get two ideas for working with Bakerization.",
+    intro:
+      "Enter a company name to get two ideas for working with Bakerization.",
     company: "Company name",
     placeholder: "Enter a company name",
     website: "Add an official website (optional)",
     submit: "Generate ideas",
     loading: "Researching the company and developing ideas.",
-    examples: ["Starbucks", "Rheon", "Adjust"],
     newChat: "New chat",
     you: "You",
     sources: "Company sources",
@@ -52,15 +57,25 @@ const copy = {
     contact: "Discuss these ideas",
     note: "AI-generated ideas for discussion.",
     errors: {
-      invalid_input: "Check the company name or official website and try again.",
-      needs_website: "We couldn't identify the company. Add its official website and try again.",
+      invalid_input:
+        "Check the company name or official website and try again.",
+      needs_website:
+        "We couldn't identify the company. Add its official website and try again.",
       rate_limited: "Today's usage limit has been reached. Try again tomorrow.",
       unavailable: "We couldn't generate ideas. Try again in a moment.",
     },
   },
-} satisfies Record<Locale, { errors: Record<PartnershipError, string> } & Record<string, unknown>>;
+} satisfies Record<
+  Locale,
+  { errors: Record<PartnershipError, string> } & Record<string, unknown>
+>;
 
-const details = ["partnerRole", "bakerizationRole", "revenue", "pilot"] as const;
+const details = [
+  "partnerRole",
+  "bakerizationRole",
+  "revenue",
+  "pilot",
+] as const;
 
 type Reply = { result: PartnershipResult } | { error: PartnershipError };
 type Turn = { id: number; company: string; reply?: Reply };
@@ -70,6 +85,8 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
+  const [examples, setExamples] = useState<string[]>([]);
+  const examplesInitialized = useRef(false);
   const companyInput = useRef<HTMLInputElement>(null);
   const websiteDetails = useRef<HTMLDetailsElement>(null);
   const latestReply = useRef<HTMLHeadingElement>(null);
@@ -77,6 +94,27 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
   const inFlight = useRef(false);
   const latest = turns.at(-1);
   const pending = Boolean(latest && !latest.reply);
+
+  useEffect(() => {
+    if (examplesInitialized.current) return;
+    examplesInitialized.current = true;
+    let previous: string[] = [];
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(PARTNERSHIP_EXAMPLES_STORAGE_KEY) || "[]",
+      );
+      if (Array.isArray(saved))
+        previous = saved.filter((v): v is string => typeof v === "string");
+    } catch {}
+    const next = selectPartnershipExamples(previous);
+    setExamples(next);
+    try {
+      sessionStorage.setItem(
+        PARTNERSHIP_EXAMPLES_STORAGE_KEY,
+        JSON.stringify(next),
+      );
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (latest?.reply && "result" in latest.reply) latestReply.current?.focus();
@@ -106,14 +144,20 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
         if (websiteDetails.current) websiteDetails.current.open = false;
       } else if (response.status === 429) {
         reply = { error: "rate_limited" };
-      } else if (typeof payload?.error === "string" && Object.hasOwn(t.errors, payload.error)) {
+      } else if (
+        typeof payload?.error === "string" &&
+        Object.hasOwn(t.errors, payload.error)
+      ) {
         reply = { error: payload.error as PartnershipError };
-        if (payload.error === "needs_website" && websiteDetails.current) websiteDetails.current.open = true;
+        if (payload.error === "needs_website" && websiteDetails.current)
+          websiteDetails.current.open = true;
       }
     } catch {
       reply = { error: "unavailable" };
     } finally {
-      setTurns((previous) => previous.map((turn) => turn.id === id ? { ...turn, reply } : turn));
+      setTurns((previous) =>
+        previous.map((turn) => (turn.id === id ? { ...turn, reply } : turn)),
+      );
       inFlight.current = false;
     }
   }
@@ -128,13 +172,21 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
 
   return (
     <section id="partnership" aria-label={t.title} className={styles.section}>
-      <Inner className="mob-pad-v-sm" style={{ paddingTop: 82, paddingBottom: 82 }}>
+      <Inner
+        className="mob-pad-v-sm"
+        style={{ paddingTop: 82, paddingBottom: 82 }}
+      >
         <div className={styles.chat}>
           <header className={styles.header}>
             <ContentHeading title={t.title} style={{ marginBottom: 0 }} />
             <p>{t.intro}</p>
             {latest && (
-              <button className={styles.newChat} type="button" onClick={reset} disabled={pending}>
+              <button
+                className={styles.newChat}
+                type="button"
+                onClick={reset}
+                disabled={pending}
+              >
                 {t.newChat}
               </button>
             )}
@@ -143,19 +195,34 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
           {turns.map((turn) => (
             <div className={styles.turn} key={turn.id}>
               <p className={styles.userMessage}>
-                <span className={styles.visuallyHidden}>{t.you} </span>{turn.company}
+                <span className={styles.visuallyHidden}>{t.you} </span>
+                {turn.company}
               </p>
               <div className={styles.assistantMessage}>
-                <span className={styles.avatar} aria-hidden="true">B</span>
+                <span className={styles.avatar} aria-hidden="true">
+                  B
+                </span>
                 <div className={styles.reply}>
                   <div className={styles.sender}>Bakerization AI</div>
                   {!turn.reply ? (
-                    <p role="status" className={styles.status}>{t.loading}</p>
+                    <p role="status" className={styles.status}>
+                      {t.loading}
+                    </p>
                   ) : "error" in turn.reply ? (
-                    <p role={turn === latest ? "alert" : undefined} className={styles.error}>{t.errors[turn.reply.error]}</p>
+                    <p
+                      role={turn === latest ? "alert" : undefined}
+                      className={styles.error}
+                    >
+                      {t.errors[turn.reply.error]}
+                    </p>
                   ) : (
                     <div className={styles.results}>
-                      <h3 ref={turn === latest ? latestReply : null} tabIndex={-1}>{turn.reply.result.company} × Bakerization</h3>
+                      <h3
+                        ref={turn === latest ? latestReply : null}
+                        tabIndex={-1}
+                      >
+                        {turn.reply.result.company} × Bakerization
+                      </h3>
                       <p>
                         {turn.reply.result.profile}{" "}
                         {turn.reply.result.sources.map((source, index) => (
@@ -164,7 +231,13 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
                             className={styles.citation}
                             href={source.url}
                             title={source.title}
-                            aria-label={t.sources + " " + (index + 1) + " · " + source.title}
+                            aria-label={
+                              t.sources +
+                              " " +
+                              (index + 1) +
+                              " · " +
+                              source.title
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -186,7 +259,12 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
                           </dl>
                         </article>
                       ))}
-                      <Link className={styles.contact} href={withLang("/contact", locale)}>{t.contact} ↗</Link>
+                      <Link
+                        className={styles.contact}
+                        href={withLang("/contact", locale)}
+                      >
+                        {t.contact} ↗
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -194,9 +272,18 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
             </div>
           ))}
 
-          <form className={styles.composer} onSubmit={submit} aria-busy={pending}>
+          <form
+            className={styles.composer}
+            onSubmit={submit}
+            aria-busy={pending}
+          >
             <div className={styles.inputRow}>
-              <label className={styles.visuallyHidden} htmlFor="partnership-company">{t.company}</label>
+              <label
+                className={styles.visuallyHidden}
+                htmlFor="partnership-company"
+              >
+                {t.company}
+              </label>
               <input
                 id="partnership-company"
                 ref={companyInput}
@@ -209,8 +296,24 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
                 value={company}
                 onChange={(event) => setCompany(event.target.value)}
               />
-              <button className={styles.send} type="submit" disabled={pending || !company.trim()} aria-label={t.submit} title={t.submit}>
-                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <button
+                className={styles.send}
+                type="submit"
+                disabled={pending || !company.trim()}
+                aria-label={t.submit}
+                title={t.submit}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 19V5m-6 6 6-6 6 6" />
                 </svg>
               </button>
@@ -232,11 +335,17 @@ export default function PartnershipForm({ locale }: { locale: Locale }) {
 
           {!latest && (
             <div className={styles.examples}>
-              {t.examples.map((example) => (
-                <button key={example} type="button" onClick={() => {
-                  setCompany(example);
-                  companyInput.current?.focus();
-                }}>{example}</button>
+              {examples.map((example) => (
+                <button
+                  key={example}
+                  type="button"
+                  onClick={() => {
+                    setCompany(example);
+                    companyInput.current?.focus();
+                  }}
+                >
+                  {example}
+                </button>
               ))}
             </div>
           )}

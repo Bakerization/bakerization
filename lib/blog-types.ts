@@ -1,3 +1,4 @@
+import type { BlogLanguage } from "./blog-language";
 export type BlogPost = {
   slug: string;
   title: string;
@@ -14,6 +15,11 @@ export type BlogPost = {
   sourceUrl: string;
   authorName: string;
   category: string;
+  machineTranslated?: boolean;
+  sourceHash?: string;
 };
 
-export type BlogPostSummary = Omit<BlogPost, "contentHtml" | "contentHtmlEn"> & { hasEnglish: boolean };
+export type BlogPostSummary = Omit<
+  BlogPost,
+  "contentHtml" | "contentHtmlEn"
+> & { hasEnglish: boolean; availableLanguages?: BlogLanguage[] };

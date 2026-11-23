@@ -1,3 +1,4 @@
+import { blogText } from "@/lib/blog-copy";
 import { isIP } from "node:net";
 import { IKEDA } from "@/lib/ikeda-config";
 import { chatRequestSchema, type ChatEvent } from "@/lib/ikeda-types";
@@ -111,7 +112,11 @@ export async function POST(request: Request) {
         if (!context.sources.length) {
           emit({
             type: "delta",
-            text: "この範囲の記事からは、答えの根拠を見つけられませんでした。年代やテーマの絞り込みを外すか、パン・小麦・職人・食文化など、気になる言葉を加えてみてください。",
+            text: blogText(
+              input.locale,
+              "この範囲の記事からは、答えの根拠を見つけられませんでした。年代やテーマの絞り込みを外すか、パン・小麦・職人・食文化など、気になる言葉を加えてみてください。",
+              "I could not find supporting evidence in these articles. Try removing the year or theme filter, or ask about bread, wheat, bakers, or food culture.",
+            ),
           });
           emit({
             type: "done",
@@ -124,6 +129,7 @@ export async function POST(request: Request) {
           input.question,
           input.history,
           context.context,
+          input.article,
         );
         const response = await aiFetch(
           "responses",
@@ -198,7 +204,11 @@ export async function POST(request: Request) {
           );
           emit({
             type: "error",
-            message: "回答を最後まで作れませんでした。もう一度お試しください。",
+            message: blogText(
+              input.locale,
+              "回答を最後まで作れませんでした。もう一度お試しください。",
+              "The answer could not be completed. Please try again.",
+            ),
           });
         }
       } finally {

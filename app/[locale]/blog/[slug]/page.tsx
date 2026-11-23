@@ -6,16 +6,27 @@ import Link from "next/link";
 import { Inner, NAV_HEIGHT, TextLink, labelText } from "@/components/brand/ui";
 import JsonLd from "@/components/JsonLd";
 import { getPost, getAdjacentPosts } from "@/lib/blog-store";
-import {
-  formatBlogDate,
-  hasEnglishVersion,
-  localizePost,
-} from "@/lib/blog-format";
+import { formatBlogDate, hasEnglishVersion } from "@/lib/blog-format";
 import { sanitizeBlogHtml } from "@/lib/blog-html";
-import { localeFromParams, withLang } from "@/lib/locale";
-import { pageMetadata, absoluteUrl } from "@/lib/seo";
+import {
+  blogLanguage,
+  withBlogLanguage as withLang,
+  blogFont,
+  BLOG_LANGUAGES,
+  type BlogLanguage,
+} from "@/lib/blog-language";
+import { blogText } from "@/lib/blog-copy";
+import { getBlogTranslations } from "@/lib/blog-translations";
+import { absoluteUrl } from "@/lib/seo";
+import { blogMetadata as pageMetadata } from "@/lib/blog-seo";
 import { C, FONTS } from "@/lib/theme";
 import ArticleThought from "@/components/blog/ArticleThought";
+import {
+  ArticleTranslation,
+  TranslatedArticleTitle,
+  TranslatedArticleBody,
+  ArticleTranslationControls,
+} from "@/components/blog/ArticleTranslation";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -24,19 +35,55 @@ export function generateStaticParams() {
   return [];
 }
 type Props = { params: Promise<{ locale: string; slug: string }> };
-const loadPost = cache(getPost);
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const [post, locale] = await Promise.all([
-    loadPost(slug),
-    localeFromParams(params),
+const loadPost = cache(async (slug: string, language: BlogLanguage) => {
+  const [post, translations] = await Promise.all([
+    getPost(slug),
+    getBlogTranslations(slug),
   ]);
-  if (!post) return { title: "Blog", robots: { index: false, follow: false } };
-  const localized = localizePost(post, locale);
+  if (!post) return null;
+  const target =
+    language === "ja"
+      ? undefined
+      : translations.find(
+          (t) => t.language === language && t.contentHtml.trim(),
+        );
+  const english = language === "en" && hasEnglishVersion(post);
+  const translation = english
+    ? {
+        title: post.titleEn,
+        excerpt: post.excerptEn,
+        contentHtml: post.contentHtmlEn,
+      }
+    : target;
+  const available: BlogLanguage[] = [
+    "ja",
+    ...(hasEnglishVersion(post) ? ["en" as const] : []),
+    ...translations
+      .filter((t) => t.language !== "en" && t.title && t.contentHtml.trim())
+      .map((t) => t.language),
+  ];
+  return {
+    post,
+    translation,
+    available,
+    localized: translation || {
+      title: post.title,
+      excerpt: post.excerpt,
+      contentHtml: post.contentHtml,
+    },
+  };
+});
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug, locale: rawLocale } = await params;
+  const locale = blogLanguage(rawLocale);
+  const loaded = await loadPost(slug, locale);
+  if (!loaded)
+    return { title: "Blog", robots: { index: false, follow: false } };
+  const { post, localized, available } = loaded;
   return pageMetadata({
     path: `/blog/${post.slug}`,
     locale,
-    available: hasEnglishVersion(post) ? ["ja", "en"] : ["ja"],
+    available,
     title: localized.title,
     description: localized.excerpt,
     type: "article",
@@ -46,22 +93,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 export default async function Page({ params }: Props) {
-  const { slug } = await params;
-  const [post, locale] = await Promise.all([
-    loadPost(slug),
-    localeFromParams(params),
-  ]);
-  if (!post) notFound();
-  const { older, newer } = await getAdjacentPosts(post);
-  const localized = localizePost(post, locale);
-  const en = locale === "en";
+  const { slug, locale: rawLocale } = await params;
+  const locale = blogLanguage(rawLocale);
+  const loaded = await loadPost(slug, locale);
+  if (!loaded) notFound();
+  const { post, localized, translation } = loaded;
+  const { older, newer } = await getAdjacentPosts(post, locale);
+  const tr = (ja: string, en: string) => blogText(locale, ja, en);
+  const en = locale !== "ja";
   return (
     <main
       style={{
         paddingTop: NAV_HEIGHT,
         color: C.ink,
         background: C.bg,
-        fontFamily: FONTS.body,
+        fontFamily: blogFont(locale) || FONTS.body,
         minHeight: "100vh",
       }}
     >
@@ -73,17 +119,24 @@ export default async function Page({ params }: Props) {
           description: localized.excerpt,
           datePublished: post.publishedAt,
           dateModified: post.updatedAt,
-          author: {
-            "@type": post.authorName === "池田浩明" ? "Person" : "Organization",
-            name: post.authorName,
-          },
+          author: post.authorName.startsWith("池田浩明・")
+            ? post.authorName
+                .split("・")
+                .map((name) => ({ "@type": "Person", name }))
+            : {
+                "@type":
+                  post.authorName === "池田浩明" ? "Person" : "Organization",
+                name: post.authorName,
+              },
           publisher: {
             "@type": "Organization",
             name: "Bakerization",
             url: absoluteUrl("/"),
           },
-          mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
-          inLanguage: en && hasEnglishVersion(post) ? "en" : "ja",
+          mainEntityOfPage: absoluteUrl(
+            withLang(`/blog/${post.slug}`, translation ? locale : "ja"),
+          ),
+          inLanguage: translation ? BLOG_LANGUAGES[locale].html : "ja",
           ...(post.sourceUrl ? { isBasedOn: post.sourceUrl } : {}),
           ...(post.heroImageUrl
             ? { image: absoluteUrl(post.heroImageUrl) }
@@ -96,9 +149,25 @@ export default async function Page({ params }: Props) {
       >
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <TextLink href={withLang("/blog", locale)}>
-            ← {en ? "All articles" : "ブログ一覧"}
+            ← {tr("ブログ一覧", "All articles")}
           </TextLink>
-          <article lang={en && hasEnglishVersion(post) ? "en" : "ja"}>
+          <ArticleTranslation
+            key={`${locale}:${post.slug}:${post.sourceHash}:${post.updatedAt}`}
+            post={{
+              ...post,
+              contentHtml: sanitizeBlogHtml(post.contentHtml),
+              contentHtmlEn: sanitizeBlogHtml(post.contentHtmlEn),
+            }}
+            locale={locale}
+            initialTranslation={
+              translation
+                ? {
+                    title: translation.title,
+                    contentHtml: sanitizeBlogHtml(translation.contentHtml),
+                  }
+                : null
+            }
+          >
             <header
               style={{
                 marginTop: 48,
@@ -115,12 +184,12 @@ export default async function Page({ params }: Props) {
               <h1
                 style={{
                   fontSize: "clamp(26px, 4.5vw, 42px)",
-                  lineHeight: 1.6,
+                  lineHeight: en ? 1.35 : 1.6,
                   margin: "16px 0 20px",
                   overflowWrap: "anywhere",
                 }}
               >
-                {localized.title}
+                <TranslatedArticleTitle />
               </h1>
               {post.category && (
                 <p style={{ fontSize: 13, color: C.sub }}>{post.category}</p>
@@ -134,7 +203,7 @@ export default async function Page({ params }: Props) {
                     marginBottom: 0,
                   }}
                 >
-                  {en ? "Republished from " : "出典："}
+                  {tr("出典：", "Republished from ")}
                   <a
                     href={post.sourceUrl}
                     target="_blank"
@@ -143,14 +212,18 @@ export default async function Page({ params }: Props) {
                   >
                     {articleSourceLabel(post.sourceUrl)}
                   </a>
-                  {en
-                    ? ". Republished with permission; original publication date retained."
-                    : "。承諾を得て、元の公開日のまま転載しています。"}
+                  {tr(
+                    "。承諾を得て、元の公開日のまま転載しています。",
+                    ". Republished with permission; original publication date retained.",
+                  )}
                 </p>
               )}
             </header>
             <Link
-              href={`/blog/chat?q=${encodeURIComponent(`「${localized.title}」の大切な考えを、根拠とともに読み解いて`)}&article=${post.slug}`}
+              href={withLang(
+                `/blog/chat?q=${encodeURIComponent(en ? tr("", "Explain the main ideas in this article with evidence.") : `「${localized.title}」の大切な考えを、根拠とともに読み解いて`)}&article=${post.slug}`,
+                locale,
+              )}
               style={{
                 display: "inline-flex",
                 marginTop: 22,
@@ -162,19 +235,19 @@ export default async function Page({ params }: Props) {
                 textDecoration: "none",
               }}
             >
-              ✳ この記事を池田AIで読み解く ↗
+              ✳{" "}
+              {tr(
+                "この記事を池田AIで読み解く",
+                "Discuss this article with Ikeda AI",
+              )}{" "}
+              ↗
             </Link>
-            <div
-              className="panlabo-article"
-              style={{ paddingTop: 40 }}
-              dangerouslySetInnerHTML={{
-                __html: sanitizeBlogHtml(localized.contentHtml),
-              }}
-            />
-          </article>
-          <ArticleThought slug={post.slug} />
+            <ArticleTranslationControls />
+            <TranslatedArticleBody />
+          </ArticleTranslation>
+          <ArticleThought slug={post.slug} locale={locale} />
           <nav
-            aria-label={en ? "Adjacent articles" : "前後の記事"}
+            aria-label={tr("前後の記事", "Adjacent articles")}
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
@@ -190,7 +263,7 @@ export default async function Page({ params }: Props) {
                   href={withLang(`/blog/${older.slug}`, locale)}
                   style={{ color: C.ink, lineHeight: 1.8 }}
                 >
-                  ← {en ? "Older" : "前の記事"}
+                  ← {tr("前の記事", "Older")}
                   <br />
                   {older.title}
                 </Link>
@@ -202,7 +275,7 @@ export default async function Page({ params }: Props) {
                   href={withLang(`/blog/${newer.slug}`, locale)}
                   style={{ color: C.ink, lineHeight: 1.8 }}
                 >
-                  {en ? "Newer" : "次の記事"} →<br />
+                  {tr("次の記事", "Newer")} →<br />
                   {newer.title}
                 </Link>
               )}
